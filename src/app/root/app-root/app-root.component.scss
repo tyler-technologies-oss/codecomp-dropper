@@ -9,3 +9,7 @@
   flex: 1 1 auto;
 }
 
+.sidenav-content {
+  display: flex;
+  flex-flow: column nowrap;
+}
