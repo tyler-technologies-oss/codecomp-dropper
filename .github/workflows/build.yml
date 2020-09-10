@@ -31,13 +31,11 @@ jobs:
       - name: publish
         if:  ${{ contains(github.ref, 'release-v') }}
         run: |
-          git fetch origin publish
-          git checkout publish
+          git checkout -b publish
           git config user.name 'github actions build'
           git config user.email 'github-actions@tylertech.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/tyler-technologies-oss/codecomp-dropper.git
-          git reset --hard master
           npm run publish
           git add docs --force
           git commit -m "[actions] publish"
-          git push --force
+          git push origin publish --force
