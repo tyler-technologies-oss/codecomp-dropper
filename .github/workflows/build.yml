@@ -29,7 +29,7 @@ jobs:
       - name: build production app
         run: npm run build:prod -- --baseHref="codecomp-dropper"
       - name: publish
-        if:  contains(github.ref, "release-v")
+        if:  ${{ contains(github.ref, 'release-v') }}
         run: |
           git fetch origin publish
           git checkout publish
