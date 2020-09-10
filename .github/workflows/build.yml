@@ -6,12 +6,12 @@ on:
     branches:
       - master
     paths-ignore:
-      - 'publish/**'
+      - 'docs/**'
   pull_request:
     branches:
       - master
     paths-ignore:
-      - 'publish/**'
+      - 'docs/**'
 
 jobs:
   build:
@@ -37,7 +37,7 @@ jobs:
         uses: EndBug/add-and-commit@v4
         with:
           ref: 'publish'
-          add: 'publish'
+          add: 'docs'
           force: true
           message: '[actions] publish'
           author_name: github action build

@@ -9,10 +9,10 @@
     "build:prod": "npm run build -- --prod",
     "publish": "run-s clean copy",
     "copy": "run-p copy:*",
-    "copy:nojekyll": "cpy .nojekyll publish/",
-    "copy:build": "cpy dist/dropper/ publish/",
+    "copy:nojekyll": "cpy .nojekyll docs/",
+    "copy:build": "cpy dist/dropper/ docs/",
     "clean": "run-p clean:*",
-    "clean:publish": "rimraf ./publish/{*,.*}",
+    "clean:publish": "rimraf ./docs/{*,.*}",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },

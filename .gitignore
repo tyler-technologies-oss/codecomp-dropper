@@ -46,4 +46,4 @@ testem.log
 Thumbs.db
 
 # publish directory
-/publish
+/docs
