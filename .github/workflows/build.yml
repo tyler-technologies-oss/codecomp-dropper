@@ -36,11 +36,12 @@ jobs:
         # https://github.com/marketplace/actions/add-commit
         uses: EndBug/add-and-commit@v4
         with:
+          ref: 'publish'
           add: 'publish'
+          force: true
+          message: '[actions] publish'
           author_name: github action build
           author_email: github-actions@tylertech.com
-          force: true
-          message: 'Publishing build'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
