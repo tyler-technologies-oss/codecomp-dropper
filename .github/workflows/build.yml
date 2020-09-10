@@ -1,0 +1,24 @@
+name: build
+on:
+  push:
+    branches:
+      -master
+  pull_request:
+    branches:
+      -master
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-18.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+      - name: install packages
+        run: npm install
+      - name: build production app
+        run: npm run build:prod
