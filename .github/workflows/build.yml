@@ -30,18 +30,13 @@ jobs:
         run: npm run build:prod
       - name: publish
         if: {{ github.ref == 'ref/tags/release-v*' }}
-        run: npm run publish
-      - name: commit published
-        if: {{ github.ref == 'ref/tags/release-v*' }}
-        # https://github.com/marketplace/actions/add-commit
-        uses: EndBug/add-and-commit@v4
-        with:
-          ref: 'publish'
-          add: 'docs'
-          force: true
-          message: '[actions] publish'
-          author_name: github action build
-          author_email: github-actions@tylertech.com
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+        run: |
+          git checkout publish
+          git config user.name 'github actions build'
+          git config user.email 'github-actions@tylertech.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/tyler-technologies-oss/codecomp-dropper.git
+          git reset --hard master
+          npm run publish
+          git add docs --force
+          git commit -m "[actions] publish"
+          git push --force
