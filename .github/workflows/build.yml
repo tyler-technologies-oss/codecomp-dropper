@@ -27,7 +27,7 @@ jobs:
       - name: install packages
         run: npm install
       - name: build production app
-        run: npm run build:prod -- --baseHref="tyler-technologies-oss"
+        run: npm run build:prod -- --baseHref="codecomp-dropper"
       - name: publish
         # if: ${{ github.ref == 'ref/tags/release-v*' }}
         run: |
