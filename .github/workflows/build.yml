@@ -1,11 +1,17 @@
 name: build
 on:
   push:
+    tags:
+      - 'release-v*'
     branches:
-      -master
+      - master
+    paths-ignore:
+      - 'publish/**'
   pull_request:
     branches:
-      -master
+      - master
+    paths-ignore:
+      - 'publish/**'
 
 jobs:
   build:
@@ -22,3 +28,19 @@ jobs:
         run: npm install
       - name: build production app
         run: npm run build:prod
+      - name: publish
+        if: {{ github.ref == 'ref/tags/release-v*' }}
+        run: npm run publish
+      - name: commit published
+        if: {{ github.ref == 'ref/tags/release-v*' }}
+        # https://github.com/marketplace/actions/add-commit
+        uses: EndBug/add-and-commit@v4
+        with:
+          add: 'publish'
+          author_name: github action build
+          author_email: github-actions@tylertech.com
+          force: true
+          message: 'Publishing build'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
