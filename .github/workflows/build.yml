@@ -31,6 +31,7 @@ jobs:
       - name: publish
         # if: ${{ github.ref == 'ref/tags/release-v*' }}
         run: |
+          git fetch origin publish
           git checkout publish
           git config user.name 'github actions build'
           git config user.email 'github-actions@tylertech.com'
