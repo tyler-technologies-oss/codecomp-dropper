@@ -10,6 +10,7 @@
     "copy": "run-p copy:*",
     "copy:nojekyll": "cpy .nojekyll docs/",
     "copy:build": "cpy '**' '../../docs/' --parents --cwd=dist/dropper",
+    "copy:404": "cpy 404.html docs/",
     "clean": "run-p clean:*",
     "clean:publish": "rimraf ./docs/{*,.*}",
     "lint": "ng lint",
