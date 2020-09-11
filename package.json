@@ -9,7 +9,7 @@
     "publish": "run-s clean copy",
     "copy": "run-p copy:*",
     "copy:nojekyll": "cpy .nojekyll docs/",
-    "copy:build": "cpy dist/dropper/ docs/",
+    "copy:build": "cpy '**' '../../docs/' --parents --cwd=dist/dropper",
     "clean": "run-p clean:*",
     "clean:publish": "rimraf ./docs/{*,.*}",
     "lint": "ng lint",
