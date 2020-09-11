@@ -8,5 +8,6 @@ export { GameConfig } from './config';
 export const GameEvent = Core.Events;
 
 export function createGame(config: GameConfig) {
-  return new Game({...defaultConfig, scene: [MainScene], ...config});
+  const game = new Game({...defaultConfig, scene: [MainScene], ...config});
+  return game;
 }
