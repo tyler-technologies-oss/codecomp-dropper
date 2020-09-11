@@ -27,7 +27,7 @@ jobs:
       - name: install packages
         run: npm install
       - name: build production app
-        run: npm run build:prod -- --baseHref="codecomp-dropper"
+        run: npm run build:prod -- --baseHref="/codecomp-dropper/"
       - name: publish
         if:  ${{ contains(github.ref, 'release-v') }}
         run: |
