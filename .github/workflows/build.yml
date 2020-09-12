@@ -30,12 +30,12 @@ jobs:
         run: npm run build:prod -- --baseHref="/codecomp-dropper/"
       - name: publish
         if:  ${{ contains(github.ref, 'release-v') }}
-        run: |
-          git checkout -b publish
-          git config user.name 'github actions build'
-          git config user.email 'github-actions@tylertech.com'
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/tyler-technologies-oss/codecomp-dropper.git
-          npm run publish
-          git add docs --force
-          git commit -m "[actions] publish"
-          git push origin publish --force
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'us-east-2'
+          SOURCE_DIR: dist/dropper

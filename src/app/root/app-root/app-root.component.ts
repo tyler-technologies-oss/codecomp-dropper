@@ -9,10 +9,5 @@ import { Router } from '@angular/router';
 export class AppRootComponent {
 
   constructor(router: Router) {
-    const path = localStorage.getItem('path');
-    if (path) {
-      localStorage.removeItem('path');
-      router.navigate([path]);
-    }
   }
 }

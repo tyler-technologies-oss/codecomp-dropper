@@ -6,13 +6,6 @@
     "start": "ng serve",
     "build": "ng build",
     "build:prod": "npm run build -- --prod",
-    "publish": "run-s clean copy",
-    "copy": "run-p copy:*",
-    "copy:nojekyll": "cpy .nojekyll docs/",
-    "copy:build": "cpy '**' '../../docs/' --parents --cwd=dist/dropper",
-    "copy:404": "cpy 404.html docs/",
-    "clean": "run-p clean:*",
-    "clean:publish": "rimraf ./docs/{*,.*}",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "ngcc": "ngcc"
