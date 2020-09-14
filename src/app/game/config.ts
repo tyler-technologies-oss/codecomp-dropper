@@ -19,4 +19,5 @@ export const defaultConfig: GameConfig = {
   // }
 
   banner: false,
+  backgroundColor: '#ffffff'//white for now
 }
