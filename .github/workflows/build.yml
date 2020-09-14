@@ -31,7 +31,7 @@ jobs:
           npm run build:prod
           echo "EVENT: ${{ github.event_name }}"
       - name: publish QA
-        if:  ${{ github.event_name == 'pull_request' }}
+        if:  ${{ github.event_name == 'push' && !contains(github.ref, 'release-v') }}
         uses: jakejarvis/s3-sync-action@master
         with:
           args: --acl public-read --follow-symlinks --delete
