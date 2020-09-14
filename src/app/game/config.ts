@@ -19,5 +19,7 @@ export const defaultConfig: GameConfig = {
   // }
 
   banner: false,
-  backgroundColor: '#ffffff'//white for now
+  backgroundColor: '#ffffff', //white for now
+
+  seed: [Math.random().toString()],
 }

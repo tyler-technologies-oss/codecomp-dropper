@@ -1,4 +1,4 @@
-import { Scene } from 'phaser';
+import { Scene, Math } from 'phaser';
 import { loadMonsterAssets, createAllMonsterAnimFrames, MonsterType, Monster } from '../objects/monster'
 import { Tile } from '../objects/tile';
 
@@ -27,10 +27,37 @@ export class MainScene extends Scene {
   create() {
     this.initializeGrid(3);
     this.drawGrid(50);
+
     createAllMonsterAnimFrames(this.anims);
-    const monster = new Monster(this, 300, 300, MonsterType.Bobo);
-    monster.scale = 0.25;
-    this.add.existing(monster);
+    const bobo = new Monster(this, 300, 200, MonsterType.Bobo);
+    bobo.scale = 0.25;
+    bobo.flipX = Boolean(Math.Between(0, 1));
+    this.add.existing(bobo);
+
+    const goldy = new Monster(this, 200, 200, MonsterType.Goldy);
+    goldy.scale = 0.25;
+    goldy.flipX = Boolean(Math.Between(0, 1));
+    this.add.existing(goldy);
+
+    const grouchy = new Monster(this, 400, 200, MonsterType.Grouchy);
+    grouchy.scale = 0.25;
+    grouchy.flipX = Boolean(Math.Between(0, 1));
+    this.add.existing(grouchy);
+
+    const pinky = new Monster(this, 300, 400, MonsterType.Pinky);
+    pinky.scale = 0.25;
+    pinky.flipX = Boolean(Math.Between(0, 1));
+    this.add.existing(pinky);
+
+    const spike = new Monster(this, 200, 400, MonsterType.Spike);
+    spike.scale = 0.25;
+    spike.flipX = Boolean(Math.Between(0, 1));
+    this.add.existing(spike);
+
+    const triclops = new Monster(this, 400, 400, MonsterType.Triclops);
+    triclops.scale = 0.25;
+    triclops.flipX = Boolean(Math.Between(0, 1));
+    this.add.existing(triclops);
   }
   preload() {
     loadMonsterAssets(this);

@@ -1,4 +1,4 @@
-import { GameObjects, Scene, Types, Animations } from 'phaser';
+import { GameObjects, Scene, Types, Animations, Math } from 'phaser';
 
 export const MonstersAtlas = 'monsters';
 const assetsPath = 'assets/sprites';
@@ -30,11 +30,11 @@ export function createMonsterAnimFrames(anims: Animations.AnimationManager, mons
   };
 
   anims.create({key: `${monster}_attack`, frames: animFrameMap['attack'], frameRate: 15});
-  anims.create({key: `${monster}_die`, frames: animFrameMap['die'], frameRate: 15});
-  anims.create({key: `${monster}_idle`, frames: animFrameMap['idle'], frameRate: 12, repeat: -1});
-  anims.create({key: `${monster}_jump`, frames: animFrameMap['jump'], frameRate: 15, repeat: -1});
-  anims.create({key: `${monster}_run`, frames: animFrameMap['run'], frameRate: 15, repeat: -1});
-  anims.create({key: `${monster}_walk`, frames: animFrameMap['walk'], frameRate: 15, repeat: -1});
+  anims.create({key: `${monster}_die`,    frames: animFrameMap['die'],    frameRate: 15});
+  anims.create({key: `${monster}_idle`,   frames: animFrameMap['idle'],   frameRate: 12, repeat: -1});
+  anims.create({key: `${monster}_jump`,   frames: animFrameMap['jump'],   frameRate: 15, repeat: -1});
+  anims.create({key: `${monster}_run`,    frames: animFrameMap['run'],    frameRate: 15, repeat: -1});
+  anims.create({key: `${monster}_walk`,   frames: animFrameMap['walk'],   frameRate: 15, repeat: -1});
 }
 
 export function createAllMonsterAnimFrames(anims: Animations.AnimationManager) {
@@ -44,7 +44,7 @@ export function createAllMonsterAnimFrames(anims: Animations.AnimationManager) {
 export class Monster extends GameObjects.Sprite {
   constructor(scene: Scene, x: number, y: number, public readonly type: MonsterType) {
     super(scene, x, y, MonstersAtlas, `${type}/idle/Idle_000.png`);
-    this.anims.play(`${this.type}_idle`);
+    this.anims.play(`${this.type}_idle`, false, Math.Between(0, 11));
   }
 }
 
