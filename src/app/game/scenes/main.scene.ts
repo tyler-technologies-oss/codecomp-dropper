@@ -1,17 +1,7 @@
-import { Scene, GameObjects } from 'phaser';
+import { Scene } from 'phaser';
 import { loadMonsterAssets, createAllMonsterAnimFrames, MonsterType, Monster } from '../objects/monster'
-import { global } from '@angular/compiler/src/util';
 import { Tile } from '../objects/tile';
 
-declare module phaser {
-  namespace Phaser {
-    namespace GameObjects {
-      interface GameObjectFactory {
-        fizz: any;
-      }
-    }
-  }
-}
 
 //TODO: Pull in a library? Figure out if phaser has these built in
 const RED = 0xff0000;
@@ -51,7 +41,7 @@ export class MainScene extends Scene {
 
   initializeGrid(initialSteps:number){
     this.grid.push()
-    for(let i = 0; i < this.rows; i++){ 
+    for(let i = 0; i < this.rows; i++){
       let row = new Array<Tile>();
       for(let j = 0; j < this.columns; j++){
         let tile = new Tile(initialSteps);
