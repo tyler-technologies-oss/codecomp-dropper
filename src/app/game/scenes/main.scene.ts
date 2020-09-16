@@ -21,7 +21,11 @@ export class MainScene extends Scene {
     const startingTile = tileGrid.getTileAtIndex(1, 1);
     bobo.setLocation(startingTile);
 
+    const triclops = new Monster(this, 0, 0, MonsterType.Triclops);
+    triclops.setLocation(tileGrid.getTileAtIndex(4, 4));
+
     updateGroup.add(bobo);
+    updateGroup.add(triclops);
   }
 
   preload() {

@@ -7,11 +7,12 @@ export interface INeighbor {
 }
 
 export interface IVisitor {
-
+   die(location: ILocation);
 }
 
 export interface ILocation {
   neighbor: INeighbor;
   acceptVisitor(visitor: IVisitor): boolean;
+  exitVisitor(visitor: IVisitor);
   getPosition():[number, number];
 }

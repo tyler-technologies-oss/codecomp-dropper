@@ -33,6 +33,7 @@ export enum MonsterState {
   MovingEast          = 'moving_east',
   MovingWest          = 'moving_west',
   WaitingInstruction  = 'waiting_instruction',
+  Dead                = 'dead'
 }
 
 export enum MoveDirection {
@@ -86,6 +87,12 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
   };
 
   update(time: number, dt: number): void {
+
+    //hacky route, find out how to destroy objects but also remove from update group
+    if(this.state === MonsterState.Dead){
+      return;
+    }
+
     if (this.state === MonsterState.WaitingInstruction) {
       this.idleTime += dt;
 
@@ -124,8 +131,11 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
 
       if (this.moveTime === this.maxMoveTime) {
         this.nextLocation.acceptVisitor(this);
+        this.lastLocation.exitVisitor(this);
         this.lastLocation = this.nextLocation;
-        this.idle();
+        if(this.state !== MonsterState.Dead){
+          this.idle();
+        }
       }
     }
   }
@@ -162,5 +172,12 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
     }
     this.moveTime = 0;
     this.play(MonsterAnim.Run);
+  }
+
+  die(location: ILocation) {
+    console.log("Die called for " + this.type);
+    this.state = MonsterState.Dead;
+    this.play(MonsterAnim.Die);
+    location.exitVisitor(this);
   }
 }

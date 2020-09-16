@@ -45,8 +45,14 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
     const rect = this.geom as Geom.Rectangle;
     return [this.x + rect.centerX, this.y + rect.centerY];
   }
+  
+  exitVisitor(visitor: IVisitor){
+      this.visitors.splice(this.visitors.indexOf(visitor),1)
+  }
 
   acceptVisitor(visitor: IVisitor): boolean {
+    this.visitors.push(visitor);
+    console.log(this.visitors.toString());
     let nextState = TileState.Broken;
     switch(this.state) {
       case TileState.Good:
@@ -63,6 +69,12 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
 
     if (nextState != this.state) {
       this.setState(nextState);
+    }
+
+    if(this.state === TileState.Broken){
+        this.visitors.forEach(visitor => {
+            visitor.die(this);
+        });
     }
 
     return nextState != TileState.Broken;
