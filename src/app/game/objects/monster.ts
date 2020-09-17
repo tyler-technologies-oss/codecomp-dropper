@@ -1,5 +1,5 @@
 import { GameObjects, Scene, Types, Animations, Math } from 'phaser';
-import { ILocation, IVisitor } from './interfaces';
+import { ILocation, IVisitor, MoveDirection } from './interfaces';
 import { Tile } from './tile';
 
 export const MonstersAtlas = 'monsters';
@@ -28,19 +28,13 @@ export enum MonsterAnim {
 }
 
 export enum MonsterState {
-  MovingNorth         = 'moving_north',
-  MovingSouth         = 'moving_south',
-  MovingEast          = 'moving_east',
-  MovingWest          = 'moving_west',
-  WaitingInstruction  = 'waiting_instruction',
-  Dead                = 'dead'
-}
-
-export enum MoveDirection {
-  North = 'north',
-  South = 'south',
-  East = 'east',
-  West = 'west',
+  MovingNorth = 'moving_north',
+  MovingSouth = 'moving_south',
+  MovingEast  = 'moving_east',
+  MovingWest  = 'moving_west',
+  Idle        = 'idle',
+  Thinking    = 'thinking',
+  Dead        = 'dead'
 }
 
 export function createMonsterAnimFrames(anims: Animations.AnimationManager, monster: MonsterType) {
@@ -57,9 +51,9 @@ export function createMonsterAnimFrames(anims: Animations.AnimationManager, mons
   };
 
   anims.create({key: `${monster}_${MonsterAnim.Attack}`, frames: animFrameMap[MonsterAnim.Attack], frameRate: 15});
-  anims.create({key: `${monster}_${MonsterAnim.Die}`,    frames: animFrameMap[MonsterAnim.Die],    frameRate: 15});
+  anims.create({key: `${monster}_${MonsterAnim.Die}`,    frames: animFrameMap[MonsterAnim.Die],    frameRate: 15, hideOnComplete: true});
   anims.create({key: `${monster}_${MonsterAnim.Idle}`,   frames: animFrameMap[MonsterAnim.Idle],   frameRate: 12, repeat: -1});
-  anims.create({key: `${monster}_${MonsterAnim.Jump}`,   frames: animFrameMap[MonsterAnim.Jump],   frameRate: 15, repeat: -1});
+  anims.create({key: `${monster}_${MonsterAnim.Jump}`,   frames: animFrameMap[MonsterAnim.Jump],   frameRate: 15, });
   anims.create({key: `${monster}_${MonsterAnim.Run}`,    frames: animFrameMap[MonsterAnim.Run],    frameRate: 15, repeat: -1});
   anims.create({key: `${monster}_${MonsterAnim.Walk}`,   frames: animFrameMap[MonsterAnim.Walk],   frameRate: 15, repeat: -1});
 }
@@ -71,73 +65,50 @@ export function createAllMonsterAnimFrames(anims: Animations.AnimationManager) {
 export class Monster extends GameObjects.Sprite implements IVisitor {
   private lastLocation: ILocation;
   private nextLocation: ILocation | null = null;
-  private moveTime = 0;
-  private maxMoveTime = 2000;
-  private idleTime = 0;
-  private maxIdleTime = 2000;
+  private actionTime = 0;
+  private maxActionTime = 2000;
+
+  showLog = false;
 
   constructor(scene: Scene, x: number, y: number, public readonly type: MonsterType) {
     super(scene, x, y, MonstersAtlas, `${type}/idle/Idle_000.png`);
     scene.add.existing(this);
     this.scale = 0.25;
+    this.state = MonsterState.Thinking;
+  }
+
+  log(...args) {
+    if (this.showLog) {
+      console.log(...args);
+    }
   }
 
   play(key: MonsterAnim, ignoreIfPlaying?: boolean, startFrame?: integer): this {
     return super.play(`${this.type}_${key}`, ignoreIfPlaying, startFrame);
   };
 
-  update(time: number, dt: number): void {
-
-    //hacky route, find out how to destroy objects but also remove from update group
-    if(this.state === MonsterState.Dead){
-      return;
-    }
-
-    if (this.state === MonsterState.WaitingInstruction) {
-      this.idleTime += dt;
-
-      // check to see if we have idled long enough, then pick a direction to move
-      if(this.idleTime >= this.maxIdleTime) {
-
-        // get possible moves
-        const locationOptions: MoveDirection[] = Object.entries(this.lastLocation.neighbor).reduce(
-          (opts: MoveDirection[], kvp: [MoveDirection, ILocation]) => {
-            const [direction, location] = kvp;
-            if (location) {
-              opts.push(direction);
-            }
-            return opts;
-          },
-        []);
-
-        // pick a move option
-        const direction = locationOptions[Math.Between(0, locationOptions.length - 1)];
-
-        // move!
-        this.move(direction);
-      }
-    } else {
-      this.moveTime += dt;
-
-      if (this.moveTime >= this.maxMoveTime) {
-        this.moveTime = this.maxMoveTime;
-      }
-
-      const t = this.moveTime / this.maxMoveTime;
-      const [lx, ly] = this.lastLocation.getPosition();
-      const [nx, ny] = this.nextLocation.getPosition();
-      this.x = Math.Interpolation.Linear([lx, nx], t);
-      this.y = Math.Interpolation.Linear([ly, ny], t);
-
-      if (this.moveTime === this.maxMoveTime) {
-        this.nextLocation.acceptVisitor(this);
-        this.lastLocation.exitVisitor(this);
-        this.lastLocation = this.nextLocation;
-        if(this.state !== MonsterState.Dead){
-          this.idle();
+  private getNextMove() {
+    // get possible moves
+    const locationOptions: MoveDirection[] = Object.entries(this.lastLocation.neighbor).reduce(
+      (opts: MoveDirection[], kvp: [MoveDirection, ILocation]) => {
+        const [direction, location] = kvp;
+        if (location) {
+          opts.push(direction);
         }
-      }
-    }
+        return opts;
+      },
+    [MoveDirection.None]);
+
+    // pick a move option
+    const direction = locationOptions[Math.Between(0, locationOptions.length - 1)];
+
+    this.log(`[${this.type}] next direction: ${direction}`);
+
+    return direction;
+  }
+
+  update(time: number, dt: number): void {
+    this.updateState(dt);
   }
 
   setLocation(location: ILocation) {
@@ -146,38 +117,151 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
     const [x, y] = location.getPosition();
     this.setPosition(x, y);
 
-    this.idle();
-  }
-
-  idle() {
-    this.state = MonsterState.WaitingInstruction;
-    this.play(MonsterAnim.Idle, false, Math.Between(0, 11));
-    this.idleTime = 0;
-    this.nextLocation = null;
-  }
-
-  move(direction: MoveDirection) {
-    this.nextLocation = this.lastLocation.neighbor[direction];
-    switch(direction) {
-      case MoveDirection.North: this.state = MonsterState.MovingNorth; break;
-      case MoveDirection.South: this.state = MonsterState.MovingSouth; break;
-      case MoveDirection.East:
-        this.state = MonsterState.MovingEast;
-        this.flipX = true;
-        break;
-      case MoveDirection.West:
-        this.state = MonsterState.MovingWest;
-        this.flipX = false;
-        break;
-    }
-    this.moveTime = 0;
-    this.play(MonsterAnim.Run);
+    this.setState(MonsterState.Thinking);
   }
 
   die(location: ILocation) {
-    console.log("Die called for " + this.type);
-    this.state = MonsterState.Dead;
-    this.play(MonsterAnim.Die);
+    this.log("Die called for " + this.type);
+    this.setState(MonsterState.Dead);
     location.exitVisitor(this);
+  }
+
+  private exitState(state: MonsterState) {
+    switch(state) {
+      case MonsterState.Dead:
+        return;
+      case MonsterState.Idle:
+      case MonsterState.Thinking:
+        this.actionTime = 0;
+        return;
+      case MonsterState.MovingNorth:
+      case MonsterState.MovingSouth:
+      case MonsterState.MovingEast:
+      case MonsterState.MovingWest:
+        this.actionTime = 0;
+        this.lastLocation = this.nextLocation;
+        this.nextLocation = null;
+        break;
+      default:
+        console.error('unhandled exit state', this.state);
+        return;
+    }
+  }
+
+  private startState(state: MonsterState) {
+    if (state === MonsterState.Dead) {
+      this.play(MonsterAnim.Die);
+      return;
+    }
+
+    if (state === MonsterState.Thinking) {
+      this.play(MonsterAnim.Idle, false, Math.Between(0, 11));
+      return;
+    }
+
+    if (state === MonsterState.Idle) {
+      // todo: add a little jump animation here, then transition into the idle animation
+      this.play(MonsterAnim.Idle, false, Math.Between(0, 11));
+      return;
+    }
+
+    let moveDirection: MoveDirection;
+    switch(state) {
+      case MonsterState.MovingNorth:
+        moveDirection = MoveDirection.North;
+        break;
+
+      case MonsterState.MovingSouth:
+        moveDirection = MoveDirection.South;
+        break;
+
+      case MonsterState.MovingEast:
+        this.flipX = true;
+        moveDirection = MoveDirection.East;
+        break;
+
+      case MonsterState.MovingWest:
+        this.flipX = false;
+        moveDirection = MoveDirection.West;
+        break;
+
+      // catch any new states that are not explicitly handled
+      default:
+        console.error('unhandled start state', this.state);
+        return;
+    }
+
+    this.nextLocation = this.lastLocation.neighbor[moveDirection];
+    this.play(MonsterAnim.Run);
+  }
+
+  private updateState(dt: number) {
+    switch(this.state) {
+      case MonsterState.Dead:
+        // nothing to update!  we are dead!
+        return;
+
+      case MonsterState.Idle:
+        this.actionTime += dt;
+
+        if (this.actionTime >= this.maxActionTime) {
+          this.setState(MonsterState.Thinking);
+        }
+        return;
+
+      case MonsterState.Thinking:
+        this.actionTime += dt;
+
+        if (this.actionTime >= this.maxActionTime) {
+          const direction = this.getNextMove();
+          switch(direction) {
+            case MoveDirection.North: this.setState(MonsterState.MovingNorth); return;
+            case MoveDirection.South: this.setState(MonsterState.MovingSouth); return;
+            case MoveDirection.East: this.setState(MonsterState.MovingEast); return;
+            case MoveDirection.West: this.setState(MonsterState.MovingWest); return;
+            case MoveDirection.None: this.setState(MonsterState.Idle); return;
+          }
+        }
+        return;
+
+      case MonsterState.MovingEast:
+      case MonsterState.MovingWest:
+      case MonsterState.MovingNorth:
+      case MonsterState.MovingSouth:
+        this.actionTime += dt;
+        const normalizedActionTime = Math.Clamp(this.actionTime / this.maxActionTime, 0, 1);
+
+        const [lx, ly] = this.lastLocation.getPosition();
+        const [nx, ny] = this.nextLocation.getPosition();
+        this.x = Math.Interpolation.Linear([lx, nx], normalizedActionTime);
+        this.y = Math.Interpolation.Linear([ly, ny], normalizedActionTime);
+
+        if (this.actionTime >= this.maxActionTime) {
+          this.nextLocation.acceptVisitor(this);
+          this.setState(MonsterState.Thinking);
+        }
+        return;
+    }
+  }
+
+  // transitionState validates the proposed state transition
+  // and if it validates, updates the current state
+  // returns true if a state update occurs
+  private transitionState(nextState: MonsterState): boolean {
+    if (this.state !== MonsterState.Dead) {
+      this.state = nextState;
+      return true;
+    }
+    return false;
+  }
+
+  setState(state: MonsterState): this {
+    // make sure our state actually changed!
+    const lastState = this.state as MonsterState;
+    if(this.transitionState(state)) {
+      this.exitState(lastState);
+      this.startState(this.state as MonsterState);
+    }
+    return this;
   }
 }

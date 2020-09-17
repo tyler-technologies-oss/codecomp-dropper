@@ -1,5 +1,5 @@
 import { GameObjects, Scene, Geom } from 'phaser';
-import { ILocation, INeighbor, IVisitor } from './interfaces';
+import { ILocation, INeighbor, IVisitor, TileState } from './interfaces';
 
 
 export enum TileColor {
@@ -11,13 +11,6 @@ export enum TileColor {
   White = 0xffffff,
 }
 
-
-export enum TileState {
-  Good = 3,
-  Warning = 2,
-  Danger = 1,
-  Broken = 0,
-}
 
 export class Tile extends GameObjects.Rectangle implements ILocation {
   state: TileState = TileState.Good;
@@ -45,14 +38,14 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
     const rect = this.geom as Geom.Rectangle;
     return [this.x + rect.centerX, this.y + rect.centerY];
   }
-  
+
   exitVisitor(visitor: IVisitor){
       this.visitors.splice(this.visitors.indexOf(visitor),1)
   }
 
   acceptVisitor(visitor: IVisitor): boolean {
     this.visitors.push(visitor);
-    console.log(this.visitors.toString());
+
     let nextState = TileState.Broken;
     switch(this.state) {
       case TileState.Good:

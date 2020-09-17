@@ -1,7 +1,6 @@
-import { Scene, Math, GameObjects } from 'phaser';
+import { Scene, } from 'phaser';
 import { loadMonsterAssets, createAllMonsterAnimFrames, MonsterType, Monster } from '../objects/monster'
 import { TileGrid } from '../objects/grid';
-
 
 export class MainScene extends Scene {
 
