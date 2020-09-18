@@ -90,6 +90,7 @@ export class MainScene extends Scene {
       this.grid.reset();
       this.homeTeam.reset(homeStartLocations, Side.Home);
       this.awayTeam.reset(awayStartLocations, Side.Away);
+      this.gameOver = false;
     }, this);
     console.log(`Press 'R' to reset!`);
   }
