@@ -57,11 +57,16 @@ export enum TileState {
   Broken = 0,
 }
 
+export interface ITeamMemberState {
+  coord: Coord;
+  isDead: boolean;
+}
+
 export interface IGameState {
   tileStates: TileState[][];
   teamPositions: {
-    [Side.Home]: Coord[];
-    [Side.Away]: Coord[];
+    [Side.Home]: ITeamMemberState[];
+    [Side.Away]: ITeamMemberState[];
   };
 }
 

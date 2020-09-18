@@ -1,5 +1,5 @@
 import { GameObjects, Scene, Events } from 'phaser';
-import { ILocation, ITeamConfig, MoveSet, Side, StateChangeEvent, StateUpdatedEventArgs } from './interfaces';
+import { ILocation, ITeamConfig, ITeamMemberState, MoveSet, Side, StateChangeEvent, StateUpdatedEventArgs } from './interfaces';
 import { Monster, MonsterState } from './monster';
 
 export enum TeamState {
@@ -110,6 +110,15 @@ export class Team extends GameObjects.Group {
 
   errorTeamOut() {
     this.getChildren().forEach((monster: Monster) => monster.errorOut());
+  }
+
+  serialize(): ITeamMemberState[] {
+    return this.getChildren().reduce((states, monster: Monster) => {
+      const coord = monster.location.coord;
+      const isDead = monster.state === MonsterState.Dead;
+      states.push({coord, isDead});
+      return states;
+    }, [] as ITeamMemberState[])
   }
 
   private stateChangeHandler = function(this: Team, {current}: StateUpdatedEventArgs<MonsterState>) {

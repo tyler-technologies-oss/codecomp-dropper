@@ -1,4 +1,5 @@
 import { GameObjects, Scene } from 'phaser';
+import { TileState } from './interfaces';
 import { Tile, TileColor } from './tile';
 
 export class TileGrid extends GameObjects.Container {
@@ -76,5 +77,17 @@ export class TileGrid extends GameObjects.Container {
 
   reset() {
     this.tiles.forEach(t => t.reset());
+  }
+
+  serialize(): TileState[][] {
+    const tileStates: TileState[][] = new Array<TileState[]>(this.size);
+    tileStates.forEach((_, i) => tileStates[i] = new Array<TileState>(this.size));
+
+    return this.tiles.reduce((tiles, tile, i) => {
+      const row = Math.floor(i / this.size);
+      const col = i % this.size;
+      tiles[row][col] = tile.state;
+      return tiles;
+    }, tileStates)
   }
 }
