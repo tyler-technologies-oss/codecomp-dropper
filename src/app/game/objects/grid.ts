@@ -25,7 +25,9 @@ export class TileGrid extends GameObjects.Container {
         ((Math.floor(i / size) * this.squareSize) + halfSquareSize),
         this.squareSize,
         this.squareSize,
-        TileColor.Green
+        TileColor.Green,
+        i,
+        [i % size, Math.floor(i / size)]
       );
 
       this.tiles.push(tile);
@@ -53,7 +55,7 @@ export class TileGrid extends GameObjects.Container {
       return null;
     }
 
-    return this.tiles[row * this.size + column]
+    return this.tiles[row * this.size + column] as Tile;
   }
 
   getTileAtPos(x: number, y: number): Tile | null {
@@ -69,6 +71,10 @@ export class TileGrid extends GameObjects.Container {
     const column = Math.floor(relative_x / this.squareSize);
     const row = Math.floor(relative_y / this.squareSize);
 
-    return this.tiles[row * this.size + column];
+    return this.tiles[row * this.size + column] as Tile;
+  }
+
+  reset() {
+    this.tiles.forEach(t => t.reset());
   }
 }

@@ -1,21 +1,46 @@
+import { MonsterState } from './monster';
+
+export enum MonsterType {
+  Bobo      = 'bobo',
+  Triclops  = 'triclops',
+  Goldy     = 'goldy',
+  Pinky     = 'pinky',
+  Spike     = 'spike',
+  Grouchy   = 'grouchy',
+}
+
+export type WorldPosition = [number, number];
+
+export type Coord = [number, number];
 
 export interface INeighbor {
-  north: ILocation | null;
-  south: ILocation | null;
-  east: ILocation | null;
-  west: ILocation | null;
+  [MoveDirection.North]: ILocation | null;
+  [MoveDirection.South]: ILocation | null;
+  [MoveDirection.East]: ILocation | null;
+  [MoveDirection.West]: ILocation | null;
 }
 
 export interface IVisitor {
-   die(location: ILocation);
+  id: number;
+  side: Side;
+  die();
 }
 
 export interface ILocation {
   neighbor: INeighbor;
+  index: number, // single dimension index of the tile within the grid
+  coord: Coord, // [x, y] index of the tile within the grid
+  state: TileState;
   acceptVisitor(visitor: IVisitor): boolean;
   exitVisitor(visitor: IVisitor);
-  getPosition():[number, number];
+  getPosition(): WorldPosition;
 }
+
+export enum Side {
+  Home = 'home',
+  Away = 'away',
+}
+
 
 export enum MoveDirection {
   North = 'north',
@@ -32,13 +57,32 @@ export enum TileState {
   Broken = 0,
 }
 
-export interface ITeam {
-  tileIndex: number[]
-}
-
 export interface IGameState {
-  tileStates: TileState[];
-  teams: ITeam[];
+  tileStates: TileState[][];
+  teamPositions: {
+    [Side.Home]: Coord[];
+    [Side.Away]: Coord[];
+  };
 }
 
 export type MoveSet = MoveDirection[];
+
+export type GetMoveSetFn = (gameState: IGameState, side: Side) => MoveSet;
+
+export interface ITeamConfig {
+  name: string;
+  preferredMonsters: {
+    [Side.Home]: MonsterType;
+    [Side.Away]: MonsterType;
+  };
+}
+
+export interface StateUpdatedEventArgs<State> {
+  current: State;
+  last: State;
+  target: any;
+}
+``
+export enum StateChangeEvent {
+  Updated = 'state_updated'
+}

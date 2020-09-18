@@ -1,6 +1,6 @@
-import { IGameState, MoveSet } from '../objects/interfaces';
+import { IGameState, MoveSet, Side } from '../objects/interfaces';
 
-function wander(gameState: IGameState, teamIndex: number): MoveSet {
+function wander(gameState: IGameState, side: Side): MoveSet {
   return []
 }
 
