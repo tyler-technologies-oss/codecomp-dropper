@@ -1,5 +1,5 @@
 import { GameObjects, Scene, Geom } from 'phaser';
-import { ILocation, INeighbor, IVisitor, TileState } from './interfaces';
+import { ILocation, INeighbor, IVisitor, TileState, Coord, WorldPosition } from './interfaces';
 
 
 export enum TileColor {
@@ -18,7 +18,14 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
 
   neighbor: INeighbor;
 
-  constructor(scene: Scene, x: number, y: number, width: number, height: number, color: TileColor) {
+  constructor(
+    scene: Scene,
+    x: number, y: number,
+    width: number, height: number,
+    color: TileColor,
+    public readonly index: number,
+    public readonly coord: Coord
+  ){
     super(scene, x, y, width, height, color);
     this.setStrokeStyle(5, TileColor.Black);
 
@@ -34,18 +41,19 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
     this.setFillStyle(color, alpha);
   }
 
-  getPosition(): [number, number] {
+  getPosition(): WorldPosition {
     const rect = this.geom as Geom.Rectangle;
     return [this.x + rect.centerX, this.y + rect.centerY];
   }
 
   exitVisitor(visitor: IVisitor){
-      this.visitors.splice(this.visitors.indexOf(visitor),1)
+    const i = this.visitors.indexOf(visitor);
+    if (i > -1) {
+      this.visitors.splice(i,1)
+    }
   }
 
   acceptVisitor(visitor: IVisitor): boolean {
-    this.visitors.push(visitor);
-
     let nextState = TileState.Broken;
     switch(this.state) {
       case TileState.Good:
@@ -60,20 +68,22 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
         break;
     }
 
-    if (nextState != this.state) {
-      this.setState(nextState);
-    }
+    this.setState(nextState);
 
-    if(this.state === TileState.Broken){
-        this.visitors.forEach(visitor => {
-            visitor.die(this);
-        });
+    if (this.state === TileState.Broken) {
+      visitor.die();
+    } else {
+      this.visitors.push(visitor);
     }
 
     return nextState != TileState.Broken;
   }
 
   setState(state: TileState, tween = true): this {
+    if (this.state === state) {
+      return;
+    }
+
     super.setState(state);
 
     const setColorFn = tween ? this.tweenColor.bind(this) : this.setColor.bind(this);
@@ -90,9 +100,18 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
         break;
       case TileState.Broken:
         setColorFn(TileColor.Black, 0.1);
+        // because the act of dying removes a visitor from a tile
+        // we need to create a different array to iterate against
+        // to kill existing visitors
+        [...this.visitors].forEach(v => v.die());
         break;
     }
 
     return this;
+  }
+
+  reset() {
+    this.visitors.length = 0; // clear any visitors
+    this.setState(TileState.Good);
   }
 }

@@ -1,21 +1,20 @@
 import { GameObjects, Scene, Types, Animations, Math } from 'phaser';
-import { ILocation, IVisitor, MoveDirection } from './interfaces';
-import { Tile } from './tile';
+import { MakeIdGen } from 'src/app/helpers/id-gen';
+import {
+  ILocation,
+  IVisitor,
+  MonsterType,
+  MoveDirection,
+  Side,
+  StateChangeEvent,
+  StateUpdatedEventArgs,
+} from './interfaces';
 
 export const MonstersAtlas = 'monsters';
 const assetsPath = 'assets/sprites';
 
 export function loadMonsterAssets(scene: Scene) {
   scene.load.multiatlas(MonstersAtlas, `${assetsPath}/monsters.json`, assetsPath);
-}
-
-export enum MonsterType {
-  Bobo      = 'bobo',
-  Triclops  = 'triclops',
-  Goldy     = 'goldy',
-  Pinky     = 'pinky',
-  Spike     = 'spike',
-  Grouchy   = 'grouchy',
 }
 
 export enum MonsterAnim {
@@ -34,7 +33,9 @@ export enum MonsterState {
   MovingWest  = 'moving_west',
   Idle        = 'idle',
   Thinking    = 'thinking',
-  Dead        = 'dead'
+  Dead        = 'dead',
+  Win         = 'win',
+  Error       = 'error',
 }
 
 export function createMonsterAnimFrames(anims: Animations.AnimationManager, monster: MonsterType) {
@@ -53,7 +54,7 @@ export function createMonsterAnimFrames(anims: Animations.AnimationManager, mons
   anims.create({key: `${monster}_${MonsterAnim.Attack}`, frames: animFrameMap[MonsterAnim.Attack], frameRate: 15});
   anims.create({key: `${monster}_${MonsterAnim.Die}`,    frames: animFrameMap[MonsterAnim.Die],    frameRate: 15, hideOnComplete: true});
   anims.create({key: `${monster}_${MonsterAnim.Idle}`,   frames: animFrameMap[MonsterAnim.Idle],   frameRate: 12, repeat: -1});
-  anims.create({key: `${monster}_${MonsterAnim.Jump}`,   frames: animFrameMap[MonsterAnim.Jump],   frameRate: 15, });
+  anims.create({key: `${monster}_${MonsterAnim.Jump}`,   frames: animFrameMap[MonsterAnim.Jump],   frameRate: 15, repeat: -1});
   anims.create({key: `${monster}_${MonsterAnim.Run}`,    frames: animFrameMap[MonsterAnim.Run],    frameRate: 15, repeat: -1});
   anims.create({key: `${monster}_${MonsterAnim.Walk}`,   frames: animFrameMap[MonsterAnim.Walk],   frameRate: 15, repeat: -1});
 }
@@ -62,17 +63,23 @@ export function createAllMonsterAnimFrames(anims: Animations.AnimationManager) {
   Object.values(MonsterType).forEach(monster => createMonsterAnimFrames(anims, monster));
 }
 
+const idGen = MakeIdGen();
+
 export class Monster extends GameObjects.Sprite implements IVisitor {
   private lastLocation: ILocation;
   private nextLocation: ILocation | null = null;
   private actionTime = 0;
   private maxActionTime = 2000;
 
+  readonly id = idGen.next().value as number;
+
+  get location(): ILocation { return this.lastLocation; }
+
   showLog = false;
 
-  constructor(scene: Scene, x: number, y: number, public readonly type: MonsterType) {
+  constructor(scene: Scene, x: number, y: number, public readonly type: MonsterType, public readonly side: Side) {
     super(scene, x, y, MonstersAtlas, `${type}/idle/Idle_000.png`);
-    scene.add.existing(this);
+
     this.scale = 0.25;
     this.state = MonsterState.Thinking;
   }
@@ -87,26 +94,6 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
     return super.play(`${this.type}_${key}`, ignoreIfPlaying, startFrame);
   };
 
-  private getNextMove() {
-    // get possible moves
-    const locationOptions: MoveDirection[] = Object.entries(this.lastLocation.neighbor).reduce(
-      (opts: MoveDirection[], kvp: [MoveDirection, ILocation]) => {
-        const [direction, location] = kvp;
-        if (location) {
-          opts.push(direction);
-        }
-        return opts;
-      },
-    [MoveDirection.None]);
-
-    // pick a move option
-    const direction = locationOptions[Math.Between(0, locationOptions.length - 1)];
-
-    this.log(`[${this.type}] next direction: ${direction}`);
-
-    return direction;
-  }
-
   update(time: number, dt: number): void {
     this.updateState(dt);
   }
@@ -120,27 +107,47 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
     this.setState(MonsterState.Thinking);
   }
 
-  die(location: ILocation) {
-    this.log("Die called for " + this.type);
+  die() {
     this.setState(MonsterState.Dead);
-    location.exitVisitor(this);
+  }
+
+  errorOut() {
+    this.setState(MonsterState.Error)
+  }
+
+  move(direction: MoveDirection) {
+    switch(direction) {
+      case MoveDirection.North: this.setState(MonsterState.MovingNorth); break;
+      case MoveDirection.South: this.setState(MonsterState.MovingSouth); break;
+      case MoveDirection.East:  this.setState(MonsterState.MovingEast);  break;
+      case MoveDirection.West:  this.setState(MonsterState.MovingWest);  break;
+      case MoveDirection.None:
+      default:
+        this.setState(MonsterState.Idle);
+        break;
+    }
+  }
+
+  win() {
+    this.setState(MonsterState.Win);
   }
 
   private exitState(state: MonsterState) {
     switch(state) {
       case MonsterState.Dead:
+      case MonsterState.Error:
         return;
       case MonsterState.Idle:
-      case MonsterState.Thinking:
         this.actionTime = 0;
+        break;
+      case MonsterState.Win:
+      case MonsterState.Thinking:
         return;
       case MonsterState.MovingNorth:
       case MonsterState.MovingSouth:
       case MonsterState.MovingEast:
       case MonsterState.MovingWest:
         this.actionTime = 0;
-        this.lastLocation = this.nextLocation;
-        this.nextLocation = null;
         break;
       default:
         console.error('unhandled exit state', this.state);
@@ -149,8 +156,14 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
   }
 
   private startState(state: MonsterState) {
-    if (state === MonsterState.Dead) {
+    if (state === MonsterState.Dead || this.state === MonsterState.Error) {
       this.play(MonsterAnim.Die);
+      this.lastLocation.exitVisitor(this);
+      return;
+    }
+
+    if (state === MonsterState.Win) {
+      this.play(MonsterAnim.Jump);
       return;
     }
 
@@ -191,14 +204,17 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
         return;
     }
 
+    this.lastLocation.exitVisitor(this);
     this.nextLocation = this.lastLocation.neighbor[moveDirection];
     this.play(MonsterAnim.Run);
   }
 
   private updateState(dt: number) {
     switch(this.state) {
+      case MonsterState.Error:
+      case MonsterState.Win:
       case MonsterState.Dead:
-        // nothing to update!  we are dead!
+        // nothing to update!
         return;
 
       case MonsterState.Idle:
@@ -210,18 +226,7 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
         return;
 
       case MonsterState.Thinking:
-        this.actionTime += dt;
-
-        if (this.actionTime >= this.maxActionTime) {
-          const direction = this.getNextMove();
-          switch(direction) {
-            case MoveDirection.North: this.setState(MonsterState.MovingNorth); return;
-            case MoveDirection.South: this.setState(MonsterState.MovingSouth); return;
-            case MoveDirection.East: this.setState(MonsterState.MovingEast); return;
-            case MoveDirection.West: this.setState(MonsterState.MovingWest); return;
-            case MoveDirection.None: this.setState(MonsterState.Idle); return;
-          }
-        }
+        // waiting for instruction
         return;
 
       case MonsterState.MovingEast:
@@ -237,7 +242,9 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
         this.y = Math.Interpolation.Linear([ly, ny], normalizedActionTime);
 
         if (this.actionTime >= this.maxActionTime) {
-          this.nextLocation.acceptVisitor(this);
+          this.lastLocation = this.nextLocation;
+          this.nextLocation = null;
+          this.lastLocation.acceptVisitor(this);
           this.setState(MonsterState.Thinking);
         }
         return;
@@ -248,7 +255,9 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
   // and if it validates, updates the current state
   // returns true if a state update occurs
   private transitionState(nextState: MonsterState): boolean {
-    if (this.state !== MonsterState.Dead) {
+    if (this.state !== MonsterState.Dead &&
+        this.state !== MonsterState.Error &&
+        this.state !== MonsterState.Win) {
       this.state = nextState;
       return true;
     }
@@ -261,6 +270,14 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
     if(this.transitionState(state)) {
       this.exitState(lastState);
       this.startState(this.state as MonsterState);
+
+      const stateUpdatedEventArgs: StateUpdatedEventArgs<MonsterState> = {
+        last: lastState,
+        current: this.state as MonsterState,
+        target: this,
+      }
+
+      this.emit(StateChangeEvent.Updated, stateUpdatedEventArgs);
     }
     return this;
   }
