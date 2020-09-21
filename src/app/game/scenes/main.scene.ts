@@ -1,5 +1,5 @@
 import { Scene, Math, Input } from 'phaser';
-import { loadMonsterAssets, createAllMonsterAnimFrames } from '../objects/monster'
+import { loadMonsterAssets, createAllMonsterAnimFrames} from '../objects/monster'
 import { TileGrid } from '../objects/grid';
 import { ILocation, INeighbor, ITeamConfig, MonsterType, MoveDirection, Side, StateChangeEvent, StateUpdatedEventArgs, TileState } from '../objects/interfaces';
 import { Team, TeamState } from '../objects/team';
@@ -31,6 +31,29 @@ function getTeamMoveSet(locations: ILocation[]): MoveDirection[] {
   return moveTeamRandom(locations);
   // return tripleCrash(locations);
 }
+function textureWidth(name: string, scene: Scene): number {
+  const tex = scene.textures.get(name);
+  const imageData = tex.get(0).width;
+  console.log("image " + name + " width: " + imageData);
+  return imageData;
+}
+
+function textureHeight(name: string, scene: Scene): number {
+  const tex = scene.textures.get(name);
+  const imageData = tex.get(0).height;
+  console.log('image ' + name + ' height: ' + imageData);
+  return imageData;
+}
+
+function createBackgroundTile(scene: Scene, name: string): Phaser.GameObjects.TileSprite {
+  return scene.add.tileSprite(
+      textureWidth(name, scene) * (scene.scale.width) / textureWidth(name, scene) / 2,
+      textureHeight(name, scene) * (scene.scale.height) / textureHeight(name, scene) / 2,
+      scene.scale.width, scene.scale.height,
+      name).setTileScale((scene.scale.width) / textureWidth(name, scene),
+      (scene.scale.height) / textureHeight(name, scene));
+
+}
 
 export class MainScene extends Scene {
 
@@ -40,17 +63,31 @@ export class MainScene extends Scene {
   thinkingTime = 0;
   maxThinkingTime = 2000;
   gameOver = false;
+  mountainsBack: Phaser.GameObjects.TileSprite;
+  mountainsFar: Phaser.GameObjects.TileSprite;
+  mountainsFore: Phaser.GameObjects.TileSprite;
+  trees: Phaser.GameObjects.TileSprite;
+  treesFore: Phaser.GameObjects.TileSprite;
 
   constructor() {
     super({ key: 'main' });
   }
 
   create() {
+    this.mountainsBack = createBackgroundTile(this, 'mountain_background');
+    this.mountainsFar = createBackgroundTile(this, 'mountain_far');
+    this.mountainsFore = createBackgroundTile(this, 'mountain_fore');
+    this.trees = createBackgroundTile(this, 'tree_background');
+    this.treesFore = createBackgroundTile(this, 'tree_fore');
 
     createAllMonsterAnimFrames(this.anims);
 
-    const baseOffset = 50;
-    const tileGrid = new TileGrid(this, baseOffset, baseOffset, this.scale.width - (baseOffset * 2), this.scale.height - (baseOffset * 2), 5);
+    // todo try to add dynamic scaling
+    const boardSize = this.scale.height - 100;
+    const x = (this.scale.width - boardSize) / 2;
+    const y = (this.scale.height - boardSize) / 2;
+
+    const tileGrid = new TileGrid(this, x, y, boardSize, boardSize, 5);
     this.grid = tileGrid;
 
     const homeTeamConfig: ITeamConfig = {
@@ -97,9 +134,16 @@ export class MainScene extends Scene {
 
   preload() {
     loadMonsterAssets(this);
+    this.load.image('mountain_background', 'assets/background/parallax-mountain-bg.png');
+    this.load.image('mountain_far', 'assets/background/parallax-mountain-far.png');
+    this.load.image('mountain_fore', 'assets/background/parallax-mountain-fore.png');
+    this.load.image('tree_background', 'assets/background/parallax-trees-bg.png');
+    this.load.image('tree_fore', 'assets/background/parallax-trees-foreground.png');
   }
 
   update(time: number, dt: number) {
+    this.mountainsBack.tilePositionX -= 0.05;
+
     if (!this.gameOver) {
       if (this.homeTeam.state === TeamState.Thinking &&
         (this.awayTeam.state === TeamState.Dead || this.awayTeam.state === TeamState.Error)) {

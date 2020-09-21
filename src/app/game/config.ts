@@ -7,8 +7,8 @@ export const defaultConfig: GameConfig = {
 
   scale: {
     mode: Scale.FIT,
-    width: 800,
-    height: 600,
+    width: '100%',
+    height: '100%',
   },
 
   // physics: {
