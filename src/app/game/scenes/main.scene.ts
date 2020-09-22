@@ -34,14 +34,12 @@ function getTeamMoveSet(locations: ILocation[]): MoveDirection[] {
 function textureWidth(name: string, scene: Scene): number {
   const tex = scene.textures.get(name);
   const imageData = tex.get(0).width;
-  console.log("image " + name + " width: " + imageData);
   return imageData;
 }
 
 function textureHeight(name: string, scene: Scene): number {
   const tex = scene.textures.get(name);
   const imageData = tex.get(0).height;
-  console.log('image ' + name + ' height: ' + imageData);
   return imageData;
 }
 
@@ -50,7 +48,7 @@ function createBackgroundTile(scene: Scene, name: string): Phaser.GameObjects.Ti
       textureWidth(name, scene) * (scene.scale.width) / textureWidth(name, scene) / 2,
       textureHeight(name, scene) * (scene.scale.height) / textureHeight(name, scene) / 2,
       scene.scale.width, scene.scale.height,
-      name).setTileScale((scene.scale.width) / textureWidth(name, scene),
+      name).setTileScale((scene.scale.height) / textureHeight(name, scene),
       (scene.scale.height) / textureHeight(name, scene));
 
 }
@@ -63,22 +61,19 @@ export class MainScene extends Scene {
   thinkingTime = 0;
   maxThinkingTime = 2000;
   gameOver = false;
-  mountainsBack: Phaser.GameObjects.TileSprite;
-  mountainsFar: Phaser.GameObjects.TileSprite;
-  mountainsFore: Phaser.GameObjects.TileSprite;
-  trees: Phaser.GameObjects.TileSprite;
-  treesFore: Phaser.GameObjects.TileSprite;
+  backgroundTileSprites: Phaser.GameObjects.TileSprite[] = [];
 
   constructor() {
     super({ key: 'main' });
   }
 
   create() {
-    this.mountainsBack = createBackgroundTile(this, 'mountain_background');
-    this.mountainsFar = createBackgroundTile(this, 'mountain_far');
-    this.mountainsFore = createBackgroundTile(this, 'mountain_fore');
-    this.trees = createBackgroundTile(this, 'tree_background');
-    this.treesFore = createBackgroundTile(this, 'tree_fore');
+    this.backgroundTileSprites.push(createBackgroundTile(this, '1'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '2'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '3'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '4'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '5'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '6'));
 
     createAllMonsterAnimFrames(this.anims);
 
@@ -134,15 +129,19 @@ export class MainScene extends Scene {
 
   preload() {
     loadMonsterAssets(this);
-    this.load.image('mountain_background', 'assets/background/parallax-mountain-bg.png');
-    this.load.image('mountain_far', 'assets/background/parallax-mountain-far.png');
-    this.load.image('mountain_fore', 'assets/background/parallax-mountain-fore.png');
-    this.load.image('tree_background', 'assets/background/parallax-trees-bg.png');
-    this.load.image('tree_fore', 'assets/background/parallax-trees-foreground.png');
+    this.load.image('1', 'assets/background/Halloween/1.png');
+    this.load.image('2', 'assets/background/Halloween/2.png');
+    this.load.image('3', 'assets/background/Halloween/3.png');
+    this.load.image('4', 'assets/background/Halloween/4.png');
+    this.load.image('5', 'assets/background/Halloween/5.png');
+    this.load.image('6', 'assets/background/Halloween/6.png');
+    this.load.image('7', 'assets/background/Halloween/7.png');
+    this.load.image('8', 'assets/background/Halloween/8.png');
+    this.load.image('9', 'assets/background/Halloween/9.png');
   }
 
   update(time: number, dt: number) {
-    this.mountainsBack.tilePositionX -= 0.05;
+    this.backgroundTileSprites[1].tilePositionX -= 0.2;
 
     if (!this.gameOver) {
       if (this.homeTeam.state === TeamState.Thinking &&
