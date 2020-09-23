@@ -1,5 +1,6 @@
 import { GameObjects, Scene, Events } from 'phaser';
-import { ILocation, ITeamConfig, ITeamMemberState, MoveSet, Side, StateChangeEvent, StateUpdatedEventArgs } from './interfaces';
+import { createSandboxAsync, ISandbox } from 'src/app/helpers';
+import { IGameState, ILocation, ITeamConfig, ITeamMemberState, MoveSet, Side, StateChangeEvent, StateUpdatedEventArgs } from './interfaces';
 import { Monster, MonsterState } from './monster';
 
 export enum TeamState {
@@ -29,6 +30,8 @@ export class Team extends GameObjects.Group {
       .map((monster: Monster) => monster.location);
   }
 
+  private sandbox: ISandbox<MoveSet> = null;
+
   constructor(scene: Scene, private config: ITeamConfig) {
     super(scene);
     scene.add.existing(this);
@@ -44,7 +47,16 @@ export class Team extends GameObjects.Group {
     return {...this.config.preferredMonsters};
   }
 
-  setupTeam(locations: ILocation[], side: Side) {
+  async setupTeam(locations: ILocation[], side: Side) {
+    if(!this.sandbox) {
+      try {
+        this.sandbox = await createSandboxAsync<MoveSet>(this.name, this.config.aiSrc);
+      } catch (err) {
+        console.error(err);
+        this.setState(TeamState.Error);
+      }
+    }
+
     this.maxSize = locations.length;
     this._currentSide = side;
     const monsterType = this.config.preferredMonsters[side];
@@ -56,6 +68,10 @@ export class Team extends GameObjects.Group {
     }
 
     this.setState(TeamState.Thinking);
+  }
+
+  getNextMovesAsync(gameState: IGameState, timeout?: number) {
+    return this.sandbox.evalAsync([gameState, this.currentSide], timeout);
   }
 
   on(event: string | symbol, fn: Function, context?: any): this {
@@ -88,9 +104,8 @@ export class Team extends GameObjects.Group {
     return this;
   }
 
-  reset(locations: ILocation[], side: Side) {
+  reset() {
     this.clearTeam();
-    this.setupTeam(locations, side);
   }
 
   clearTeam() {

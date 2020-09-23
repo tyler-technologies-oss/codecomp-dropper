@@ -1,50 +1,137 @@
 import { QueryablePromise } from './query-promise';
+import { MakeIdGen } from './id-gen';
 
-function createWebWorkerSource(code: string) {
+function createWebWorkerSource(code: string, id: any, timeout = 2000) {
   const workerScript = `
+  const __script_id = '${id}';
+  const __ScriptState = Object.freeze({
+    Uninitialized: 'uninitialized',
+    Initializing: 'initializing',
+    Ready: 'ready',
+    Busy: 'busy',
+    Error: 'error',
+  });
+  let __script_state = __ScriptState.Uninitialized;
+
+  // helper function for debugging
+  function log(...args) {
+    const a = [\`[SCRIPT:${'${__script_id}'}]\`, ...args];
+    console.log(...a);
+  }
+
+  // effectively this anonymous function is "main", but it allows for async/await calls.
   (async function(){
-    const module = await import(\`data:text/javascript;charset=utf-8,${code}\`);
-    const untrustedFn = module.default || module;
 
-    onmessage = evt => {
-      let input = evt.data[0];
-      let result = null;
-      (() => {
-        var evt = null;
-        result = untrustedFn(input);
-      })();
-
-      self.postMessage(result);
+    // __initialize() is used to import the "remote" script
+    function __initialize() {
+      __script_state = __ScriptState.Initializing;
+      return new Promise(async (resolve, reject) => {
+        const module = await import(\`data:text/javascript;charset=utf-8,${code}\`);
+        const untrustedFn = module.default || module;
+        __script_state = __ScriptState.Ready;
+        resolve(untrustedFn);
+      });
     }
+
+    // call the __initialize function to preload the user script
+    // and catch any compilation error
+    __initialize()
+    .then(user_fn => {
+
+      // wrap the user script in an internal function
+      // so that we can manage the state flag
+      return async (...args) => {
+        __script_state = __ScriptState.Busy;
+        const result = await Promise.resolve(user_fn(...args));
+        __script_state = __ScriptState.Ready;
+        return result;
+      };
+    }).then(user_fn => {
+
+      // register a handler to respond to requests to run
+      // the remote untrusted code
+      onmessage = async (evt) => {
+
+        // only run the code if we are already not processing code
+        if (__script_state === __ScriptState.Ready) {
+          const args = evt.data;
+          try {
+
+            // run the untrusted code in a promise in case it's asynchronous
+            const result = await Promise.resolve(user_fn(...args));
+            self.postMessage({result});
+          } catch (error) {
+
+            // untrusted code choked, report the error!
+            self.postMessage({error});
+          }
+          return;
+        } else {
+          self.postMessage({error: \`Script not ready.  Current state = ${'${__script_state}'}\`});
+        }
+      };
+
+      // if if the initialization was okay, and the untrusted
+      // code was successfully loaded, then let the host know
+      log('successfully loaded user script');
+      self.postMessage({result: 'success'});
+    }).catch(error => {
+
+      // if we are here, then the untrusted code failed to import
+      __script_State = __ScriptState.Error;
+      log('Failed to initialize user script.', error);
+      self.postMessage({error});
+    });
   })();
   `;
+
 
   const blob = new Blob([workerScript], {type: 'application/javascript'});
   return URL.createObjectURL(blob);
 }
 
-export interface ISandbox {
+export interface ISandbox<Result> {
   kill(): void;
-  evalAsync<T>(data: any, timeout?: number): QueryablePromise<T>;
+  evalAsync(args: any[], timeout?: number): QueryablePromise<Result>;
 }
 
-class Sandbox {
+const idGen = MakeIdGen();
 
+class Sandbox<Result> {
+  private readonly id: string;
   private _worker: Worker = null;
   private get worker() {
-    if (this._worker === null) {
-      const urlObject = createWebWorkerSource(this.untrustedCode);
-      const opts: WorkerOptions = {
-        type: 'module'
-      }
-      this._worker = new Worker(urlObject, opts);
 
-    }
 
     return this._worker;
   }
 
-  constructor(private untrustedCode: string) {}
+  constructor(identifier: string, private untrustedCode: string) {
+    this.id = `${identifier}-${idGen.next().value}`;
+  }
+
+  initialize() {
+    if (this._worker === null) {
+      return new Promise((resolve, reject) => {
+        const urlObject = createWebWorkerSource(this.untrustedCode, this.id, 2000);
+        const opts: WorkerOptions = {
+          type: 'module'
+        }
+        this._worker = new Worker(urlObject, opts);
+
+        this._worker.onmessage = evt => {
+          const {error, result} = evt.data as {error?: any, result?: string};
+          if (error) {
+            return reject(error);
+          } else {
+            return resolve(result);
+          }
+        }
+      });
+    } else {
+      return Promise.resolve();
+    }
+  }
 
   kill() {
     if (this._worker) {
@@ -53,30 +140,42 @@ class Sandbox {
     }
   }
 
-  evalAsync<Result>(data: any, timeout = 2000): QueryablePromise<Result> {
+  evalAsync(input: any[], timeout = 2000): QueryablePromise<Result> {
     const worker = this.worker;
     return new QueryablePromise((resolve, reject) => {
-      const handle = setTimeout(() => {
-        this.kill();
-        reject(`timeout`);
-      }, timeout);
+      // const handle = setTimeout(() => {
+      //   this.log('script timeout');
+      //   this.kill();
+      //   reject(`timeout`);
+      // }, timeout * 3);
 
       worker.onmessage = evt => {
-        clearTimeout(handle);
-        resolve(evt.data);
+        // clearTimeout(handle);
+
+        const {error, result} = evt.data as {error?: any, result?: Result};
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
       };
 
       worker.onerror = err => {
-        clearTimeout(handle);
+        // clearTimeout(handle);
         reject(err);
       }
 
-      worker.postMessage([data]);
+      worker.postMessage(input);
     });
+  }
+
+  private log(...args) {
+    const parts = [`[HOST:${this.id}]:`, ...args];
+    console.log(...parts);
   }
 }
 
-export async function createSandboxAsync(src: string): Promise<ISandbox> {
+export async function createSandboxAsync<T>(id: string, src: string): Promise<ISandbox<T>> {
   let isUrl = true;
 
   try {
@@ -91,5 +190,7 @@ export async function createSandboxAsync(src: string): Promise<ISandbox> {
     code = await res.text();
   }
 
-  return new Sandbox(code);
+  const sandbox = new Sandbox<T>(id, code);
+  await sandbox.initialize();
+  return sandbox;
 }

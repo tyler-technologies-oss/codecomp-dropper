@@ -80,14 +80,14 @@ export class TileGrid extends GameObjects.Container {
   }
 
   serialize(): TileState[][] {
-    const tileStates: TileState[][] = new Array<TileState[]>(this.size);
-    tileStates.forEach((_, i) => tileStates[i] = new Array<TileState>(this.size));
+    const arrayLike = {length: this.size};
+    const tileStates: TileState[][] =
+      Array.from(arrayLike, (_, row) =>
+        Array.from(arrayLike, (_, col) =>
+          this.tiles[row * this.size + col].state
+        )
+      );
 
-    return this.tiles.reduce((tiles, tile, i) => {
-      const row = Math.floor(i / this.size);
-      const col = i % this.size;
-      tiles[row][col] = tile.state;
-      return tiles;
-    }, tileStates)
+    return tileStates;
   }
 }
