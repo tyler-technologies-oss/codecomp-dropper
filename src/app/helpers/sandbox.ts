@@ -1,4 +1,3 @@
-import { QueryablePromise } from './query-promise';
 import { MakeIdGen } from './id-gen';
 
 function createWebWorkerSource(code: string, id: any, timeout = 2000) {
@@ -25,9 +24,8 @@ function createWebWorkerSource(code: string, id: any, timeout = 2000) {
     // __initialize() is used to import the "remote" script
     function __initialize() {
       __script_state = __ScriptState.Initializing;
-      return new Promise(async (resolve, reject) => {
-        const module = await import(\`data:text/javascript;charset=utf-8,${code}\`);
-        const untrustedFn = module.default || module;
+      return new Promise((resolve, reject) => {
+        const untrustedFn = new Function(\`${code}; return main(...arguments);\`);
         __script_state = __ScriptState.Ready;
         resolve(untrustedFn);
       });
@@ -78,7 +76,7 @@ function createWebWorkerSource(code: string, id: any, timeout = 2000) {
     }).catch(error => {
 
       // if we are here, then the untrusted code failed to import
-      __script_State = __ScriptState.Error;
+      __script_state = __ScriptState.Error;
       log('Failed to initialize user script.', error);
       self.postMessage({error});
     });
@@ -92,7 +90,7 @@ function createWebWorkerSource(code: string, id: any, timeout = 2000) {
 
 export interface ISandbox<Result> {
   kill(): void;
-  evalAsync(args: any[], timeout?: number): QueryablePromise<Result>;
+  evalAsync(args: any[], timeout?: number): Promise<Result>;
 }
 
 const idGen = MakeIdGen();
@@ -140,9 +138,9 @@ class Sandbox<Result> {
     }
   }
 
-  evalAsync(input: any[], timeout = 2000): QueryablePromise<Result> {
+  evalAsync(input: any[], timeout = 2000): Promise<Result> {
     const worker = this.worker;
-    return new QueryablePromise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       // const handle = setTimeout(() => {
       //   this.log('script timeout');
       //   this.kill();

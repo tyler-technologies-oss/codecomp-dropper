@@ -1,7 +1,7 @@
 export const wanderScript = `
-function random(gameState, side) {
+function main(gameState, side) {
   const myTeam = gameState.teamStates[side];
-  const possibleMoves: MoveSet = [];
+  const possibleMoves = [];
   return myTeam.reduce((moveSet, member) => {
     if (member.isDead) {
       moveSet.push('none');
@@ -16,8 +16,6 @@ function random(gameState, side) {
       possibleMoves.length = 0;
     }
     return moveSet;
-  }. [])
+  }, [])
 }
-
-export default random;
 `;

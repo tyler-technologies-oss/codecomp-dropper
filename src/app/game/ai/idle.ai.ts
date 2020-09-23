@@ -1,7 +1,5 @@
 export const idleScript = `
-function idle(gameState, side) {
+function main(gameState, side) {
   return ['none', 'none', 'none'];
 }
-
-export default idle;
 `;
