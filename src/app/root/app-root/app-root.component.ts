@@ -8,6 +8,12 @@ import { Router } from '@angular/router';
 })
 export class AppRootComponent {
 
+  opened: boolean = true;
+
   constructor(router: Router) {
+  }
+
+  openSidenav () {
+    this.opened = !this.opened;
   }
 }

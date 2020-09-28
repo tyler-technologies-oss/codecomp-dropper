@@ -149,6 +149,7 @@ export class MainScene extends Scene {
         this.homeTeam.win();
         console.log('[Game Over] Home Team Wins!');
         this.gameOver = true;
+        this.showGameOverDialog("home");
         return;
       }
 
@@ -157,6 +158,7 @@ export class MainScene extends Scene {
         this.awayTeam.win();
         console.log('[Game Over] Away Team Wins!');
         this.gameOver = true;
+        this.showGameOverDialog("away");
         return;
       }
 
@@ -164,6 +166,7 @@ export class MainScene extends Scene {
         (this.awayTeam.state === TeamState.Dead || this.awayTeam.state === TeamState.Error)) {
         console.log('[Game Over] DRAW');
         this.gameOver = true;
+        this.showGameOverDialog("home");
       }
 
       if (this.homeTeam.state === TeamState.Thinking && this.awayTeam.state === TeamState.Thinking) {
@@ -177,5 +180,9 @@ export class MainScene extends Scene {
         }
       }
     }
+  }
+
+  showGameOverDialog(team: string){
+
   }
 }
