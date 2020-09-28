@@ -52,7 +52,6 @@ export class Team extends GameObjects.Group {
       try {
         this.sandbox = await createSandboxAsync<MoveSet>(this.name, this.config.aiSrc);
       } catch (err) {
-        console.error(err);
         this.setState(TeamState.Error);
       }
     }

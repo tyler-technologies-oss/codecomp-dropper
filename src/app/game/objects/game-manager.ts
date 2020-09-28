@@ -96,6 +96,9 @@ export class GameManager {
     ];
     const allSettled = Promise.allSettled(promises);
     const promiseResults = await allSettled;
+
+    console.log(promiseResults);
+
     const teamIsSetup:  Record<Side, boolean> = {
       [Side.Home]: promiseResults[0].status === 'fulfilled',
       [Side.Away]: promiseResults[1].status === 'fulfilled',

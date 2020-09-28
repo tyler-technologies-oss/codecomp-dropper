@@ -1,5 +1,7 @@
 import { MakeIdGen } from './id-gen';
 
+// const untrustedFn = new Function(\`${code}; return main(...arguments);\`);
+
 function createWebWorkerSource(code: string, id: any, timeout = 2000) {
   const workerScript = `
   const __script_id = '${id}';
@@ -25,9 +27,20 @@ function createWebWorkerSource(code: string, id: any, timeout = 2000) {
     function __initialize() {
       __script_state = __ScriptState.Initializing;
       return new Promise((resolve, reject) => {
-        const untrustedFn = new Function(\`${code}; return main(...arguments);\`);
-        __script_state = __ScriptState.Ready;
-        resolve(untrustedFn);
+        // assume code we are loading has a main() function
+
+        try {
+          importScripts(URL.createObjectURL(new Blob([\`
+          ${code}
+          \`], { type: 'text/javascript' })));
+          const untrustedFn = main;
+          __script_state = __ScriptState.Ready;
+          resolve(untrustedFn);
+        } catch (error) {
+
+          __script_state = __ScriptState.Error;
+          reject(error);
+        }
       });
     }
 
@@ -113,10 +126,9 @@ class Sandbox<Result> {
       return new Promise((resolve, reject) => {
         const urlObject = createWebWorkerSource(this.untrustedCode, this.id, 2000);
         const opts: WorkerOptions = {
-          type: 'module'
+          // type: 'module'
         }
         this._worker = new Worker(urlObject, opts);
-
         this._worker.onmessage = evt => {
           const {error, result} = evt.data as {error?: any, result?: string};
           if (error) {

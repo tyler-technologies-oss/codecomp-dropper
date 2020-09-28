@@ -40,7 +40,7 @@ export class MainScene extends Scene {
         [Side.Home]: MonsterType.Bobo,
         [Side.Away]: MonsterType.Triclops,
       },
-      aiSrc: wanderScript,
+      aiSrc: idleScript,
     };
     const awayTeam = new Team(this, awayTeamConfig);
 
