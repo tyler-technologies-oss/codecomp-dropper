@@ -31,7 +31,7 @@ function createBackgroundTile(scene: Scene, name: string): GameObjects.TileSprit
 export class MainScene extends Scene {
   match: GameManager;
 
-  backgroundTileSprites: Phaser.GameObjects.TileSprite[] = [];
+  backgroundTileSprites: GameObjects.TileSprite[] = [];
   constructor() {
     super({ key: 'main' });
   }

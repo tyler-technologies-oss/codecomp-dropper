@@ -30,6 +30,7 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
     this.setStrokeStyle(5, TileColor.Black);
 
     this.setState(TileState.Good, false);
+    this.setAlpha(0.6);
   }
 
   private tweenColor(color: TileColor, alpha = 1) {

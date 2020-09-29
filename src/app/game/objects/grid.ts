@@ -50,6 +50,13 @@ export class TileGrid extends GameObjects.Container {
     this.add(this.tiles);
   }
 
+  setTileStates(tileStates: TileState[]) {
+    this.tiles.forEach((tile, i) => {
+      const tileState = tileStates[i] || TileState.Good;
+      tile.setState(tileState);
+    })
+  }
+
   getTileAtIndex(row: number, column: number): Tile | null {
     const size1 = this.size - 1;
     if (row < 0 || row > size1 || column < 0 || column > size1) {
