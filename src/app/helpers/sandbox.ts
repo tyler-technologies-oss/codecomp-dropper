@@ -69,7 +69,16 @@ function createWebWorkerSource(code: string, id: any, timeout = 2000) {
           try {
 
             // run the untrusted code in a promise in case it's asynchronous
-            const result = await Promise.resolve(user_fn(...args));
+            const result = await Promise.race([
+              Promise.resolve(user_fn(...args)),
+              new Promise((resolve, reject) => {
+                setTimeout(() => {
+                  // this.kill();
+                  reject('timeout');
+                }, ${timeout})
+              }),
+            ]);
+            // const result = await Promise.resolve(user_fn(...args));
             self.postMessage({result});
           } catch (error) {
 
@@ -153,15 +162,7 @@ class Sandbox<Result> {
   evalAsync(input: any[], timeout = 2000): Promise<Result> {
     const worker = this.worker;
     return new Promise((resolve, reject) => {
-      // const handle = setTimeout(() => {
-      //   this.log('script timeout');
-      //   this.kill();
-      //   reject(`timeout`);
-      // }, timeout * 3);
-
       worker.onmessage = evt => {
-        // clearTimeout(handle);
-
         const {error, result} = evt.data as {error?: any, result?: Result};
         if (error) {
           reject(error);
@@ -171,7 +172,6 @@ class Sandbox<Result> {
       };
 
       worker.onerror = err => {
-        // clearTimeout(handle);
         reject(err);
       }
 
