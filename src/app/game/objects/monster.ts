@@ -132,6 +132,11 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
     this.setState(MonsterState.Win);
   }
 
+  isAlive() {
+    return this.state !== MonsterState.Dead &&
+    this.state !== MonsterState.Error;
+  }
+
   private exitState(state: MonsterState) {
     switch(state) {
       case MonsterState.Dead:
@@ -236,7 +241,6 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
         this.actionTime += dt;
         const normalizedActionTime = Math.Clamp(this.actionTime / this.maxActionTime, 0, 1);
 
-        console.log(this.state);
         const [lx, ly] = this.lastLocation.getPosition();
         const [nx, ny] = this.nextLocation.getPosition();
         this.x = Math.Interpolation.Linear([lx, nx], normalizedActionTime);

@@ -1,6 +1,7 @@
 import { Events, Game } from 'phaser';
 import { TileGrid } from './grid';
 import { IGameState, ILocation, MoveDirection, MoveSet, Side, StateChangeEvent, StateUpdatedEventArgs, TeamStates } from './interfaces';
+import { Monster, MonsterState } from './monster';
 import { Team, TeamState } from './team';
 
 export enum GameState {
@@ -100,6 +101,9 @@ export class GameManager {
       this.setState(GameState.Thinking);
       return;
     }
+
+    const home = this.teams[Side.Home];
+    const away = this.teams[Side.Away];
   }
 
   private async initialize() {
@@ -200,25 +204,34 @@ export class GameManager {
 
   private validateMoves(moves: any, side: Side): MoveSet | null {
     const team = this.teams[side];
+    const isValidMove = (move: any) => {
+      return move === MoveDirection.None  ||
+             move === MoveDirection.North ||
+             move === MoveDirection.South ||
+             move === MoveDirection.East  ||
+             move === MoveDirection.West;
+    }
+
     if (Array.isArray(moves)) {
-      if (moves.length === team.getLength()) {
-        return moves.map((move, i) => {
-          if ((move !== MoveDirection.None) &&
-             move !== MoveDirection.North &&
-             move !== MoveDirection.South &&
-             move !== MoveDirection.East &&
-             move !== MoveDirection.West) {
-
-            console.warn(`${team.name} move at index ${i} is not a valid move.`, move);
-            return MoveDirection.None;
+      const resolvedMoves: MoveSet = [];
+      if (moves.length != team.count) {
+        console.warn(`Not enough moves returned, attempting to match moves with alive members`);
+        // try and match up the moves to non-dead team members
+        team.getChildren().forEach((member: Monster ) => {
+          if (member.isAlive()) {
+            const nextMove = moves.shift();
+            resolvedMoves.push(isValidMove(nextMove) ? nextMove : MoveDirection.None);
+          } else {
+            resolvedMoves.push(MoveDirection.None);
           }
-
-          return move as MoveDirection;
         });
       } else {
-        console.warn(`${team.name} did not return enough moves`);
-
+        const validMoves = moves.map(move => isValidMove(move) ? move : MoveDirection.None);
+        console.log(validMoves);
+        resolvedMoves.push(...validMoves);
       }
+      console.log('resolvedMoves', resolvedMoves);
+      return resolvedMoves;
     } else {
       console.warn(`${team.name} did not return an array.`);
     }
