@@ -88,11 +88,11 @@ export class GameManager {
     const teamStates = Object.values(this.teams).map(team => team.state);
 
     if (teamStates.every(state => state === TeamState.Error)) {
-      this.setState(GameState.Draw);
+      this.setState(GameState.Error);
       return;
     }
 
-    if (teamStates.every(state => state === TeamState.Dead)) {
+    if (teamStates.every(state => state === TeamState.Dead || state === TeamState.Error)) {
       this.setState(GameState.Draw);
       return;
     }
@@ -102,8 +102,15 @@ export class GameManager {
       return;
     }
 
-    const home = this.teams[Side.Home];
-    const away = this.teams[Side.Away];
+    // check for a winning team
+    const isLost = (state: TeamState) => state === TeamState.Dead || state === TeamState.Error;
+    const isLostHome = isLost(this.teams[Side.Home].state);
+    const isLostAway = isLost(this.teams[Side.Away].state);
+    if(isLostHome && !isLostAway) {
+      this.setState(GameState.AwayTeamWins);
+    } else if(!isLostHome && isLostAway) {
+      this.setState(GameState.HomeTeamWins);
+    }
   }
 
   private async initialize() {
