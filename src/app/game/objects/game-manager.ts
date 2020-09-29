@@ -35,12 +35,13 @@ export class GameManager {
   private grid: TileGrid;
   private readonly sides = Object.values(Side);
 
-  private readonly thinkingTime = 2000;
+  private matchStarted = false;
 
-  constructor() {
+  constructor(private readonly thinkingTime = 2000, private readonly minThinkingTime = 1000) {
   }
 
   reset() {
+    this.matchStarted = false;
     this.sides.forEach(side => this.teams[side].reset());
     this.grid.reset();
     this.initialize();
@@ -138,10 +139,7 @@ export class GameManager {
     const homeTeamReady = this.teams[Side.Home].state !== TeamState.Error;
     const awayTeamReady = this.teams[Side.Away].state !== TeamState.Error;
 
-    console.log(`home: ${this.teams[Side.Home].state} \taway: ${this.teams[Side.Away].state}`);
-
     if(homeTeamReady && awayTeamReady) {
-      console.log('here');
       // this.setState(GameState.Thinking);
     } else if (!homeTeamReady && !awayTeamReady) {
       this.setState(GameState.Draw);
@@ -152,7 +150,7 @@ export class GameManager {
     }
   }
 
-  private async updateMoves() {
+  private requestMoveSets() {
     const serializedGameState: IGameState = {
       boardSize: [this.grid.size, this.grid.size],
       tileStates: this.grid.serialize(),
@@ -166,7 +164,16 @@ export class GameManager {
     const away = this.teams[Side.Away];
 
     const promises = [home.getNextMovesAsync(serializedGameState, this.thinkingTime), away.getNextMovesAsync(serializedGameState, this.thinkingTime)];
-    const allSettled = await Promise.allSettled(promises);
+    return Promise.allSettled(promises);
+  }
+
+
+  private async updateMoves() {
+    const minTimerPromise = new Promise(resolve => setTimeout(() => resolve(), this.minThinkingTime));
+    const allSettled = await this.requestMoveSets();
+
+    const home = this.teams[Side.Home];
+    const away = this.teams[Side.Away];
 
     // make sure the team state didnt slip into error.
     // this occurs when there is a critical failure in the ai
@@ -179,9 +186,6 @@ export class GameManager {
       // validate teh moves
       const [homeMoves, awayMoves] = [this.validateMoves(homeResponse, Side.Home), this.validateMoves(awayResponse, Side.Away)];
 
-      console.log('homeMoves', homeMoves);
-      console.log('awayMoves', awayMoves);
-
       // make sure the move set returned is actually a valid move
       if (homeMoves === null && awayMoves === null) {
         // neither team had valid moves
@@ -193,6 +197,9 @@ export class GameManager {
         // away team did not return valid moves
         this.setState(GameState.HomeTeamWins);
       }
+
+      // make sure the minimum amount of thinking time has occurred
+      await minTimerPromise;
 
       // instruct teams to move
       home.moveTeam(homeMoves);
@@ -237,13 +244,15 @@ export class GameManager {
           }
         });
       } else {
+        // return the right number of moves, let's just check to make sure they are valid moves
+        // if not force the move to be "none"
         const validMoves = moves.map(move => isValidMove(move) ? move : MoveDirection.None);
-        console.log(validMoves);
         resolvedMoves.push(...validMoves);
       }
-      console.log('resolvedMoves', resolvedMoves);
+
       return resolvedMoves;
     } else {
+      // player script failed to return an array.  Must not have read the rules
       console.warn(`${team.name} did not return an array.`);
     }
     return null;
@@ -254,15 +263,27 @@ export class GameManager {
   }
 
   private enterState(state: GameState) {
+    if (!this.matchStarted && (state === GameState.Thinking || state === GameState.Updating)) {
+      this.matchStarted = true;
+      this.printGameStateMsg('match started');
+    }
+
     switch(state) {
       case GameState.Thinking:
         this.updateMoves();
         break;
       case GameState.HomeTeamWins:
         this.teams[Side.Home].win();
+        this.printGameStateMsg();
         break;
       case GameState.AwayTeamWins:
         this.teams[Side.Away].win();
+        this.printGameStateMsg();
+        break;
+      case GameState.Draw:
+      case GameState.Error:
+      case GameState.Initializing:
+        this.printGameStateMsg();
         break;
     }
   }
@@ -282,13 +303,15 @@ export class GameManager {
     return true;
   }
 
+  private printGameStateMsg(msg: string = '') {
+    console.log('[Game State] ::::', msg ? msg : this.state);
+  }
+
   private setState(nextState: GameState) {
     const lastState = this.state;
     if (this.transitionState(nextState)) {
       this.exitState(lastState);
       this.enterState(this.state);
-
-      console.log('[Game State] ::::', this.state);
 
       const stateUpdatedEventArgs: StateUpdatedEventArgs<GameState> = {
         last: lastState,
