@@ -1,4 +1,4 @@
-import { Scene, Input } from 'phaser';
+import { Scene, Input, GameObjects } from 'phaser';
 import { loadMonsterAssets, createAllMonsterAnimFrames } from '../objects/monster'
 import { TileGrid } from '../objects/grid';
 import { ITeamConfig, MonsterType, Side } from '../objects/interfaces';
@@ -6,6 +6,27 @@ import { Team} from '../objects/team';
 import { wanderScript, idleScript, idleErrorScript } from '../ai';
 import { GameManager, IMatchConfig } from '../objects/game-manager';
 
+
+function textureWidth(name: string, scene: Scene): number {
+  const tex = scene.textures.get(name);
+  const imageData = tex.get(0).width;
+  return imageData;
+}
+
+function textureHeight(name: string, scene: Scene): number {
+  const tex = scene.textures.get(name);
+  const imageData = tex.get(0).height;
+  return imageData;
+}
+
+function createBackgroundTile(scene: Scene, name: string): GameObjects.TileSprite {
+  return scene.add.tileSprite(
+      textureWidth(name, scene) * (scene.scale.width) / textureWidth(name, scene) / 2,
+      textureHeight(name, scene) * (scene.scale.height) / textureHeight(name, scene) / 2,
+      scene.scale.width, scene.scale.height,
+      name).setTileScale((scene.scale.height) / textureHeight(name, scene),
+      (scene.scale.height) / textureHeight(name, scene));
+}
 
 export class MainScene extends Scene {
   match: GameManager;
@@ -39,7 +60,7 @@ export class MainScene extends Scene {
     const x = (this.scale.width - boardSize) / 2;
     const y = (this.scale.height - boardSize) / 2;
     const grid = new TileGrid(this, x, y, boardSize, boardSize, 5);
-    
+
     // setup home team
     const homeTeamConfig: ITeamConfig = {
       name: 'Bobo',
