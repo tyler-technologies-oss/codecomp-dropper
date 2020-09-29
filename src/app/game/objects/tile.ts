@@ -43,7 +43,8 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
 
   getPosition(): WorldPosition {
     const rect = this.geom as Geom.Rectangle;
-    return [this.x + rect.centerX, this.y + rect.centerY];
+    return [this.x + this.parentContainer.x ,
+      this.y + this.parentContainer.y ];
   }
 
   exitVisitor(visitor: IVisitor){

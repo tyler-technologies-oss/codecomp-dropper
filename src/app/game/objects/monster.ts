@@ -65,6 +65,9 @@ export function createAllMonsterAnimFrames(anims: Animations.AnimationManager) {
 
 const idGen = MakeIdGen();
 
+const MONSTER_SCALE = 0.25;
+const JUMP_SCALE_MULTIPLIER = 1.5;
+
 export class Monster extends GameObjects.Sprite implements IVisitor {
   private lastLocation: ILocation;
   private nextLocation: ILocation | null = null;
@@ -80,7 +83,7 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
   constructor(scene: Scene, x: number, y: number, public readonly type: MonsterType, public readonly side: Side) {
     super(scene, x, y, MonstersAtlas, `${type}/idle/Idle_000.png`);
 
-    this.scale = 0.25;
+    this.scale = MONSTER_SCALE;
     this.state = MonsterState.Thinking;
   }
 
@@ -178,8 +181,7 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
     }
 
     if (state === MonsterState.Idle) {
-      // todo: add a little jump animation here, then transition into the idle animation
-      this.play(MonsterAnim.Idle, false, Math.Between(0, 11));
+      this.play(MonsterAnim.Jump);
       return;
     }
 
@@ -214,6 +216,10 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
     this.play(MonsterAnim.Run);
   }
 
+  private isAnimationPlaying(animation: MonsterAnim){
+    return this.anims.getCurrentKey() === `${this.type}_${animation}`
+  }
+
   private updateState(dt: number) {
     switch(this.state) {
       case MonsterState.Error:
@@ -224,6 +230,22 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
 
       case MonsterState.Idle:
         this.actionTime += dt;
+
+        const halfMaxActionTime = this.maxActionTime / 2.0;
+        const quarterMaxActionTime = this.maxActionTime / 4.0;
+        const normalizedJumpUpTime = Math.Clamp(this.actionTime / quarterMaxActionTime, 0, 1);
+        const normalizedJumpDownTime = Math.Clamp((this.actionTime - quarterMaxActionTime) / quarterMaxActionTime, 0, 1);
+
+        if(this.actionTime < quarterMaxActionTime){
+          this.scale = Math.Interpolation.Linear([MONSTER_SCALE, MONSTER_SCALE * JUMP_SCALE_MULTIPLIER], normalizedJumpUpTime);
+        }else if(this.actionTime >= quarterMaxActionTime && this.actionTime < halfMaxActionTime){
+          this.scale = Math.Interpolation.Linear([MONSTER_SCALE * JUMP_SCALE_MULTIPLIER, MONSTER_SCALE], normalizedJumpDownTime);
+        }else if(this.actionTime >= halfMaxActionTime && this.actionTime < this.maxActionTime){
+          if(this.isAnimationPlaying(MonsterAnim.Jump)){
+            this.scale = MONSTER_SCALE;
+            this.play(MonsterAnim.Idle, false, Math.Between(0,11));
+          }
+        }
 
         if (this.actionTime >= this.maxActionTime) {
           this.setState(MonsterState.Thinking);

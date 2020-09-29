@@ -10,11 +10,19 @@ import { GameManager, IMatchConfig } from '../objects/game-manager';
 export class MainScene extends Scene {
   match: GameManager;
 
+  backgroundTileSprites: Phaser.GameObjects.TileSprite[] = [];
   constructor() {
     super({ key: 'main' });
   }
 
   create() {
+    this.backgroundTileSprites.push(createBackgroundTile(this, '1'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '2'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '3'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '4'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '5'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '6'));
+
     // initialize all the animations
     createAllMonsterAnimFrames(this.anims);
 
@@ -26,10 +34,12 @@ export class MainScene extends Scene {
     }, this);
     console.log(`Press 'R' to reset!`);
 
-    // setup the game board
-    const baseOffset = 50;
-    const grid = new TileGrid(this, baseOffset, baseOffset, this.scale.width - (baseOffset * 2), this.scale.height - (baseOffset * 2), 5);
-
+    // todo try to add dynamic scaling
+    const boardSize = this.scale.height - 100;
+    const x = (this.scale.width - boardSize) / 2;
+    const y = (this.scale.height - boardSize) / 2;
+    const grid = new TileGrid(this, x, y, boardSize, boardSize, 5);
+    
     // setup home team
     const homeTeamConfig: ITeamConfig = {
       name: 'Bobo',
@@ -70,9 +80,23 @@ export class MainScene extends Scene {
 
   preload() {
     loadMonsterAssets(this);
+    this.load.image('1', 'assets/background/Halloween/1.png');
+    this.load.image('2', 'assets/background/Halloween/2.png');
+    this.load.image('3', 'assets/background/Halloween/3.png');
+    this.load.image('4', 'assets/background/Halloween/4.png');
+    this.load.image('5', 'assets/background/Halloween/5.png');
+    this.load.image('6', 'assets/background/Halloween/6.png');
+    this.load.image('7', 'assets/background/Halloween/7.png');
+    this.load.image('8', 'assets/background/Halloween/8.png');
+    this.load.image('9', 'assets/background/Halloween/9.png');
   }
 
   update(time: number, dt: number) {
+    this.backgroundTileSprites[1].tilePositionX -= 0.2;
     this.match.update(dt);
+  }
+
+  showGameOverDialog(team: string){
+
   }
 }

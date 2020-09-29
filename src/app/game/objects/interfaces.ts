@@ -86,7 +86,7 @@ export interface StateUpdatedEventArgs<State> {
   last: State;
   target: any;
 }
-``
+
 export enum StateChangeEvent {
   Updated = 'state_updated'
 }
