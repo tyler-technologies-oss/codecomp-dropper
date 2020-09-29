@@ -63,6 +63,7 @@ export interface ITeamMemberState {
 export type TeamStates = Record<Side, ITeamMemberState[]>;
 
 export interface IGameState {
+  boardSize: [number, number];
   tileStates: TileState[][];
   teamStates: TeamStates;
 }

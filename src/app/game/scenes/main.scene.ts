@@ -3,7 +3,7 @@ import { loadMonsterAssets, createAllMonsterAnimFrames } from '../objects/monste
 import { TileGrid } from '../objects/grid';
 import { ITeamConfig, MonsterType, Side } from '../objects/interfaces';
 import { Team} from '../objects/team';
-import { wanderScript, idleScript } from '../ai';
+import { wanderScript, idleScript, idleErrorScript } from '../ai';
 import { GameManager, IMatchConfig } from '../objects/game-manager';
 
 
@@ -18,6 +18,14 @@ export class MainScene extends Scene {
     // initialize all the animations
     createAllMonsterAnimFrames(this.anims);
 
+    // Setup our reset button
+    const reset = this.input.keyboard.addKey(Input.Keyboard.KeyCodes.R);
+    reset.on(Input.Keyboard.Events.UP, function (this: MainScene) {
+      console.log('Resetting match...');
+      this.match?.reset();
+    }, this);
+    console.log(`Press 'R' to reset!`);
+
     // setup the game board
     const baseOffset = 50;
     const grid = new TileGrid(this, baseOffset, baseOffset, this.scale.width - (baseOffset * 2), this.scale.height - (baseOffset * 2), 5);
@@ -29,7 +37,7 @@ export class MainScene extends Scene {
         [Side.Home]: MonsterType.Bobo,
         [Side.Away]: MonsterType.Triclops,
       },
-      aiSrc: idleScript,
+      aiSrc: wanderScript,
     };
     const homeTeam = new Team(this, homeTeamConfig);
 
@@ -58,14 +66,6 @@ export class MainScene extends Scene {
     };
     this.match = new GameManager();
     this.match.initMatch(matchConfig);
-
-    // Setup our reset button
-    const reset = this.input.keyboard.addKey(Input.Keyboard.KeyCodes.R);
-    reset.on(Input.Keyboard.Events.UP, function (this: MainScene) {
-      console.log('Resetting match...');
-      this.match.reset();
-    }, this);
-    console.log(`Press 'R' to reset!`);
   }
 
   preload() {

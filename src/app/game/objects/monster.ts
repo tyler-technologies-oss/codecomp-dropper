@@ -236,6 +236,7 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
         this.actionTime += dt;
         const normalizedActionTime = Math.Clamp(this.actionTime / this.maxActionTime, 0, 1);
 
+        console.log(this.state);
         const [lx, ly] = this.lastLocation.getPosition();
         const [nx, ny] = this.nextLocation.getPosition();
         this.x = Math.Interpolation.Linear([lx, nx], normalizedActionTime);

@@ -64,6 +64,10 @@ export class Team extends GameObjects.Group {
       monster.setLocation(locations[i]);
       monster.on(StateChangeEvent.Updated, this.stateChangeHandler, this);
       this.add(monster, true);
+      if (this.state === TeamState.Error) {
+        // randomly stagger the dying in the event the ai fails to compile
+        setTimeout(() => monster.errorOut(), Math.floor(Math.random() * 700));
+      }
     }
 
     this.setState(TeamState.Thinking);
@@ -155,11 +159,20 @@ export class Team extends GameObjects.Group {
     }
   };
 
-  private setState(nextState: TeamState) {
-    if (this.state !== nextState) {
-      const lastState = this.state;
-      this._state = nextState;
+  private transitionState(nextState: TeamState) {
+    if (this.state === TeamState.Dead ||
+        this.state === TeamState.Error ||
+        this.state === TeamState.Win) {
+          return false;
+    }
 
+    this._state = nextState;
+    return true;
+  }
+
+  private setState(nextState: TeamState) {
+    const lastState = this.state;
+    if (this.state !== nextState && this.transitionState(nextState)) {
       const stateUpdatedEventArgs: StateUpdatedEventArgs<TeamState> = {
         last: lastState,
         current: this.state as TeamState,

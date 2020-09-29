@@ -28,7 +28,7 @@ export class TileGrid extends GameObjects.Container {
         this.squareSize,
         TileColor.Green,
         i,
-        [i % size, Math.floor(i / size)]
+        [Math.floor(i / size), i % size]
       );
 
       this.tiles.push(tile);
