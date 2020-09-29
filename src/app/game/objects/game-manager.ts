@@ -128,10 +128,14 @@ export class GameManager {
     Object.values(teams).forEach(team => team.on(StateChangeEvent.Updated, this.stateChangeHandler, this));
     this.grid = grid;
 
+    const {home: homeMonsterType} = this.teams[Side.Home].getPreferredTypes();
+    const {away: awayMonsterType} = this.teams[Side.Away].getPreferredTypes();
+    const useAlternateMonster = homeMonsterType === awayMonsterType;
+
     // wait for all scripts to load
     const promises = [
       this.teams[Side.Home].setupTeam(startLocations[Side.Home], Side.Home),
-      this.teams[Side.Away].setupTeam(startLocations[Side.Away], Side.Away),
+      this.teams[Side.Away].setupTeam(startLocations[Side.Away], Side.Away, useAlternateMonster),
     ];
 
     await Promise.allSettled(promises);

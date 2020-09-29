@@ -47,7 +47,7 @@ export class Team extends GameObjects.Group {
     return {...this.config.preferredMonsters};
   }
 
-  async setupTeam(locations: ILocation[], side: Side) {
+  async setupTeam(locations: ILocation[], side: Side, useAlternateMonster = false) {
     if(!this.sandbox) {
       try {
         this.sandbox = await createSandboxAsync<MoveSet>(this.name, this.config.aiSrc);
@@ -58,7 +58,15 @@ export class Team extends GameObjects.Group {
 
     this.maxSize = locations.length;
     this._currentSide = side;
-    const monsterType = this.config.preferredMonsters[side];
+    let monsterTypeSide = side;
+    if (useAlternateMonster) {
+      if (side === Side.Home) {
+        monsterTypeSide = Side.Away;
+      } else {
+        monsterTypeSide = Side.Home;
+      }
+    }
+    const monsterType = this.config.preferredMonsters[monsterTypeSide];
     for(let i = 0; i < this.maxSize; i++) {
       const monster = new Monster(this.scene, 0, 0, monsterType, side);
       monster.setLocation(locations[i]);
