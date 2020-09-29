@@ -42,6 +42,7 @@ export class GameManager {
 
   reset() {
     this.sides.forEach(side => this.teams[side].reset());
+    this.grid.reset();
     this.initialize();
   }
 
@@ -137,7 +138,10 @@ export class GameManager {
     const homeTeamReady = this.teams[Side.Home].state !== TeamState.Error;
     const awayTeamReady = this.teams[Side.Away].state !== TeamState.Error;
 
+    console.log(`home: ${this.teams[Side.Home].state} \taway: ${this.teams[Side.Away].state}`);
+
     if(homeTeamReady && awayTeamReady) {
+      console.log('here');
       // this.setState(GameState.Thinking);
     } else if (!homeTeamReady && !awayTeamReady) {
       this.setState(GameState.Draw);
@@ -264,12 +268,14 @@ export class GameManager {
   }
 
   private transitionState(nextState: GameState) {
-    if (this.state === GameState.Draw ||
-        this.state === GameState.Error ||
-        this.state === GameState.HomeTeamWins ||
-        this.state === GameState.AwayTeamWins
-    ){
-      return false;
+    if (nextState !== GameState.Initializing) {
+      if (this.state === GameState.Draw ||
+          this.state === GameState.Error ||
+          this.state === GameState.HomeTeamWins ||
+          this.state === GameState.AwayTeamWins
+      ){
+        return false;
+      }
     }
 
     this._state = nextState;

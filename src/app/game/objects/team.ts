@@ -40,7 +40,7 @@ export class Team extends GameObjects.Group {
 
     this.name = this.config.name;
 
-    this.setState(TeamState.Initializing);
+    this.reset();
   }
 
   getPreferredTypes() {
@@ -109,6 +109,7 @@ export class Team extends GameObjects.Group {
 
   reset() {
     this.clearTeam();
+    this.setState(TeamState.Initializing);
   }
 
   clearTeam() {
@@ -160,10 +161,12 @@ export class Team extends GameObjects.Group {
   };
 
   private transitionState(nextState: TeamState) {
-    if (this.state === TeamState.Dead ||
-        this.state === TeamState.Error ||
-        this.state === TeamState.Win) {
-          return false;
+    if (nextState !== TeamState.Initializing) {
+      if (this.state === TeamState.Dead ||
+          this.state === TeamState.Error ||
+          this.state === TeamState.Win) {
+            return false;
+      }
     }
 
     this._state = nextState;
