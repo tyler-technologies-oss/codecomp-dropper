@@ -1,5 +1,3 @@
-import { MonsterState } from './monster';
-
 export enum MonsterType {
   Bobo      = 'bobo',
   Triclops  = 'triclops',
@@ -57,12 +55,17 @@ export enum TileState {
   Broken = 0,
 }
 
+export interface ITeamMemberState {
+  coord: Coord;
+  isDead: boolean;
+}
+
+export type TeamStates = Record<Side, ITeamMemberState[]>;
+
 export interface IGameState {
+  boardSize: [number, number];
   tileStates: TileState[][];
-  teamPositions: {
-    [Side.Home]: Coord[];
-    [Side.Away]: Coord[];
-  };
+  teamStates: TeamStates;
 }
 
 export type MoveSet = MoveDirection[];
@@ -75,6 +78,7 @@ export interface ITeamConfig {
     [Side.Home]: MonsterType;
     [Side.Away]: MonsterType;
   };
+  aiSrc: string;
 }
 
 export interface StateUpdatedEventArgs<State> {

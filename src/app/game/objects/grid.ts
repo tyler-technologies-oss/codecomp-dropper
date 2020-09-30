@@ -1,4 +1,5 @@
 import { GameObjects, Scene } from 'phaser';
+import { TileState } from './interfaces';
 import { Tile, TileColor } from './tile';
 
 export class TileGrid extends GameObjects.Container {
@@ -27,7 +28,7 @@ export class TileGrid extends GameObjects.Container {
         this.squareSize,
         TileColor.Green,
         i,
-        [i % size, Math.floor(i / size)]
+        [Math.floor(i / size), i % size]
       );
 
       this.tiles.push(tile);
@@ -47,6 +48,13 @@ export class TileGrid extends GameObjects.Container {
     }
 
     this.add(this.tiles);
+  }
+
+  setTileStates(tileStates: TileState[]) {
+    this.tiles.forEach((tile, i) => {
+      const tileState = tileStates[i] || TileState.Good;
+      tile.setState(tileState);
+    })
   }
 
   getTileAtIndex(row: number, column: number): Tile | null {
@@ -76,5 +84,17 @@ export class TileGrid extends GameObjects.Container {
 
   reset() {
     this.tiles.forEach(t => t.reset());
+  }
+
+  serialize(): TileState[][] {
+    const arrayLike = {length: this.size};
+    const tileStates: TileState[][] =
+      Array.from(arrayLike, (_, row) =>
+        Array.from(arrayLike, (_, col) =>
+          this.tiles[row * this.size + col].state
+        )
+      );
+
+    return tileStates;
   }
 }

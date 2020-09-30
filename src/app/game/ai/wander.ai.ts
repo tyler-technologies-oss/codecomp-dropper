@@ -1,7 +1,23 @@
-import { IGameState, MoveSet, Side } from '../objects/interfaces';
+export const wanderScript = `
+function main(gameState, side) {
+  const myTeam = gameState.teamStates[side];
+  const possibleMoves = [];
+  const [rowSize, colSize] = gameState.boardSize;
 
-function wander(gameState: IGameState, side: Side): MoveSet {
-  return []
+  return myTeam.reduce((moveSet, member) => {
+    if (member.isDead) {
+      moveSet.push('none');
+    } else {
+      possibleMoves.push('none');
+      const [row, col] = member.coord;
+      if (row > 1) possibleMoves.push('north');
+      if (row < rowSize - 1)  possibleMoves.push('south');
+      if (col > 1) possibleMoves.push('west');
+      if (col < colSize - 1)  possibleMoves.push('east');
+      moveSet.push(possibleMoves[Math.floor(Math.random() * possibleMoves.length)]);
+      possibleMoves.length = 0;
+    }
+    return moveSet;
+  }, [])
 }
-
-export default wander;
+`;

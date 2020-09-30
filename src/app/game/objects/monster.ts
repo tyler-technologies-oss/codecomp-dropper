@@ -135,6 +135,11 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
     this.setState(MonsterState.Win);
   }
 
+  isAlive() {
+    return this.state !== MonsterState.Dead &&
+    this.state !== MonsterState.Error;
+  }
+
   private exitState(state: MonsterState) {
     switch(state) {
       case MonsterState.Dead:

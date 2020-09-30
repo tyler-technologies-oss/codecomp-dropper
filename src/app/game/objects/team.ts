@@ -1,5 +1,6 @@
 import { GameObjects, Scene, Events } from 'phaser';
-import { ILocation, ITeamConfig, MoveSet, Side, StateChangeEvent, StateUpdatedEventArgs } from './interfaces';
+import { createSandboxAsync, ISandbox } from 'src/app/helpers';
+import { IGameState, ILocation, ITeamConfig, ITeamMemberState, MoveSet, Side, StateChangeEvent, StateUpdatedEventArgs } from './interfaces';
 import { Monster, MonsterState } from './monster';
 
 export enum TeamState {
@@ -29,6 +30,8 @@ export class Team extends GameObjects.Group {
       .map((monster: Monster) => monster.location);
   }
 
+  private sandbox: ISandbox<MoveSet> = null;
+
   constructor(scene: Scene, private config: ITeamConfig) {
     super(scene);
     scene.add.existing(this);
@@ -37,25 +40,49 @@ export class Team extends GameObjects.Group {
 
     this.name = this.config.name;
 
-    this.setState(TeamState.Initializing);
+    this.reset();
   }
 
   getPreferredTypes() {
     return {...this.config.preferredMonsters};
   }
 
-  setupTeam(locations: ILocation[], side: Side) {
+  async setupTeam(locations: ILocation[], side: Side, useAlternateMonster = false) {
+    if(!this.sandbox) {
+      try {
+        this.sandbox = await createSandboxAsync<MoveSet>(this.name, this.config.aiSrc);
+      } catch (err) {
+        this.setState(TeamState.Error);
+      }
+    }
+
     this.maxSize = locations.length;
     this._currentSide = side;
-    const monsterType = this.config.preferredMonsters[side];
+    let monsterTypeSide = side;
+    if (useAlternateMonster) {
+      if (side === Side.Home) {
+        monsterTypeSide = Side.Away;
+      } else {
+        monsterTypeSide = Side.Home;
+      }
+    }
+    const monsterType = this.config.preferredMonsters[monsterTypeSide];
     for(let i = 0; i < this.maxSize; i++) {
       const monster = new Monster(this.scene, 0, 0, monsterType, side);
       monster.setLocation(locations[i]);
       monster.on(StateChangeEvent.Updated, this.stateChangeHandler, this);
       this.add(monster, true);
+      if (this.state === TeamState.Error) {
+        // randomly stagger the dying in the event the ai fails to compile
+        setTimeout(() => monster.errorOut(), Math.floor(Math.random() * 700));
+      }
     }
 
     this.setState(TeamState.Thinking);
+  }
+
+  getNextMovesAsync(gameState: IGameState, timeout?: number) {
+    return this.sandbox.evalAsync([gameState, this.currentSide], timeout);
   }
 
   on(event: string | symbol, fn: Function, context?: any): this {
@@ -88,9 +115,9 @@ export class Team extends GameObjects.Group {
     return this;
   }
 
-  reset(locations: ILocation[], side: Side) {
+  reset() {
     this.clearTeam();
-    this.setupTeam(locations, side);
+    this.setState(TeamState.Initializing);
   }
 
   clearTeam() {
@@ -110,6 +137,15 @@ export class Team extends GameObjects.Group {
 
   errorTeamOut() {
     this.getChildren().forEach((monster: Monster) => monster.errorOut());
+  }
+
+  serialize(): ITeamMemberState[] {
+    return this.getChildren().reduce((states, monster: Monster) => {
+      const coord = monster.location.coord;
+      const isDead = monster.state === MonsterState.Dead;
+      states.push({coord, isDead});
+      return states;
+    }, [] as ITeamMemberState[])
   }
 
   private stateChangeHandler = function(this: Team, {current}: StateUpdatedEventArgs<MonsterState>) {
@@ -132,11 +168,22 @@ export class Team extends GameObjects.Group {
     }
   };
 
-  private setState(nextState: TeamState) {
-    if (this.state !== nextState) {
-      const lastState = this.state;
-      this._state = nextState;
+  private transitionState(nextState: TeamState) {
+    if (nextState !== TeamState.Initializing) {
+      if (this.state === TeamState.Dead ||
+          this.state === TeamState.Error ||
+          this.state === TeamState.Win) {
+            return false;
+      }
+    }
 
+    this._state = nextState;
+    return true;
+  }
+
+  private setState(nextState: TeamState) {
+    const lastState = this.state;
+    if (this.state !== nextState && this.transitionState(nextState)) {
       const stateUpdatedEventArgs: StateUpdatedEventArgs<TeamState> = {
         last: lastState,
         current: this.state as TeamState,
