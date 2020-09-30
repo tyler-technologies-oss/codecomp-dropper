@@ -3,7 +3,7 @@ import { loadMonsterAssets, createAllMonsterAnimFrames } from '../objects/monste
 import { TileGrid } from '../objects/grid';
 import { ITeamConfig, MonsterType, Side } from '../objects/interfaces';
 import { Team} from '../objects/team';
-import { wanderScript, idleScript, idleErrorScript } from '../ai';
+import { tileStatusScript, idleScript, idleErrorScript, wanderScript } from '../ai';
 import { GameManager, IMatchConfig } from '../objects/game-manager';
 
 
@@ -37,7 +37,7 @@ export class MainScene extends Scene {
         [Side.Home]: MonsterType.Bobo,
         [Side.Away]: MonsterType.Triclops,
       },
-      aiSrc: wanderScript,
+      aiSrc: tileStatusScript,
     };
     const homeTeam = new Team(this, homeTeamConfig);
 
@@ -48,7 +48,7 @@ export class MainScene extends Scene {
         [Side.Home]: MonsterType.Bobo,
         [Side.Away]: MonsterType.Triclops,
       },
-      aiSrc: idleScript,
+      aiSrc: tileStatusScript,
     };
     const awayTeam = new Team(this, awayTeamConfig);
 
