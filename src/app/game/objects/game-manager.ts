@@ -186,12 +186,15 @@ export class GameManager {
       if (homeMoves === null && awayMoves === null) {
         // neither team had valid moves
         this.setState(GameState.Draw);
+        return;
       } else if(homeMoves === null && awayMoves !== null) {
         // home team did not return valid moves
         this.setState(GameState.AwayTeamWins);
+        return;
       } else if(homeMoves !== null && awayMoves === null) {
         // away team did not return valid moves
         this.setState(GameState.HomeTeamWins);
+        return;
       }
 
       // instruct teams to move
@@ -204,12 +207,15 @@ export class GameManager {
     } else if(!homeOkay && awayOkay) {
       // home team script critically failed
       this.setState(GameState.AwayTeamWins);
+      return;
     } else if(homeOkay && !awayOkay) {
       // away team script critically failed
       this.setState(GameState.HomeTeamWins);
+      return;
     } else {
       // both team scripts critically failed
       this.setState(GameState.Draw);
+      return;
     }
   }
 
