@@ -76,15 +76,26 @@ export class Team extends GameObjects.Group {
       this.add(monster, true);
       if (this.state === TeamState.Error) {
         // randomly stagger the dying in the event the ai fails to compile
-        setTimeout(() => monster.errorOut(), Math.floor(Math.random() * 700));
+        this.delayMonsterKill(monster);
       }
     }
 
     this.setState(TeamState.Thinking);
   }
 
+  private delayMonsterKill(monster: Monster, ms = -1) {
+    setTimeout(() => monster.errorOut(), ms < 0 ? Math.floor(Math.random() * 700) : ms)
+  }
+
+  teamKill() {
+    this.getChildren().forEach((monster: Monster) => this.delayMonsterKill(monster));
+  }
+
   getNextMovesAsync(gameState: IGameState, timeout?: number) {
-    return this.sandbox.evalAsync([gameState, this.currentSide], timeout);
+    return this.sandbox.evalAsync([gameState, this.currentSide], timeout).catch(err => {
+      this.setState(TeamState.Error);
+      throw err;
+    });
   }
 
   on(event: string | symbol, fn: Function, context?: any): this {
