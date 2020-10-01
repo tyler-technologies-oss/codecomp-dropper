@@ -32,6 +32,8 @@ export class Team extends GameObjects.Group {
 
   private sandbox: ISandbox<MoveSet> = null;
 
+  private showLog = true;
+
   constructor(scene: Scene, private config: ITeamConfig) {
     super(scene);
     scene.add.existing(this);
@@ -43,11 +45,17 @@ export class Team extends GameObjects.Group {
     this.reset();
   }
 
+  log(...args: any) {
+    if (this.showLog) {
+      console.log(`[T-${this.name}]`, ...args);
+    }
+  }
+
   getPreferredTypes() {
     return {...this.config.preferredMonsters};
   }
 
-  async setupTeam(locations: ILocation[], side: Side) {
+  async setupTeam(locations: ILocation[], side: Side, useAlternateMonster = false) {
     if(!this.sandbox) {
       try {
         this.sandbox = await createSandboxAsync<MoveSet>(this.name, this.config.aiSrc);
@@ -58,7 +66,9 @@ export class Team extends GameObjects.Group {
 
     this.maxSize = locations.length;
     this._currentSide = side;
-    const monsterType = this.config.preferredMonsters[side];
+    const monsterTypeSide = useAlternateMonster ? Side.Away : Side.Home;
+
+    const monsterType = this.config.preferredMonsters[monsterTypeSide];
     for(let i = 0; i < this.maxSize; i++) {
       const monster = new Monster(this.scene, 0, 0, monsterType, side);
       monster.setLocation(locations[i]);
@@ -66,15 +76,26 @@ export class Team extends GameObjects.Group {
       this.add(monster, true);
       if (this.state === TeamState.Error) {
         // randomly stagger the dying in the event the ai fails to compile
-        setTimeout(() => monster.errorOut(), Math.floor(Math.random() * 700));
+        this.delayMonsterKill(monster);
       }
     }
 
     this.setState(TeamState.Thinking);
   }
 
+  private delayMonsterKill(monster: Monster, ms = -1) {
+    setTimeout(() => monster.errorOut(), ms < 0 ? Math.floor(Math.random() * 700) : ms)
+  }
+
+  teamKill() {
+    this.getChildren().forEach((monster: Monster) => this.delayMonsterKill(monster));
+  }
+
   getNextMovesAsync(gameState: IGameState, timeout?: number) {
-    return this.sandbox.evalAsync([gameState, this.currentSide], timeout);
+    return this.sandbox.evalAsync([gameState, this.currentSide], timeout).catch(err => {
+      this.setState(TeamState.Error);
+      throw err;
+    });
   }
 
   on(event: string | symbol, fn: Function, context?: any): this {
@@ -115,7 +136,7 @@ export class Team extends GameObjects.Group {
   clearTeam() {
     // remove event handlers to prevent memory leak
     this.getChildren().forEach(monster => monster.removeAllListeners(StateChangeEvent.Updated));
-    this.clear(true);
+    this.clear(true, true);
   }
 
   win() {
@@ -154,7 +175,7 @@ export class Team extends GameObjects.Group {
       return;
     }
 
-    if (monsterStates.some(state => state === MonsterState.Thinking)) {
+    if (monsterStates.every(state => state === MonsterState.Thinking || state === MonsterState.Dead)) {
       this.setState(TeamState.Thinking);
       return;
     }

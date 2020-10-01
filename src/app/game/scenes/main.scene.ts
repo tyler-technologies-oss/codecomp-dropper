@@ -1,20 +1,49 @@
-import { Scene, Input } from 'phaser';
+import { Scene, Input, GameObjects } from 'phaser';
 import { loadMonsterAssets, createAllMonsterAnimFrames } from '../objects/monster'
 import { TileGrid } from '../objects/grid';
-import { ITeamConfig, MonsterType, Side } from '../objects/interfaces';
+import { ITeamConfig, MonsterType, Side, TileState } from '../objects/interfaces';
 import { Team} from '../objects/team';
 import { tileStatusScript, idleScript, idleErrorScript, wanderScript } from '../ai';
 import { GameManager, IMatchConfig } from '../objects/game-manager';
 
 
+function textureWidth(name: string, scene: Scene): number {
+  const tex = scene.textures.get(name);
+  const imageData = tex.get(0).width;
+  return imageData;
+}
+
+function textureHeight(name: string, scene: Scene): number {
+  const tex = scene.textures.get(name);
+  const imageData = tex.get(0).height;
+  return imageData;
+}
+
+function createBackgroundTile(scene: Scene, name: string): GameObjects.TileSprite {
+  return scene.add.tileSprite(
+      textureWidth(name, scene) * (scene.scale.width) / textureWidth(name, scene) / 2,
+      textureHeight(name, scene) * (scene.scale.height) / textureHeight(name, scene) / 2,
+      scene.scale.width, scene.scale.height,
+      name).setTileScale((scene.scale.height) / textureHeight(name, scene),
+      (scene.scale.height) / textureHeight(name, scene));
+}
+
 export class MainScene extends Scene {
   match: GameManager;
 
+  backgroundTileSprites: GameObjects.TileSprite[] = [];
   constructor() {
     super({ key: 'main' });
   }
 
   create() {
+    this.backgroundTileSprites.push(createBackgroundTile(this, '1'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '2'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '3'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '4'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '5'));
+    this.backgroundTileSprites.push(createBackgroundTile(this, '6'));
+
     // initialize all the animations
     createAllMonsterAnimFrames(this.anims);
 
@@ -26,13 +55,15 @@ export class MainScene extends Scene {
     }, this);
     console.log(`Press 'R' to reset!`);
 
-    // setup the game board
-    const baseOffset = 50;
-    const grid = new TileGrid(this, baseOffset, baseOffset, this.scale.width - (baseOffset * 2), this.scale.height - (baseOffset * 2), 5);
+    // todo try to add dynamic scaling
+    const boardSize = this.scale.height - 100;
+    const x = (this.scale.width - boardSize) / 2;
+    const y = (this.scale.height - boardSize) / 2;
+    const grid = new TileGrid(this, x, y, boardSize, boardSize, 5);
 
     // setup home team
     const homeTeamConfig: ITeamConfig = {
-      name: 'Bobo',
+      name: 'Home',
       preferredMonsters: {
         [Side.Home]: MonsterType.Bobo,
         [Side.Away]: MonsterType.Triclops,
@@ -43,10 +74,10 @@ export class MainScene extends Scene {
 
     // setup away team
     const awayTeamConfig: ITeamConfig = {
-      name: 'Triclops',
+      name: 'Away',
       preferredMonsters: {
-        [Side.Home]: MonsterType.Bobo,
-        [Side.Away]: MonsterType.Triclops,
+        [Side.Home]: MonsterType.Triclops,
+        [Side.Away]: MonsterType.Bobo,
       },
       aiSrc: tileStatusScript,
     };
@@ -70,9 +101,23 @@ export class MainScene extends Scene {
 
   preload() {
     loadMonsterAssets(this);
+    this.load.image('1', 'assets/background/Halloween/1.png');
+    this.load.image('2', 'assets/background/Halloween/2.png');
+    this.load.image('3', 'assets/background/Halloween/3.png');
+    this.load.image('4', 'assets/background/Halloween/4.png');
+    this.load.image('5', 'assets/background/Halloween/5.png');
+    this.load.image('6', 'assets/background/Halloween/6.png');
+    this.load.image('7', 'assets/background/Halloween/7.png');
+    this.load.image('8', 'assets/background/Halloween/8.png');
+    this.load.image('9', 'assets/background/Halloween/9.png');
   }
 
   update(time: number, dt: number) {
+    this.backgroundTileSprites[1].tilePositionX -= 0.2;
     this.match.update(dt);
+  }
+
+  showGameOverDialog(team: string){
+
   }
 }

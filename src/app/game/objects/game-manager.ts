@@ -6,6 +6,7 @@ import { Team, TeamState } from './team';
 
 export enum GameState {
   Initializing = 'initializing',
+  Resolving = 'resolving',
   Thinking = 'thinking',
   Updating = 'updating',
   HomeTeamWins = 'homeTeamWins',
@@ -26,7 +27,7 @@ export interface IMatchConfig {
 export class GameManager {
   private eventEmitter = new Events.EventEmitter();
 
-  private _state: GameState = GameState.Initializing;
+  private _state: GameState;
   get state() { return this._state; }
 
   private matchConfig: IMatchConfig;
@@ -35,9 +36,7 @@ export class GameManager {
   private grid: TileGrid;
   private readonly sides = Object.values(Side);
 
-  private readonly thinkingTime = 2000;
-
-  constructor() {
+  constructor(private readonly thinkingTime = 2000, private readonly minThinkingTime = 1000) {
   }
 
   reset() {
@@ -85,32 +84,34 @@ export class GameManager {
     return this;
   }
 
-  private stateChangeHandler = function(this: GameManager, {current}: StateUpdatedEventArgs<TeamState>) {
+  private stateChangeHandler = function (this: GameManager, { current }: StateUpdatedEventArgs<TeamState>) {
     const teamStates = Object.values(this.teams).map(team => team.state);
 
-    if (teamStates.every(state => state === TeamState.Error)) {
-      this.setState(GameState.Error);
-      return;
-    }
+    if (this.state !== GameState.Resolving && !teamStates.some(state => state === TeamState.Updating)) {
+      if (teamStates.every(state => state === TeamState.Error)) {
+        this.setState(GameState.Error);
+        return;
+      }
 
-    if (teamStates.every(state => state === TeamState.Dead || state === TeamState.Error)) {
-      this.setState(GameState.Draw);
-      return;
-    }
+      if (teamStates.every(state => state === TeamState.Dead || state === TeamState.Error)) {
+        this.setState(GameState.Draw);
+        return;
+      }
 
-    if (teamStates.every(state => state === TeamState.Thinking)) {
-      this.setState(GameState.Thinking);
-      return;
-    }
+      if (teamStates.every(state => state === TeamState.Thinking)) {
+        this.setState(GameState.Resolving);
+        return;
+      }
 
-    // check for a winning team
-    const isLost = (state: TeamState) => state === TeamState.Dead || state === TeamState.Error;
-    const isLostHome = isLost(this.teams[Side.Home].state);
-    const isLostAway = isLost(this.teams[Side.Away].state);
-    if(isLostHome && !isLostAway) {
-      this.setState(GameState.AwayTeamWins);
-    } else if(!isLostHome && isLostAway) {
-      this.setState(GameState.HomeTeamWins);
+      // check for a winning team
+      const isLost = (state: TeamState) => state === TeamState.Dead || state === TeamState.Error;
+      const isLostHome = isLost(this.teams[Side.Home].state);
+      const isLostAway = isLost(this.teams[Side.Away].state);
+      if (isLostHome && !isLostAway) {
+        this.setState(GameState.AwayTeamWins);
+      } else if (!isLostHome && isLostAway) {
+        this.setState(GameState.HomeTeamWins);
+      }
     }
   }
 
@@ -121,16 +122,21 @@ export class GameManager {
     }
 
     this.setState(GameState.Initializing);
-    const {teams, grid, startLocations} = this.matchConfig;
+    const { teams, grid, startLocations } = this.matchConfig;
     this.teams = teams;
     // register for team events
     Object.values(teams).forEach(team => team.on(StateChangeEvent.Updated, this.stateChangeHandler, this));
     this.grid = grid;
 
+    // figure out if the away team needs to switch monsters.
+    const { home: homeMonsterType } = this.teams[Side.Home].getPreferredTypes();
+    const { home: awayMonsterType } = this.teams[Side.Away].getPreferredTypes();
+    const useAlternateMonster = homeMonsterType === awayMonsterType;
+
     // wait for all scripts to load
     const promises = [
       this.teams[Side.Home].setupTeam(startLocations[Side.Home], Side.Home),
-      this.teams[Side.Away].setupTeam(startLocations[Side.Away], Side.Away),
+      this.teams[Side.Away].setupTeam(startLocations[Side.Away], Side.Away, useAlternateMonster),
     ];
 
     await Promise.allSettled(promises);
@@ -138,11 +144,9 @@ export class GameManager {
     const homeTeamReady = this.teams[Side.Home].state !== TeamState.Error;
     const awayTeamReady = this.teams[Side.Away].state !== TeamState.Error;
 
-    console.log(`home: ${this.teams[Side.Home].state} \taway: ${this.teams[Side.Away].state}`);
-
-    if(homeTeamReady && awayTeamReady) {
-      console.log('here');
-      // this.setState(GameState.Thinking);
+    if (homeTeamReady && awayTeamReady) {
+      // nothing to do here, the teams will report in when all is well, and the
+      // state change handler for the teams will update the state!
     } else if (!homeTeamReady && !awayTeamReady) {
       this.setState(GameState.Draw);
     } else if (homeTeamReady && !awayTeamReady) {
@@ -152,7 +156,7 @@ export class GameManager {
     }
   }
 
-  private async updateMoves() {
+  private requestMoveSets() {
     const serializedGameState: IGameState = {
       boardSize: [this.grid.size, this.grid.size],
       tileStates: this.grid.serialize(),
@@ -166,7 +170,18 @@ export class GameManager {
     const away = this.teams[Side.Away];
 
     const promises = [home.getNextMovesAsync(serializedGameState, this.thinkingTime), away.getNextMovesAsync(serializedGameState, this.thinkingTime)];
-    const allSettled = await Promise.allSettled(promises);
+    return Promise.allSettled(promises);
+  }
+
+
+  private async updateMoves() {
+    const minTimerPromise = new Promise(resolve => setTimeout(() => resolve(), this.minThinkingTime));
+    const allSettled = await this.requestMoveSets();
+
+    const [homeError, awayError] = allSettled.map(({status, reason}: PromiseRejectedResult) => status === 'rejected' ? reason : null);
+
+    const home = this.teams[Side.Home];
+    const away = this.teams[Side.Away];
 
     // make sure the team state didnt slip into error.
     // this occurs when there is a critical failure in the ai
@@ -174,13 +189,11 @@ export class GameManager {
     const awayOkay = away.state !== TeamState.Error;
 
     if (homeOkay && awayOkay) {
+      this.setState(GameState.Thinking);
       const [homeResponse, awayResponse] = allSettled.map(result => (<any>result).value);
 
       // validate teh moves
       const [homeMoves, awayMoves] = [this.validateMoves(homeResponse, Side.Home), this.validateMoves(awayResponse, Side.Away)];
-
-      console.log('homeMoves', homeMoves);
-      console.log('awayMoves', awayMoves);
 
       // make sure the move set returned is actually a valid move
       if (homeMoves === null && awayMoves === null) {
@@ -197,22 +210,30 @@ export class GameManager {
         return;
       }
 
-      // instruct teams to move
-      home.moveTeam(homeMoves);
-      away.moveTeam(awayMoves);
+      // make sure the minimum amount of thinking time has occurred
+      await minTimerPromise;
 
       // all moves are dispatched, time to wait for the teams
       // to say they are done animating!
       this.setState(GameState.Updating);
-    } else if(!homeOkay && awayOkay) {
+
+      // instruct teams to move
+      home.moveTeam(homeMoves);
+      away.moveTeam(awayMoves);
+
+    } else if (!homeOkay && awayOkay) {
+      console.warn(`${home.name} script error.`, homeError);
       // home team script critically failed
       this.setState(GameState.AwayTeamWins);
-      return;
-    } else if(homeOkay && !awayOkay) {
+      return;    
+    } else if (homeOkay && !awayOkay) {
+      console.warn(`${away.name} script error.`, awayError);
       // away team script critically failed
       this.setState(GameState.HomeTeamWins);
       return;
     } else {
+      console.warn(`${home.name} script error.`, homeError);
+      console.warn(`${away.name} script error.`, awayError);
       // both team scripts critically failed
       this.setState(GameState.Draw);
       return;
@@ -222,11 +243,11 @@ export class GameManager {
   private validateMoves(moves: any, side: Side): MoveSet | null {
     const team = this.teams[side];
     const isValidMove = (move: any) => {
-      return move === MoveDirection.None  ||
-             move === MoveDirection.North ||
-             move === MoveDirection.South ||
-             move === MoveDirection.East  ||
-             move === MoveDirection.West;
+      return move === MoveDirection.None ||
+        move === MoveDirection.North ||
+        move === MoveDirection.South ||
+        move === MoveDirection.East ||
+        move === MoveDirection.West;
     }
 
     if (Array.isArray(moves)) {
@@ -234,7 +255,7 @@ export class GameManager {
       if (moves.length != team.count) {
         console.warn(`Not enough moves returned, attempting to match moves with alive members`);
         // try and match up the moves to non-dead team members
-        team.getChildren().forEach((member: Monster ) => {
+        team.getChildren().forEach((member: Monster) => {
           if (member.isAlive()) {
             const nextMove = moves.shift();
             resolvedMoves.push(isValidMove(nextMove) ? nextMove : MoveDirection.None);
@@ -243,43 +264,67 @@ export class GameManager {
           }
         });
       } else {
+        // return the right number of moves, let's just check to make sure they are valid moves
+        // if not force the move to be "none"
         const validMoves = moves.map(move => isValidMove(move) ? move : MoveDirection.None);
-        console.log(validMoves);
         resolvedMoves.push(...validMoves);
       }
-      console.log('resolvedMoves', resolvedMoves);
+
       return resolvedMoves;
     } else {
+      // player script failed to return an array.  Must not have read the rules
       console.warn(`${team.name} did not return an array.`);
     }
     return null;
   }
 
   private exitState(state: GameState) {
-
+    switch (state) {
+      case GameState.Initializing:
+        console.log('current', this.state);
+        this.printGameStateMsg('match started');
+        break;
+    }
   }
 
   private enterState(state: GameState) {
-    switch(state) {
-      case GameState.Thinking:
+    switch (state) {
+      case GameState.Resolving:
+        // this.printGameStateMsg();
         this.updateMoves();
+        break;
+      case GameState.Thinking:
+      case GameState.Updating:
+        // this.printGameStateMsg();
         break;
       case GameState.HomeTeamWins:
         this.teams[Side.Home].win();
+        this.printGameStateMsg();
+        this.teams[Side.Away].teamKill();
         break;
       case GameState.AwayTeamWins:
         this.teams[Side.Away].win();
+        this.printGameStateMsg();
+        this.teams[Side.Home].teamKill();
         break;
+      case GameState.Draw:
+      case GameState.Error:
+        this.printGameStateMsg();
+        this.teams[Side.Home].teamKill();
+        this.teams[Side.Away].teamKill();
+        break
+      case GameState.Initializing:
+        this.printGameStateMsg();
     }
   }
 
   private transitionState(nextState: GameState) {
     if (nextState !== GameState.Initializing) {
       if (this.state === GameState.Draw ||
-          this.state === GameState.Error ||
-          this.state === GameState.HomeTeamWins ||
-          this.state === GameState.AwayTeamWins
-      ){
+        this.state === GameState.Error ||
+        this.state === GameState.HomeTeamWins ||
+        this.state === GameState.AwayTeamWins
+      ) {
         return false;
       }
     }
@@ -288,13 +333,15 @@ export class GameManager {
     return true;
   }
 
+  private printGameStateMsg(msg: string = '') {
+    console.log('[Game State] ::::', msg ? msg : this.state);
+  }
+
   private setState(nextState: GameState) {
     const lastState = this.state;
     if (this.transitionState(nextState)) {
       this.exitState(lastState);
       this.enterState(this.state);
-
-      console.log('[Game State] ::::', this.state);
 
       const stateUpdatedEventArgs: StateUpdatedEventArgs<GameState> = {
         last: lastState,

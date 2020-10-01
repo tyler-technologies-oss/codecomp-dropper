@@ -7,6 +7,8 @@ export class TileGrid extends GameObjects.Container {
   tiles: Tile[] = [];
   private readonly squareSize: number;
 
+  private states: TileState[];
+
   constructor(scene: Scene, x: number, y: number, public readonly width: number, public readonly height: number, public readonly size: number) {
     super(scene, x, y);
     scene.add.existing(this);
@@ -17,6 +19,8 @@ export class TileGrid extends GameObjects.Container {
     }
 
     const halfSquareSize = this.squareSize * 0.5;
+
+    this.states = Array.from({length: size*size}, () => TileState.Good);
 
     // create the tiles
     for(let i = 0; i < size * size; i++) {
@@ -50,6 +54,14 @@ export class TileGrid extends GameObjects.Container {
     this.add(this.tiles);
   }
 
+  setTileStates(tileStates: TileState[]) {
+    this.states = tileStates;
+    this.tiles.forEach((tile, i) => {
+      const tileState = tileStates[i] || TileState.Good;
+      tile.setState(tileState);
+    })
+  }
+
   getTileAtIndex(row: number, column: number): Tile | null {
     const size1 = this.size - 1;
     if (row < 0 || row > size1 || column < 0 || column > size1) {
@@ -76,7 +88,7 @@ export class TileGrid extends GameObjects.Container {
   }
 
   reset() {
-    this.tiles.forEach(t => t.reset());
+    this.tiles.forEach((t, i) => t.reset(this.states[i]));
   }
 
   serialize(): TileState[][] {

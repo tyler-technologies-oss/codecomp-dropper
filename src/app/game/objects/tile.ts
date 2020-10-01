@@ -30,6 +30,7 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
     this.setStrokeStyle(5, TileColor.Black);
 
     this.setState(TileState.Good, false);
+    this.setAlpha(0.6);
   }
 
   private tweenColor(color: TileColor, alpha = 1) {
@@ -43,7 +44,8 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
 
   getPosition(): WorldPosition {
     const rect = this.geom as Geom.Rectangle;
-    return [this.x + rect.centerX, this.y + rect.centerY];
+    return [this.x + this.parentContainer.x ,
+      this.y + this.parentContainer.y ];
   }
 
   exitVisitor(visitor: IVisitor){
@@ -110,8 +112,8 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
     return this;
   }
 
-  reset() {
+  reset(state = TileState.Good) {
     this.visitors.length = 0; // clear any visitors
-    this.setState(TileState.Good);
+    this.setState(state);
   }
 }
