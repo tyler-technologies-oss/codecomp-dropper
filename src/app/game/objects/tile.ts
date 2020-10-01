@@ -112,8 +112,8 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
     return this;
   }
 
-  reset() {
+  reset(state = TileState.Good) {
     this.visitors.length = 0; // clear any visitors
-    this.setState(TileState.Good);
+    this.setState(state);
   }
 }

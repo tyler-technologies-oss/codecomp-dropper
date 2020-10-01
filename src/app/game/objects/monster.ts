@@ -78,7 +78,7 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
 
   get location(): ILocation { return this.lastLocation; }
 
-  showLog = true;
+  showLog = false;
   showId = false;
 
   private displayText: GameObjects.Text;

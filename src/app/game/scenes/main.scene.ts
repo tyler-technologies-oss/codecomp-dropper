@@ -1,9 +1,15 @@
 import { Scene, Input, GameObjects } from 'phaser';
 import { loadMonsterAssets, createAllMonsterAnimFrames } from '../objects/monster'
 import { TileGrid } from '../objects/grid';
-import { ITeamConfig, MonsterType, Side } from '../objects/interfaces';
+import { ITeamConfig, MonsterType, Side, TileState } from '../objects/interfaces';
 import { Team} from '../objects/team';
-import { wanderScript, idleScript, idleErrorScript } from '../ai';
+import {
+  wanderScript,
+  idleScript,
+  idleErrorScript,
+  northScript,
+  southScript,
+} from '../ai';
 import { GameManager, IMatchConfig } from '../objects/game-manager';
 
 
@@ -76,8 +82,8 @@ export class MainScene extends Scene {
     const awayTeamConfig: ITeamConfig = {
       name: 'Away',
       preferredMonsters: {
-        [Side.Home]: MonsterType.Pinky,
-        [Side.Away]: MonsterType.Triclops,
+        [Side.Home]: MonsterType.Triclops,
+        [Side.Away]: MonsterType.Bobo,
       },
       aiSrc: wanderScript,
     };
