@@ -281,7 +281,6 @@ export class GameManager {
   private exitState(state: GameState) {
     switch (state) {
       case GameState.Initializing:
-        console.log('current', this.state);
         this.printGameStateMsg('match started');
         break;
     }
