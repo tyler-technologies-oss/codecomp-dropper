@@ -63,7 +63,7 @@ export class MainScene extends Scene {
 
     // setup home team
     const homeTeamConfig: ITeamConfig = {
-      name: 'Bobo',
+      name: 'Home',
       preferredMonsters: {
         [Side.Home]: MonsterType.Bobo,
         [Side.Away]: MonsterType.Triclops,
@@ -74,10 +74,10 @@ export class MainScene extends Scene {
 
     // setup away team
     const awayTeamConfig: ITeamConfig = {
-      name: 'Triclops',
+      name: 'Away',
       preferredMonsters: {
         [Side.Home]: MonsterType.Pinky,
-        [Side.Away]: MonsterType.Bobo,
+        [Side.Away]: MonsterType.Triclops,
       },
       aiSrc: wanderScript,
     };

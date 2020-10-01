@@ -32,6 +32,8 @@ export class Team extends GameObjects.Group {
 
   private sandbox: ISandbox<MoveSet> = null;
 
+  private showLog = true;
+
   constructor(scene: Scene, private config: ITeamConfig) {
     super(scene);
     scene.add.existing(this);
@@ -41,6 +43,12 @@ export class Team extends GameObjects.Group {
     this.name = this.config.name;
 
     this.reset();
+  }
+
+  log(...args: any) {
+    if (this.showLog) {
+      console.log(`[T-${this.name}]`, ...args);
+    }
   }
 
   getPreferredTypes() {
@@ -58,14 +66,8 @@ export class Team extends GameObjects.Group {
 
     this.maxSize = locations.length;
     this._currentSide = side;
-    let monsterTypeSide = side;
-    if (useAlternateMonster) {
-      if (side === Side.Home) {
-        monsterTypeSide = Side.Away;
-      } else {
-        monsterTypeSide = Side.Home;
-      }
-    }
+    const monsterTypeSide = useAlternateMonster ? Side.Away : Side.Home;
+
     const monsterType = this.config.preferredMonsters[monsterTypeSide];
     for(let i = 0; i < this.maxSize; i++) {
       const monster = new Monster(this.scene, 0, 0, monsterType, side);
@@ -123,7 +125,7 @@ export class Team extends GameObjects.Group {
   clearTeam() {
     // remove event handlers to prevent memory leak
     this.getChildren().forEach(monster => monster.removeAllListeners(StateChangeEvent.Updated));
-    this.clear(true);
+    this.clear(true, true);
   }
 
   win() {
@@ -162,7 +164,7 @@ export class Team extends GameObjects.Group {
       return;
     }
 
-    if (monsterStates.some(state => state === MonsterState.Thinking)) {
+    if (monsterStates.every(state => state === MonsterState.Thinking || state === MonsterState.Dead)) {
       this.setState(TeamState.Thinking);
       return;
     }

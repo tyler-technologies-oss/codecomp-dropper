@@ -37,6 +37,7 @@ export class GameManager {
 
   private matchStarted = false;
 
+
   constructor(private readonly thinkingTime = 2000, private readonly minThinkingTime = 1000) {
   }
 
@@ -128,8 +129,9 @@ export class GameManager {
     Object.values(teams).forEach(team => team.on(StateChangeEvent.Updated, this.stateChangeHandler, this));
     this.grid = grid;
 
+    // figure out if the away team needs to switch monsters.
     const {home: homeMonsterType} = this.teams[Side.Home].getPreferredTypes();
-    const {away: awayMonsterType} = this.teams[Side.Away].getPreferredTypes();
+    const {home: awayMonsterType} = this.teams[Side.Away].getPreferredTypes();
     const useAlternateMonster = homeMonsterType === awayMonsterType;
 
     // wait for all scripts to load
