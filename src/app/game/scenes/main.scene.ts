@@ -68,7 +68,7 @@ export class MainScene extends Scene {
         [Side.Home]: MonsterType.Bobo,
         [Side.Away]: MonsterType.Triclops,
       },
-      aiSrc: tileStatusScript,
+      aiSrc: wanderScript,
     };
     const homeTeam = new Team(this, homeTeamConfig);
 
