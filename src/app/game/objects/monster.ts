@@ -95,7 +95,7 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
   }
 
   destroy(fromScene?: boolean): void {
-    this.displayText.destroy(fromScene);
+    this.displayText?.destroy(fromScene);
     super.destroy(fromScene);
   }
 
