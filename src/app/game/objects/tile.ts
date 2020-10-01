@@ -1,4 +1,4 @@
-import { GameObjects, Scene, Geom } from 'phaser';
+import { GameObjects, Scene, Geom, Math as PMath, Display } from 'phaser';
 import { ILocation, INeighbor, IVisitor, TileState, Coord, WorldPosition } from './interfaces';
 
 
@@ -35,7 +35,18 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
 
   private tweenColor(color: TileColor, alpha = 1) {
     // TODO setup a tween here
-    this.setFillStyle(color, alpha);
+    // this.setFillStyle(color, alpha);
+    const startColor =  Display.Color.IntegerToColor(this.fillColor);
+    const endColor = Display.Color.IntegerToColor(color);
+    this.scene.tweens.addCounter({
+      from: 0, to: 100, duration: 300,
+      ease: PMath.Easing.Sine.InOut,
+      onUpdate: tween => {
+        const value = tween.getValue();
+        const {r,g,b} = Display.Color.Interpolate.ColorWithColor(startColor, endColor, 100, value);
+        this.setFillStyle(Display.Color.GetColor(r,g,b), alpha);
+      }
+    })
   }
 
   private setColor(color: TileColor, alpha = 1) {
