@@ -1,7 +1,7 @@
 import { Scene, Input, GameObjects } from 'phaser';
 import { loadMonsterAssets, createAllMonsterAnimFrames } from '../objects/monster'
 import { TileGrid } from '../objects/grid';
-import { ITeamConfig, MonsterType, Side, TileState } from '../objects/interfaces';
+import { GameOverEventArgs, ITeamConfig, MonsterType, Side, StateChangeEvent, TileState } from '../objects/interfaces';
 import { Team} from '../objects/team';
 import {
   tileStatusScript,
@@ -51,6 +51,7 @@ export class MainScene extends Scene {
     // setup home team
     const homeTeamConfig: ITeamConfig = {
       name: 'Home',
+      org: 'Tyler',
       preferredMonsters: {
         [Side.Home]: MonsterType.Bobo,
         [Side.Away]: MonsterType.Triclops,
@@ -62,6 +63,7 @@ export class MainScene extends Scene {
     // setup away team
     const awayTeamConfig: ITeamConfig = {
       name: 'Away',
+      org: 'Tyler',
       preferredMonsters: {
         [Side.Home]: MonsterType.Triclops,
         [Side.Away]: MonsterType.Bobo,
@@ -69,6 +71,12 @@ export class MainScene extends Scene {
       aiSrc: tileStatusScript,
     };
     const awayTeam = new Team(this, awayTeamConfig);
+
+
+    this.match = new GameManager();
+    this.match.on(StateChangeEvent.GameOver, (status: GameOverEventArgs) => {
+      this.showGameOverDialog(status);
+    });
 
     // create the match
     const matchConfig: IMatchConfig = {
@@ -82,7 +90,6 @@ export class MainScene extends Scene {
         [Side.Away]: [grid.getTileAtIndex(4, 0), grid.getTileAtIndex(4, 2), grid.getTileAtIndex(4, 4)],
       }
     };
-    this.match = new GameManager();
     this.match.initMatch(matchConfig);
   }
 
@@ -95,7 +102,7 @@ export class MainScene extends Scene {
     this.background.update(dt)
   }
 
-  showGameOverDialog(team: string){
-
+  showGameOverDialog(status: GameOverEventArgs){
+    console.log(status);
   }
 }

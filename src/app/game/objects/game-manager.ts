@@ -1,19 +1,21 @@
 import { Events, Game } from 'phaser';
 import { TileGrid } from './grid';
-import { IGameState, ILocation, MoveDirection, MoveSet, Side, StateChangeEvent, StateUpdatedEventArgs, TeamStates } from './interfaces';
+import {
+  ErrorReason,
+  IGameState,
+  ILocation,
+  MoveDirection,
+  MoveSet,
+  Side,
+  StateChangeEvent,
+  StateUpdatedEventArgs,
+  TeamStates,
+  GameState,
+  TeamState,
+  MatchStatus, GameOverEventArgs
+} from './interfaces';
 import { Monster, MonsterState } from './monster';
-import { Team, TeamState } from './team';
-
-export enum GameState {
-  Initializing = 'initializing',
-  Resolving = 'resolving',
-  Thinking = 'thinking',
-  Updating = 'updating',
-  HomeTeamWins = 'homeTeamWins',
-  AwayTeamWins = 'awayTeamWins',
-  Error = 'error',
-  Draw = 'draw',
-}
+import { Team } from './team';
 
 export type Teams = Record<Side, Team>;
 export type StartLocations = Record<Side, ILocation[]>;
@@ -84,7 +86,7 @@ export class GameManager {
     return this;
   }
 
-  private stateChangeHandler = function (this: GameManager, { current }: StateUpdatedEventArgs<TeamState>) {
+  private stateChangeHandler = function (this: GameManager, { payload }: StateUpdatedEventArgs<TeamState, ErrorReason>) {
     const teamStates = Object.values(this.teams).map(team => team.state);
 
     if (this.state !== GameState.Resolving && !teamStates.some(state => state === TeamState.Updating)) {
@@ -225,7 +227,7 @@ export class GameManager {
       console.warn(`${home.name} script error.`, homeError);
       // home team script critically failed
       this.setState(GameState.AwayTeamWins);
-      return;    
+      return;
     } else if (homeOkay && !awayOkay) {
       console.warn(`${away.name} script error.`, awayError);
       // away team script critically failed
@@ -314,16 +316,33 @@ export class GameManager {
         break
       case GameState.Initializing:
         this.printGameStateMsg();
+        break;
     }
+
+    if (this.isGameOver(state)) {
+      const {home, away} = this.teams;
+      const eventArgs: GameOverEventArgs = {
+        state,
+        team: {
+          [Side.Home]: {name: home.name, org: home.org, state: home.state, reason: home.errorReason},
+          [Side.Away]: {name: away.name, org: away.org, state: away.state, reason: away.errorReason}
+        }
+      };
+
+      this.eventEmitter.emit(StateChangeEvent.GameOver, eventArgs);
+    }
+  }
+
+  private isGameOver(state: GameState) {
+    return state === GameState.Draw ||
+      state === GameState.Error ||
+      state === GameState.HomeTeamWins ||
+      state === GameState.AwayTeamWins;
   }
 
   private transitionState(nextState: GameState) {
     if (nextState !== GameState.Initializing) {
-      if (this.state === GameState.Draw ||
-        this.state === GameState.Error ||
-        this.state === GameState.HomeTeamWins ||
-        this.state === GameState.AwayTeamWins
-      ) {
+      if (this.isGameOver(this.state)) {
         return false;
       }
     }

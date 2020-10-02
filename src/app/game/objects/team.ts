@@ -1,16 +1,7 @@
 import { GameObjects, Scene, Events } from 'phaser';
 import { createSandboxAsync, ISandbox } from 'src/app/helpers';
-import { IGameState, ILocation, ITeamConfig, ITeamMemberState, MoveSet, Side, StateChangeEvent, StateUpdatedEventArgs } from './interfaces';
+import { ErrorReason, IGameState, ILocation, ITeamConfig, ITeamMemberState, MoveSet, Side, StateChangeEvent, StateUpdatedEventArgs, TeamState } from './interfaces';
 import { Monster, MonsterState } from './monster';
-
-export enum TeamState {
-  Error = 'error',
-  Initializing = 'initializing',
-  Thinking = 'thinking',
-  Updating = 'updating',
-  Win = 'win',
-  Dead = 'dead',
-}
 
 export class Team extends GameObjects.Group {
   private _currentSide: Side;
@@ -18,6 +9,9 @@ export class Team extends GameObjects.Group {
 
   private _state: TeamState;
   get state() { return this._state };
+
+  private _errorReason: ErrorReason | null = null;
+  get errorReason() { return this._errorReason; }
 
   private eventEmitter = new Events.EventEmitter();
 
@@ -33,6 +27,8 @@ export class Team extends GameObjects.Group {
   private sandbox: ISandbox<MoveSet> = null;
 
   private showLog = true;
+
+  get org() { return this.config.org };
 
   constructor(scene: Scene, private config: ITeamConfig) {
     super(scene);
@@ -60,10 +56,11 @@ export class Team extends GameObjects.Group {
       try {
         this.sandbox = await createSandboxAsync<MoveSet>(this.name, this.config.aiSrc);
       } catch (err) {
-        this.setState(TeamState.Error);
+        this.setState(TeamState.Error, ErrorReason.Compile);
       }
     }
 
+    this._errorReason = null;
     this.maxSize = locations.length;
     this._currentSide = side;
     const monsterTypeSide = useAlternateMonster ? Side.Away : Side.Home;
@@ -93,7 +90,7 @@ export class Team extends GameObjects.Group {
 
   getNextMovesAsync(gameState: IGameState, timeout?: number) {
     return this.sandbox.evalAsync([gameState, this.currentSide], timeout).catch(err => {
-      this.setState(TeamState.Error);
+      this.setState(TeamState.Error, ErrorReason.RunTime);
       throw err;
     });
   }
@@ -129,6 +126,7 @@ export class Team extends GameObjects.Group {
   }
 
   reset() {
+    this._errorReason = null;
     this.clearTeam();
     this.setState(TeamState.Initializing);
   }
@@ -141,6 +139,7 @@ export class Team extends GameObjects.Group {
 
   win() {
     this.getChildren().forEach((monster: Monster) => monster.win());
+    this.setState(TeamState.Win);
   }
 
   moveTeam(moves: MoveSet) {
@@ -166,7 +165,7 @@ export class Team extends GameObjects.Group {
       .map((monster: Monster) => monster.state as MonsterState);
 
     if (monsterStates.every(state => state === MonsterState.Error)) {
-      this.setState(TeamState.Error);
+      this.setState(TeamState.Error, ErrorReason.Bug);
       return;
     }
 
@@ -194,13 +193,20 @@ export class Team extends GameObjects.Group {
     return true;
   }
 
-  private setState(nextState: TeamState) {
+  private setState(nextState: TeamState, info?: ErrorReason) {
     const lastState = this.state;
     if (this.state !== nextState && this.transitionState(nextState)) {
-      const stateUpdatedEventArgs: StateUpdatedEventArgs<TeamState> = {
+      if (this.state === TeamState.Error) {
+        this._errorReason = info || ErrorReason.Unknown;
+      } else {
+        this._errorReason = null;
+      }
+
+      const stateUpdatedEventArgs: StateUpdatedEventArgs<TeamState, ErrorReason> = {
         last: lastState,
         current: this.state as TeamState,
         target: this,
+        payload: info
       }
 
       this.eventEmitter.emit(StateChangeEvent.Updated, stateUpdatedEventArgs);
