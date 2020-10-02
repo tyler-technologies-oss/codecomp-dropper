@@ -20,9 +20,13 @@ import { loadBackgroundAssets, Background } from '../objects/background';
 export class MainScene extends Scene {
   match: GameManager;
   background: Background;
+  homeTeamConfig: ITeamConfig;
+  awayTeamConfig: ITeamConfig;
 
-  constructor() {
+  constructor(homeTeamConfig: ITeamConfig, awayTeamConfig: ITeamConfig) {
     super({ key: 'main' });
+    this.homeTeamConfig = homeTeamConfig;
+    this.awayTeamConfig = awayTeamConfig;
   }
 
   create() {
@@ -47,28 +51,8 @@ export class MainScene extends Scene {
     const gridX = (this.scale.width - gridWidth) / 2;
     const grid = new TileGrid(this, gridX, gridY, gridWidth, gridHeight, gridSize);
 
-
-    // setup home team
-    const homeTeamConfig: ITeamConfig = {
-      name: 'Home',
-      preferredMonsters: {
-        [Side.Home]: MonsterType.Bobo,
-        [Side.Away]: MonsterType.Triclops,
-      },
-      aiSrc: wanderScript,
-    };
-    const homeTeam = new Team(this, homeTeamConfig);
-
-    // setup away team
-    const awayTeamConfig: ITeamConfig = {
-      name: 'Away',
-      preferredMonsters: {
-        [Side.Home]: MonsterType.Triclops,
-        [Side.Away]: MonsterType.Bobo,
-      },
-      aiSrc: tileStatusScript,
-    };
-    const awayTeam = new Team(this, awayTeamConfig);
+    const homeTeam = new Team(this, this.homeTeamConfig);
+    const awayTeam = new Team(this, this.awayTeamConfig);
 
     // create the match
     const matchConfig: IMatchConfig = {
