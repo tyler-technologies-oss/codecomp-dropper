@@ -14,47 +14,22 @@ import {
   westScript,
 } from '../ai';
 import { GameManager, IMatchConfig } from '../objects/game-manager';
+import { loadBackgroundAssets, Background } from '../objects/background';
 
-
-function textureWidth(name: string, scene: Scene): number {
-  const tex = scene.textures.get(name);
-  const imageData = tex.get(0).width;
-  return imageData;
-}
-
-function textureHeight(name: string, scene: Scene): number {
-  const tex = scene.textures.get(name);
-  const imageData = tex.get(0).height;
-  return imageData;
-}
-
-function createBackgroundTile(scene: Scene, name: string): GameObjects.TileSprite {
-  return scene.add.tileSprite(
-      textureWidth(name, scene) * (scene.scale.width) / textureWidth(name, scene) / 2,
-      textureHeight(name, scene) * (scene.scale.height) / textureHeight(name, scene) / 2,
-      scene.scale.width, scene.scale.height,
-      name).setTileScale((scene.scale.height) / textureHeight(name, scene),
-      (scene.scale.height) / textureHeight(name, scene));
-}
 
 export class MainScene extends Scene {
   match: GameManager;
+  background: Background;
 
-  backgroundTileSprites: GameObjects.TileSprite[] = [];
   constructor() {
     super({ key: 'main' });
   }
 
   create() {
-    this.backgroundTileSprites.push(createBackgroundTile(this, '1'));
-    this.backgroundTileSprites.push(createBackgroundTile(this, '2'));
-    this.backgroundTileSprites.push(createBackgroundTile(this, '3'));
-    this.backgroundTileSprites.push(createBackgroundTile(this, '4'));
-    this.backgroundTileSprites.push(createBackgroundTile(this, '5'));
-    this.backgroundTileSprites.push(createBackgroundTile(this, '6'));
-
     // initialize all the animations
     createAllMonsterAnimFrames(this.anims);
+    this.background = new Background(this);
+
 
     // Setup our reset button
     const reset = this.input.keyboard.addKey(Input.Keyboard.KeyCodes.R);
@@ -64,11 +39,14 @@ export class MainScene extends Scene {
     }, this);
     console.log(`Press 'R' to reset!`);
 
-    // todo try to add dynamic scaling
-    const boardSize = this.scale.height - 100;
-    const x = (this.scale.width - boardSize) / 2;
-    const y = (this.scale.height - boardSize) / 2;
-    const grid = new TileGrid(this, x, y, boardSize, boardSize, 5);
+    const gridSize = 5;
+    const cellSize = this.scale.height / (gridSize + 2);
+    const gridHeight = cellSize * gridSize;
+    const gridWidth = cellSize * gridSize;
+    const gridY = cellSize;
+    const gridX = (this.scale.width - gridWidth) / 2;
+    const grid = new TileGrid(this, gridX, gridY, gridWidth, gridHeight, gridSize);
+
 
     // setup home team
     const homeTeamConfig: ITeamConfig = {
@@ -109,21 +87,12 @@ export class MainScene extends Scene {
   }
 
   preload() {
+    loadBackgroundAssets(this);
     loadMonsterAssets(this);
-    this.load.image('1', 'assets/background/Halloween/1.png');
-    this.load.image('2', 'assets/background/Halloween/2.png');
-    this.load.image('3', 'assets/background/Halloween/3.png');
-    this.load.image('4', 'assets/background/Halloween/4.png');
-    this.load.image('5', 'assets/background/Halloween/5.png');
-    this.load.image('6', 'assets/background/Halloween/6.png');
-    this.load.image('7', 'assets/background/Halloween/7.png');
-    this.load.image('8', 'assets/background/Halloween/8.png');
-    this.load.image('9', 'assets/background/Halloween/9.png');
   }
 
   update(time: number, dt: number) {
-    this.backgroundTileSprites[1].tilePositionX -= 0.2;
-    this.match.update(dt);
+    this.background.update(dt)
   }
 
   showGameOverDialog(team: string){

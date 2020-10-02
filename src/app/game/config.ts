@@ -5,10 +5,11 @@ export type GameConfig = Types.Core.GameConfig;
 export const defaultConfig: GameConfig = {
   type: AUTO,
 
+  width: 1920,
+  height: 1080,
   scale: {
-    mode: Scale.FIT,
-    width: '100%',
-    height: '100%',
+    mode: Scale.WIDTH_CONTROLS_HEIGHT,
+    autoCenter: Scale.CENTER_HORIZONTALLY,
   },
 
   // physics: {
