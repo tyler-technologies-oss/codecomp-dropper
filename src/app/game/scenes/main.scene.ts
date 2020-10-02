@@ -3,7 +3,16 @@ import { loadMonsterAssets, createAllMonsterAnimFrames } from '../objects/monste
 import { TileGrid } from '../objects/grid';
 import { ITeamConfig, MonsterType, Side, TileState } from '../objects/interfaces';
 import { Team} from '../objects/team';
-import { tileStatusScript, idleScript, idleErrorScript, wanderScript } from '../ai';
+import {
+  tileStatusScript,
+  idleScript,
+  idleErrorScript,
+  wanderScript,
+  northScript,
+  southScript,
+  eastScript,
+  westScript,
+} from '../ai';
 import { GameManager, IMatchConfig } from '../objects/game-manager';
 
 

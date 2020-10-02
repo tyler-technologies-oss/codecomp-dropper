@@ -34,8 +34,6 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
   }
 
   private tweenColor(color: TileColor, alpha = 1) {
-    // TODO setup a tween here
-    // this.setFillStyle(color, alpha);
     const startColor =  Display.Color.IntegerToColor(this.fillColor);
     const endColor = Display.Color.IntegerToColor(color);
     this.scene.tweens.addCounter({

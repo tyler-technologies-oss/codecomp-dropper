@@ -1,14 +1,23 @@
 export const northScript = `
 function main(gameState, side) {
-  const team = gameState.teamStates[side];
-  return team.map(({coord}) => coord[0] > 0 ? 'north' : 'none');
+  return ['north', 'north', 'north'];
 }
 `;
 
 export const southScript = `
   function main(gameState, side) {
-    const team = gameState.teamStates[side];
-    const [size] = gameState.boardSize;
-    return team.map(({coord}) => coord[0] < size - 1 ? 'south' : 'none');
+    return ['south', 'south', 'south'];
+  }
+`;
+
+export const eastScript = `
+  function main(gameState, side) {
+    return ['east', 'east', 'east'];
+  }
+`;
+
+export const westScript = `
+  function main(gameState, side) {
+    return ['west', 'west', 'west'];
   }
 `;

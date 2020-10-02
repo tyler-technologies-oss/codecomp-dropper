@@ -1,5 +1,6 @@
 import { GameObjects, Scene } from 'phaser';
-import { TileState } from './interfaces';
+import { ILocation, INeighbor, TileState } from './interfaces';
+import { KillTile } from './kill-tile';
 import { Tile, TileColor } from './tile';
 
 export class TileGrid extends GameObjects.Container {
@@ -38,17 +39,30 @@ export class TileGrid extends GameObjects.Container {
       this.tiles.push(tile);
     }
 
+    const killNeighbors: INeighbor = { north: null, south: null, west: null, east: null };
+    const offsetX = this.x;
+    const offsetY = this.y;
+
     // resolve neighbors
     for(let i = 0; i < size * size; i ++) {
       const curr_x = i % size;
       const curr_y = Math.floor(i / size);
+      const tile = this.tiles[i];
 
-      this.tiles[i].neighbor = {
-        north:  this.getTileAtIndex(curr_y-1, curr_x),
-        south:  this.getTileAtIndex(curr_y+1, curr_x),
-        west:   this.getTileAtIndex(curr_y, curr_x-1),
-        east:   this.getTileAtIndex(curr_y, curr_x+1),
-      };
+      let north: ILocation = this.getTileAtIndex(curr_y-1, curr_x);
+      if (!north) { north  = new KillTile([curr_y-1, curr_x], {...killNeighbors, south: tile}, [tile.x + offsetX, tile.y - this.squareSize + offsetY]); }
+
+      let south: ILocation = this.getTileAtIndex(curr_y+1, curr_x);
+      if (!south) { south  = new KillTile([curr_y+1, curr_x], {...killNeighbors, north: tile}, [tile.x + offsetX, tile.y + this.squareSize + offsetY]); }
+
+      let west:  ILocation = this.getTileAtIndex(curr_y, curr_x-1);
+      if (!west)  { west   = new KillTile([curr_y, curr_x-1], {...killNeighbors, east: tile}, [tile.x - this.squareSize + offsetX, tile.y + offsetY]); }
+
+      let east:  ILocation = this.getTileAtIndex(curr_y, curr_x+1);
+      if (!east)  { east   = new KillTile([curr_y, curr_x+1], {...killNeighbors, west: tile}, [tile.x + this.squareSize + offsetX, tile.y + offsetY]); }
+
+
+      this.tiles[i].neighbor = { north, south, west, east, };
     }
 
     this.add(this.tiles);
@@ -62,7 +76,7 @@ export class TileGrid extends GameObjects.Container {
     })
   }
 
-  getTileAtIndex(row: number, column: number): Tile | null {
+  getTileAtIndex(row: number, column: number): ILocation | null {
     const size1 = this.size - 1;
     if (row < 0 || row > size1 || column < 0 || column > size1) {
       return null;
@@ -71,7 +85,7 @@ export class TileGrid extends GameObjects.Container {
     return this.tiles[row * this.size + column] as Tile;
   }
 
-  getTileAtPos(x: number, y: number): Tile | null {
+  getTileAtPos(x: number, y: number): ILocation | null {
     const relative_x = x - this.x;
     const relative_y = y - this.y;
     const width1 = this.width - 1;
