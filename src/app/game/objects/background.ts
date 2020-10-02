@@ -17,7 +17,7 @@ export class Background extends GameObjects.Container {
     this.scale = 2;
 
     const backgroundImage = scene.add.sprite(0, 0, BackgroundAtlas, `1.png`);
-    const cloudsAndBats = scene.add.tileSprite(0, 0, 1920, 1080, BackgroundAtlas, `2.png`);
+    const cloudsAndBats = scene.add.tileSprite(0, 0, this.scene.scale.width, this.scene.scale.height, BackgroundAtlas, `2.png`);
     const moon = scene.add.sprite(0, 0, BackgroundAtlas, `3.png`);
     const backgroundGravesAndTrees = scene.add.sprite(0, 0, BackgroundAtlas, `4.png`);
     const fence = scene.add.sprite(0, 0, BackgroundAtlas, `5.png`);
