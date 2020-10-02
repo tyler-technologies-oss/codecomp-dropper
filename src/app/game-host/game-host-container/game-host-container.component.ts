@@ -23,7 +23,9 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.game.destroy(false);
+    if(this.game != null){
+      this.game.destroy(false);
+    }
   }
 
   startGame(){
@@ -59,6 +61,8 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
     };
     this.teamConfigs.push(config1);
     this.teamConfigs.push(config2);
+    this.homeTeamConfig = config1;
+    this.awayTeamConfig = config2;
   }
 
   //Needed for html binding to actually store object in component on selection of config
