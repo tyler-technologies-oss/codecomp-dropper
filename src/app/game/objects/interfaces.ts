@@ -79,6 +79,7 @@ export interface ITeamConfig {
     [Side.Away]: MonsterType;
   };
   aiSrc: string;
+  school: string;
 }
 
 export interface StateUpdatedEventArgs<State> {
