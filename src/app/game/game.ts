@@ -1,13 +1,12 @@
 import { Game, Core, Scenes } from 'phaser';
 import { GameConfig, defaultConfig } from './config';
-import { MainScene } from './scenes/main.scene';
+import { MainScene, MainKey } from './scenes/main.scene';
 
 export { Game } from 'phaser';
 export { GameConfig } from './config';
 export { Side } from './objects/interfaces';
 export { TeamInfo } from './objects/game-manager';
-
-export const MainKey = 'main';
+export { MainKey } from './scenes/main.scene';
 
 export const GameEvent = Core.Events;
 export const SceneEvent = Scenes.Events;

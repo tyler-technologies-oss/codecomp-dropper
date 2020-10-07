@@ -17,12 +17,14 @@ import { GameManager, IMatchConfig } from '../objects/game-manager';
 import { loadBackgroundAssets, Background } from '../objects/background';
 
 
+export const MainKey = 'main';
+
 export class MainScene extends Scene {
   match: GameManager;
   background: Background;
 
   constructor() {
-    super({ key: 'main' });
+    super({ key: MainKey });
     this.match = new GameManager();
   }
 
