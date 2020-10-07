@@ -20,9 +20,13 @@ import { loadBackgroundAssets, Background } from '../objects/background';
 export class MainScene extends Scene {
   match: GameManager;
   background: Background;
+  homeTeamConfig: ITeamConfig;
+  awayTeamConfig: ITeamConfig;
 
-  constructor() {
+  constructor(homeTeamConfig: ITeamConfig, awayTeamConfig: ITeamConfig) {
     super({ key: 'main' });
+    this.homeTeamConfig = homeTeamConfig;
+    this.awayTeamConfig = awayTeamConfig;
   }
 
   create() {
