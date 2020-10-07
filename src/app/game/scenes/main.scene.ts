@@ -54,28 +54,10 @@ export class MainScene extends Scene {
 
 
     // setup home team
-    const homeTeamConfig: ITeamConfig = {
-      name: 'Home',
-      org: 'Tyler',
-      preferredMonsters: {
-        [Side.Home]: MonsterType.Bobo,
-        [Side.Away]: MonsterType.Triclops,
-      },
-      aiSrc: wanderScript,
-    };
-    const homeTeam = new Team(this, homeTeamConfig);
+    const homeTeam = new Team(this, this.homeTeamConfig);
 
     // setup away team
-    const awayTeamConfig: ITeamConfig = {
-      name: 'Away',
-      org: 'Tyler',
-      preferredMonsters: {
-        [Side.Home]: MonsterType.Triclops,
-        [Side.Away]: MonsterType.Bobo,
-      },
-      aiSrc: tileStatusScript,
-    };
-    const awayTeam = new Team(this, awayTeamConfig);
+    const awayTeam = new Team(this, this.awayTeamConfig);
 
     // create the match
     const matchConfig: IMatchConfig = {
