@@ -79,7 +79,7 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
                       [Side.Away]: element['Away Monster Choice'].toLowerCase() as MonsterType,
                     },
                     aiSrc: element['URL/Code'],
-                    school: element['School']
+                    org: element['School']
                   };
             that.teamConfigs.push(team);
         });
@@ -102,7 +102,6 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
         [Side.Away]: MonsterType.Triclops,
       },
       aiSrc: wanderScript,
-      school: 'Tyler Tech'
     };
 
     const config2: ITeamConfig = {
@@ -113,7 +112,6 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
         [Side.Away]: MonsterType.Pinky,
       },
       aiSrc: tileStatusScript,
-      school: 'Tyler Tech'
     };
     this.teamConfigs.push(config1);
     this.teamConfigs.push(config2);
