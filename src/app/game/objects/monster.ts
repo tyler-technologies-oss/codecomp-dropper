@@ -69,6 +69,7 @@ const MONSTER_SCALE = 0.25;
 const JUMP_SCALE_MULTIPLIER = 1.5;
 
 export class Monster extends GameObjects.Sprite implements IVisitor {
+  tilesDecremented =0;
   private lastLocation: ILocation;
   private nextLocation: ILocation | null = null;
   private actionTime = 0;
@@ -129,6 +130,10 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
 
   die() {
     this.setState(MonsterState.Dead);
+  }
+
+  addDecrementedTiles() {
+    this.tilesDecremented +=1;
   }
 
   errorOut() {

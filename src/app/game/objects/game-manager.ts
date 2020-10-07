@@ -26,6 +26,11 @@ export interface IMatchConfig {
   startLocations: StartLocations;
 }
 
+export interface TeamInfo {
+  teamName:string;
+  totalTilesDecremented:number;
+}
+
 export class GameManager {
   private eventEmitter = new Events.EventEmitter();
 
@@ -368,6 +373,13 @@ export class GameManager {
       }
 
       this.eventEmitter.emit(StateChangeEvent.Updated, stateUpdatedEventArgs);
+      //TODO: Remove explicit null check 
+      if(this.teams){
+        let teamInfo:TeamInfo[] =[];
+        teamInfo.push({teamName:this.teams.away.name,  totalTilesDecremented: this.teams.away.getTotalTilesDecremented()})
+        teamInfo.push({teamName:this.teams.home.name, totalTilesDecremented: this.teams.home.getTotalTilesDecremented()})
+        this.eventEmitter.emit(StateChangeEvent.ScoreBoardUpdate, teamInfo);
+      }
     }
   }
 }
