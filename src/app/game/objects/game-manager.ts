@@ -376,8 +376,8 @@ export class GameManager {
       //TODO: Remove explicit null check 
       if(this.teams){
         let teamInfo:TeamInfo[] =[];
-        teamInfo.push({teamName:this.teams.away.name,  totalTilesDecremented: this.teams.away.getTotalTilesDecremented()})
         teamInfo.push({teamName:this.teams.home.name, totalTilesDecremented: this.teams.home.getTotalTilesDecremented()})
+        teamInfo.push({teamName:this.teams.away.name,  totalTilesDecremented: this.teams.away.getTotalTilesDecremented()})
         this.eventEmitter.emit(StateChangeEvent.ScoreBoardUpdate, teamInfo);
       }
     }

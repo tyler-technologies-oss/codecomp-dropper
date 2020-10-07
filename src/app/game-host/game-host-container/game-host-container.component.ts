@@ -19,6 +19,7 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   private game: Game;
   private mainScene: MainScene;
   teamsInfo:TeamInfo[];
+  isGameActive: boolean = false;
 
   constructor() { }
 
@@ -27,12 +28,20 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   }
 
   startGame(){
+
+    //TODO: Try and reuse the main scene
+    if(this.game){
+      this.game.destroy(true);
+    }
+
     const config: GameConfig = {
       parent: this.hostElement.nativeElement,
     }
     this.mainScene = new MainScene(this.homeTeamConfig, this.awayTeamConfig);
 
     this.game = createGame(config, this.mainScene);
+
+    this.isGameActive = true;
 
     this.game.events.once(GameEvent.DESTROY, () => {
       console.log('Game destroyed');
@@ -41,6 +50,11 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
     this.mainScene.match.on(StateChangeEvent.ScoreBoardUpdate, (teams:TeamInfo[]) => {
       this.teamsInfo = teams;
     });
+
+    this.mainScene.match.on(StateChangeEvent.GameOver, () =>{
+      this.isGameActive = false;
+    })
+
   }
 
   //TODO: We will want this to be hooked up to actual team data, mocking out some choices for now
@@ -76,7 +90,8 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.game.destroy(false);
+    if(this.game){
+      this.game.destroy(false);
+    }
   }
-
 }

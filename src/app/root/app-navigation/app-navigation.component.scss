@@ -1,3 +1,9 @@
+@import "../../../styles.scss";
+
 mat-icon{
     padding-right: 16px;
+}
+
+.nav-active {
+    color: mat-color($dropper-accent, darker) !important;
 }
