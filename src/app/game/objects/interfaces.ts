@@ -1,3 +1,5 @@
+import { Team } from './team';
+
 export enum MonsterType {
   Bobo      = 'bobo',
   Triclops  = 'triclops',
@@ -22,6 +24,7 @@ export interface IVisitor {
   id: number;
   side: Side;
   die();
+  addDecrementedTiles();
 }
 
 export interface ILocation {
@@ -90,6 +93,7 @@ export interface StateUpdatedEventArgs<State, Payload=any> {
 }
 
 export enum StateChangeEvent {
+  ScoreBoardUpdate='scoreboard_update',
   Updated = 'state_updated',
   GameOver = 'game_over',
 }

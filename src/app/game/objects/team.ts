@@ -51,6 +51,14 @@ export class Team extends GameObjects.Group {
     return {...this.config.preferredMonsters};
   }
 
+  getTotalTilesDecremented(){
+    let tilesDec = 0;
+    this.getChildren().forEach((monster: Monster, index: number) => {
+      tilesDec += monster.tilesDecremented;
+    });
+    return tilesDec;
+  }
+
   async setupTeam(locations: ILocation[], side: Side, useAlternateMonster = false) {
     if(!this.sandbox) {
       try {
@@ -143,7 +151,9 @@ export class Team extends GameObjects.Group {
   }
 
   moveTeam(moves: MoveSet) {
-    this.getChildren().forEach((monster: Monster, index: number) => monster.move(moves[index]));
+    this.getChildren().forEach((monster: Monster, index: number) => {
+      monster.move(moves[index])
+    });
     this.setState(TeamState.Updating);
   }
 

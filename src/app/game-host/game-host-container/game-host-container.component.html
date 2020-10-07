@@ -1,24 +1,32 @@
-<!-- TODO: Make this pretty! Bug exists with mat-option not displaying like it should -->
-<div id='team-config-ui' *ngIf='game == null'>
-    <mat-form-field>
-        <mat-label>Home Team Config</mat-label>
-        <mat-select [compareWith]='compareConfigs' [(ngModel)]="homeTeamConfig">
-            <mat-option *ngFor="let config of teamConfigs" [value]='config'>
-                {{config.name}}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
-    
-    <mat-form-field>
-        <mat-label>Away Team Config</mat-label>
-        <mat-select [compareWith]='compareConfigs' [(ngModel)]="awayTeamConfig">
-            <mat-option *ngFor="let config of teamConfigs" [value]='config'>
-                {{config.name}}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
-    
-    <button mat-raised-button color="primary" (click)='startGame()'>Start</button>
+<div class="flex-grid">
+    <div class="main-col">
+        <div class="game" #gameHost></div>
+    </div>
+    <div class="col">
+        <mat-card>
+            <mat-card-title>ScoreBoard</mat-card-title>
+            <mat-list *ngIf="teamsInfo">
+                <mat-list-item *ngFor="let info of teamsInfo" role="listitem">{{info.teamName}}:{{info.totalTilesDecremented}}</mat-list-item>
+            </mat-list>
+            <mat-form-field>
+                <mat-label>Home Team Config</mat-label>
+                <mat-select [compareWith]='compareConfigs' [(ngModel)]="homeTeamConfig">
+                    <mat-option *ngFor="let config of teamConfigs" [value]='config'>
+                        {{config.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            
+            <mat-form-field>
+                <mat-label>Away Team Config</mat-label>
+                <mat-select [compareWith]='compareConfigs' [(ngModel)]="awayTeamConfig">
+                    <mat-option *ngFor="let config of teamConfigs" [value]='config'>
+                        {{config.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            
+            <button mat-raised-button color="primary" (click)='startGame()'>Start</button>
+        </mat-card>
+    </div>
 </div>
-
-<div class="game" #gameHost></div>

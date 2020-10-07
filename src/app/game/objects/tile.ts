@@ -69,13 +69,16 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
     switch(this.state) {
       case TileState.Good:
         nextState = TileState.Warning;
+        visitor.addDecrementedTiles();
         break;
       case TileState.Warning:
         nextState = TileState.Danger;
+        visitor.addDecrementedTiles();
         break;
       case TileState.Danger:
       default:
         nextState = TileState.Broken;
+        visitor.addDecrementedTiles();
         break;
     }
 

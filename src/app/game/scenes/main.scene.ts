@@ -27,6 +27,7 @@ export class MainScene extends Scene {
     super({ key: 'main' });
     this.homeTeamConfig = homeTeamConfig;
     this.awayTeamConfig = awayTeamConfig;
+    this.match = new GameManager();
   }
 
   create() {
@@ -75,12 +76,6 @@ export class MainScene extends Scene {
       aiSrc: tileStatusScript,
     };
     const awayTeam = new Team(this, awayTeamConfig);
-
-
-    this.match = new GameManager();
-    this.match.on(StateChangeEvent.GameOver, (status: GameOverEventArgs) => {
-      this.showGameOverDialog(status);
-    });
 
     // create the match
     const matchConfig: IMatchConfig = {

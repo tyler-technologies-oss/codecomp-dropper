@@ -8,7 +8,7 @@ export { GameConfig } from './config';
 
 export const GameEvent = Core.Events;
 
-export function createGame(config: GameConfig, homeTeamConfig: ITeamConfig, awayTeamConfig: ITeamConfig) {
-  const game = new Game({...defaultConfig, scene: [new MainScene(homeTeamConfig, awayTeamConfig)], ...config});
+export function createGame(config: GameConfig, mainScene:MainScene) {
+  const game = new Game({...defaultConfig, scene: [mainScene], ...config});
   return game;
 }
