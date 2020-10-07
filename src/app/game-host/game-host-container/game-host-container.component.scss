@@ -7,3 +7,19 @@
 .game {
   flex: 1 1 auto;
 }
+
+.flex-grid {
+  display: flex;
+  justify-content: space-between;
+}
+.flex-grid .main-col {
+  width: 75%;
+}
+
+.flex-grid .col {
+  width: 25%;
+}
+
+mat-card {
+  margin-bottom: 16px;
+}

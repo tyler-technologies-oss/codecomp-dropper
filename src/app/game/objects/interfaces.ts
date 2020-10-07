@@ -1,3 +1,5 @@
+import { Team } from './team';
+
 export enum MonsterType {
   Bobo      = 'bobo',
   Triclops  = 'triclops',
@@ -22,6 +24,7 @@ export interface IVisitor {
   id: number;
   side: Side;
   die();
+  addDecrementedTiles();
 }
 
 export interface ILocation {
@@ -74,6 +77,7 @@ export type GetMoveSetFn = (gameState: IGameState, side: Side) => MoveSet;
 
 export interface ITeamConfig {
   name: string;
+  org: string;
   preferredMonsters: {
     [Side.Home]: MonsterType;
     [Side.Away]: MonsterType;
@@ -82,12 +86,49 @@ export interface ITeamConfig {
   school: string;
 }
 
-export interface StateUpdatedEventArgs<State> {
+export interface StateUpdatedEventArgs<State, Payload=any> {
   current: State;
   last: State;
   target: any;
+  payload?: Payload;
 }
 
 export enum StateChangeEvent {
-  Updated = 'state_updated'
+  ScoreBoardUpdate='scoreboard_update',
+  Updated = 'state_updated',
+  GameOver = 'game_over',
+}
+
+export enum GameState {
+  Initializing = 'initializing',
+  Resolving = 'resolving',
+  Thinking = 'thinking',
+  Updating = 'updating',
+  HomeTeamWins = 'homeTeamWins',
+  AwayTeamWins = 'awayTeamWins',
+  Error = 'error',
+  Draw = 'draw',
+}
+
+export enum TeamState {
+  Error = 'error',
+  Initializing = 'initializing',
+  Thinking = 'thinking',
+  Updating = 'updating',
+  Win = 'win',
+  Dead = 'dead',
+}
+
+export type MatchStatus = Record<Side, {name: string, org: string, state: TeamState, reason?: ErrorReason}>
+
+export interface GameOverEventArgs {
+  state: GameState;
+  team: MatchStatus;
+}
+
+export enum ErrorReason {
+  Compile = 'compile',
+  RunTime = 'run-time',
+  Bug = 'bug',
+  Unknown = 'unknown',
 }
