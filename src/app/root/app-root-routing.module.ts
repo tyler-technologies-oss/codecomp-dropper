@@ -8,6 +8,7 @@ const routes: Routes = [
   {path: 'register', loadChildren: () => import('../registration/registration.module').then(m => m.RegistrationModule)},
   {path: 'rules', loadChildren: () => import('../rules/rules.module').then(m => m.RulesModule)},
   {path: 'tournament', loadChildren: () => import('../tournament/tournament.module').then(m => m.TournamentModule)},
+  {path: 'submission', loadChildren: () => import('../submission/submission.module').then(m => m.SubmissionModule)},
   {path: '**', redirectTo: 'about'},
 ];
 
