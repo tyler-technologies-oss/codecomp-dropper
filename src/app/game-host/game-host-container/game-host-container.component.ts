@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { TeamInfo } from 'src/app/game/objects/game-manager';
-import { GameOverEventArgs, Side, StateChangeEvent, StateUpdatedEventArgs } from 'src/app/game/objects/interfaces';
-import { Team } from 'src/app/game/objects/team';
-import { MainScene } from 'src/app/game/scenes/main.scene';
-import { createGame, GameConfig, Game, GameEvent } from '../../game/game';
+import { Observable } from 'rxjs';
+import { first, map } from 'rxjs/operators';
+import { TeamInfo } from '../../game/game';
+import { GameService } from '../game.service';
+
+const getTeamName = () => map<TeamInfo, string>(({teamName}) => teamName);
+const getTeamScore = () => map<TeamInfo, number>(({totalTilesDecremented}) => totalTilesDecremented);
 
 @Component({
   selector: 'tyl-game-host-container',
@@ -13,32 +15,28 @@ import { createGame, GameConfig, Game, GameEvent } from '../../game/game';
 export class GameHostContainerComponent implements OnInit, OnDestroy {
   @ViewChild('gameHost', { static: true }) hostElement: ElementRef<HTMLElement>;
 
-  private game: Game;
-  private mainScene: MainScene;
-  teamsInfo:TeamInfo[];
+  homeTeamName$ = this.gameService.homeTeamInfo$.pipe(getTeamName());
+  awayTeamName$ = this.gameService.awayTeamInfo$.pipe(getTeamName());
+  homeTeamScore$ = this.gameService.homeTeamInfo$.pipe(getTeamScore());
+  awayTeamScore$ = this.gameService.awayTeamInfo$.pipe(getTeamScore());
 
-  constructor() { }
+  pause$ = this.gameService.isPaused$;
+
+  constructor(private gameService: GameService) {
+  }
 
   ngOnInit(): void {
-    const config: GameConfig = {
-      parent: this.hostElement.nativeElement,
-    }
-    this.mainScene = new MainScene();
-
-    this.game = createGame(config, this.mainScene);
-
-    this.game.events.once(GameEvent.DESTROY, () => {
-      console.log('Game destroyed');
-    })
-
-    this.mainScene.match.on(StateChangeEvent.ScoreBoardUpdate, (teams:TeamInfo[]) => {
-      this.teamsInfo = teams;
-    });
+    this.hostElement.nativeElement.appendChild(this.gameService.containerElement);
+    this.gameService.resume();
   }
-
 
   ngOnDestroy(): void {
-    this.game.destroy(false);
+    this.gameService.pause();
+    this.hostElement.nativeElement.removeChild(this.gameService.containerElement);
   }
 
+  pause() {
+    this.gameService.isPaused$.pipe(first()).subscribe(paused => !paused ?
+      this.gameService.pause() : this.gameService.resume())
+  }
 }

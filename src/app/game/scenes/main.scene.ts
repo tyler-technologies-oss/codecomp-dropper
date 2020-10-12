@@ -18,12 +18,14 @@ import { loadBackgroundAssets, Background } from '../objects/background';
 import { loadTileAssets } from '../objects/tile';
 
 
+export const MainKey = 'main';
+
 export class MainScene extends Scene {
   match: GameManager;
   background: Background;
 
   constructor() {
-    super({ key: 'main' });
+    super({ key: MainKey });
     this.match = new GameManager();
   }
 
