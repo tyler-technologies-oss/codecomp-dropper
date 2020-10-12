@@ -1,60 +1,93 @@
 import { GameObjects, Scene, Geom, Math as PMath, Display } from 'phaser';
 import { ILocation, INeighbor, IVisitor, TileState, Coord, WorldPosition } from './interfaces';
 
+export const TileAtlas = 'tiles';
+const assetsPath = 'assets/sprites';
 
-export enum TileColor {
-  Red = 0xff0000,
-  Green = 0x00ff00,
-  Blue = 0x0000ff,
-  Yellow = 0xffff00,
-  Black = 0x000000,
-  White = 0xffffff,
+export function loadTileAssets(scene: Scene) {
+  scene.load.multiatlas(TileAtlas, `${assetsPath}/tiles.json`, assetsPath);
 }
 
-
-export class Tile extends GameObjects.Rectangle implements ILocation {
+export class Tile extends GameObjects.Container implements ILocation {
   state: TileState = TileState.Good;
+  displayTile: GameObjects.TileSprite;
+  transitionTile: GameObjects.TileSprite;
   visitors: IVisitor[] = [];
 
   neighbor: INeighbor;
 
   constructor(
     scene: Scene,
-    x: number, y: number,
-    width: number, height: number,
-    color: TileColor,
+    x: number, 
+    y: number,
+    width: number, 
+    height: number,
     public readonly index: number,
     public readonly coord: Coord
   ){
-    super(scene, x, y, width, height, color);
-    this.setStrokeStyle(5, TileColor.Black);
+    super(scene, x, y);
 
-    this.setState(TileState.Good, false);
-    this.setAlpha(0.6);
+    this.displayTile = new GameObjects.TileSprite(
+      scene, 
+      0, 
+      0, 
+      width, 
+      height, 
+      'tiles', 
+      '3hp-tile.png'
+    );
+    this.displayTile.tileScaleX = width / 256;
+    this.displayTile.tileScaleY = height / 256;
+    this.transitionTile = new GameObjects.TileSprite(
+      scene, 
+      0, 
+      0, 
+      width, 
+      height, 
+      'tiles', 
+      '2hp-tile.png'
+    );
+    this.transitionTile.tileScaleX = width / 256;
+    this.transitionTile.tileScaleY = height / 256;
+    this.transitionTile.setVisible(false);
+
+    this.add(this.displayTile);
+    this.add(this.transitionTile);
   }
 
-  private tweenColor(color: TileColor, alpha = 1) {
-    const startColor =  Display.Color.IntegerToColor(this.fillColor);
-    const endColor = Display.Color.IntegerToColor(color);
+
+  private transition(frameKey: string) {
+    this.displayTile.setAlpha(1);
+    this.transitionTile.setFrame(frameKey);
+    this.transitionTile.setVisible(true);
+    this.transitionTile.setAlpha(0);
     this.scene.tweens.addCounter({
       from: 0, to: 100, duration: 300,
       ease: PMath.Easing.Sine.InOut,
       onUpdate: tween => {
         const value = tween.getValue();
-        const {r,g,b} = Display.Color.Interpolate.ColorWithColor(startColor, endColor, 100, value);
-        this.setFillStyle(Display.Color.GetColor(r,g,b), alpha);
+      
+        if (value === 100) {
+          this.displayTile.setFrame(frameKey);
+          this.displayTile.setAlpha(this.state !== TileState.Broken ? 1 : 0.5);
+          this.transitionTile.setVisible(false);
+        } else if (value > 0 && value <= 50) {
+          const fadeIn = value / 50;
+          this.transitionTile.setAlpha(fadeIn);
+        } else if (value > 50) {
+          this.transitionTile.setAlpha(1);
+          const fadeOut = (100 - value) / 50;
+          this.displayTile.setAlpha(fadeOut);
+        }
       }
     })
   }
 
-  private setColor(color: TileColor, alpha = 1) {
-    this.setFillStyle(color, alpha);
-  }
-
   getPosition(): WorldPosition {
-    const rect = this.geom as Geom.Rectangle;
-    return [this.x + this.parentContainer.x ,
-      this.y + this.parentContainer.y ];
+    return [
+      this.x + this.parentContainer.x,
+      this.y + this.parentContainer.y 
+    ];
   }
 
   exitVisitor(visitor: IVisitor){
@@ -93,27 +126,25 @@ export class Tile extends GameObjects.Rectangle implements ILocation {
     return nextState != TileState.Broken;
   }
 
-  setState(state: TileState, tween = true): this {
+  setState(state: TileState): this {
     if (this.state === state) {
       return;
     }
-
     super.setState(state);
 
-    const setColorFn = tween ? this.tweenColor.bind(this) : this.setColor.bind(this);
 
     switch (state) {
       case TileState.Good:
-        setColorFn(TileColor.Green);
+        this.transition('3hp-tile.png');
         break;
       case TileState.Warning:
-        setColorFn(TileColor.Yellow);
+        this.transition('2hp-tile.png');
         break;
       case TileState.Danger:
-        setColorFn(TileColor.Red);
+        this.transition('1hp-tile.png');
         break;
       case TileState.Broken:
-        setColorFn(TileColor.Black, 0.1);
+        this.transition('0hp-tile.png');
         // because the act of dying removes a visitor from a tile
         // we need to create a different array to iterate against
         // to kill existing visitors
