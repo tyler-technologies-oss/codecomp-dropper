@@ -4,15 +4,12 @@ import { MatTabsModule } from '@angular/material/tabs';
 
 import { TournamentRoutingModule } from './tournament-routing.module';
 import { TournamentComponent } from './tournament/tournament.component';
-import { CsmBracketComponent } from './bracket/csm-bracket/csm-bracket.component';
-import { TtuBracketComponent } from './bracket/ttu-bracket/ttu-bracket.component';
-import { GrandFinalComponent } from './bracket/grand-final/grand-final.component';
 import { BracketComponent } from './bracket/bracket/bracket.component';
 
 
 
 @NgModule({
-  declarations: [TournamentComponent, CsmBracketComponent, TtuBracketComponent, GrandFinalComponent, BracketComponent],
+  declarations: [TournamentComponent, BracketComponent],
   imports: [
     MatTabsModule,
     TournamentRoutingModule,

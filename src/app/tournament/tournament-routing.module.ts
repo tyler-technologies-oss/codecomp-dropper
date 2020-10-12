@@ -1,16 +1,14 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { TournamentComponent } from './tournament/tournament.component';
-import { CsmBracketComponent } from './bracket/csm-bracket/csm-bracket.component';
-import { TtuBracketComponent } from './bracket/ttu-bracket/ttu-bracket.component';
-import { GrandFinalComponent } from './bracket/grand-final/grand-final.component';
+import { BracketComponent } from './bracket/bracket/bracket.component';
 
 const routes: Routes = [
   {path: '', component: TournamentComponent, children: [
     { path:'', redirectTo: 'FINALS', pathMatch: 'full' },
-    { path: 'FINALS', component: GrandFinalComponent},
-    { path: 'CSM', component: CsmBracketComponent },
-    { path: 'TTU', component: TtuBracketComponent }
+    { path: 'FINALS', component: BracketComponent, data: { key: '8dcacwho' }},
+    { path: 'CSM', component: BracketComponent, data: { key: 'mo72318d' }},
+    { path: 'TTU', component: BracketComponent, data: { key: 'l6pneeks' }}
   ]}
 ];
 

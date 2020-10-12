@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { DomSanitizer} from '@angular/platform-browser';
+import { DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'tyl-bracket',
@@ -8,15 +9,18 @@ import { DomSanitizer} from '@angular/platform-browser';
 })
 export class BracketComponent implements OnInit {
 
-  constructor(private sanitizer: DomSanitizer) { }
+  constructor(private sanitizer: DomSanitizer, private activatedRoute: ActivatedRoute) { }
 
   @Input() key: string;
+  url: SafeResourceUrl;
 
   ngOnInit(): void {
+    this.activatedRoute.data.subscribe(data => {
+      this.key = data.key;
+    });
+    this.url = this.sanitizer.bypassSecurityTrustResourceUrl(`https://challonge.com/${this.key}/module?show_tournament_name=1`);
   }
 
-  get url() {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://challonge.com/${this.key}/module?show_tournament_name=1`);
-  }
+  
 
 }
