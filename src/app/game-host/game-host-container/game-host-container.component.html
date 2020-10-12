@@ -1,9 +1,8 @@
 <div class="flex-grid">
-    <div class="main-col">
-        <div class="game" #gameHost></div>
+    <div class="main-col" #gameHost>
     </div>
     <div class="col">
-        <mat-card *ngIf='!isGameActive'>
+        <mat-card>
             <mat-card-title>Team Configuration</mat-card-title>
             <div>
                 <mat-form-field style="width:100%">
@@ -29,11 +28,11 @@
                 <button mat-raised-button color="primary" (click)='startGame()'>Start</button>
             </div>
         </mat-card>
-        <mat-card *ngIf='teamsInfo'>
+        <mat-card>
             <mat-card-title>ScoreBoard</mat-card-title>
             <mat-list>
-                <mat-list-item *ngFor="let info of teamsInfo" role="listitem">
-                    {{info.teamName}}:{{info.totalTilesDecremented}}</mat-list-item>
+              <mat-list-item>{{homeTeamName$ | async}}: {{homeTeamScore$ | async}}</mat-list-item>
+              <mat-list-item>{{awayTeamName$ | async}}: {{awayTeamScore$ | async}}</mat-list-item>
             </mat-list>
         </mat-card>
     </div>

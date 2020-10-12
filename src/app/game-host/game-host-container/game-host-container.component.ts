@@ -1,11 +1,15 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { wanderScript, tileStatusScript } from 'src/app/game/ai';
-import { TeamInfo } from 'src/app/game/objects/game-manager';
 import { ITeamConfig, MonsterType, Side, StateChangeEvent } from 'src/app/game/objects/interfaces';
 import { MainScene } from 'src/app/game/scenes/main.scene';
 import { createGame, GameConfig, Game, GameEvent } from '../../game/game';
 import Papa from 'papaparse';
+import { first, map } from 'rxjs/operators';
+import { TeamInfo } from '../../game/game';
+import { GameService } from '../game.service';
 
+const getTeamName = () => map<TeamInfo, string>(({ teamName }) => teamName);
+const getTeamScore = () => map<TeamInfo, number>(({ totalTilesDecremented }) => totalTilesDecremented);
 
 @Component({
   selector: 'tyl-game-host-container',
@@ -15,76 +19,65 @@ import Papa from 'papaparse';
 export class GameHostContainerComponent implements OnInit, OnDestroy {
   @ViewChild('gameHost', { static: true }) hostElement: ElementRef<HTMLElement>;
 
+  homeTeamName$ = this.gameService.homeTeamInfo$.pipe(getTeamName());
+  awayTeamName$ = this.gameService.awayTeamInfo$.pipe(getTeamName());
+  homeTeamScore$ = this.gameService.homeTeamInfo$.pipe(getTeamScore());
+  awayTeamScore$ = this.gameService.awayTeamInfo$.pipe(getTeamScore());
+  pause$ = this.gameService.isPaused$;
   homeTeamConfig: ITeamConfig;
   awayTeamConfig: ITeamConfig;
   teamConfigs: ITeamConfig[] = [];
-  private game: Game;
-  private mainScene: MainScene;
-  teamsInfo:TeamInfo[];
-  isGameActive: boolean = false;
 
-  constructor() { }
-
-  ngOnInit(): void {
-    this.populateTeamConfigs();
+  constructor(private gameService: GameService) {
   }
 
-  startGame(){
+  startGame() {
+    this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
+  }
 
-    //TODO: Try and reuse the main scene
-    if(this.game){
-      this.game.destroy(true);
-    }
+  ngOnInit(): void {
+    this.populateTeamConfigs();//TODO: Move to a team config service
+    this.hostElement.nativeElement.appendChild(this.gameService.containerElement);
+    this.gameService.resume();
+  }
 
-    const config: GameConfig = {
-      parent: this.hostElement.nativeElement,
-    }
-    this.mainScene = new MainScene(this.homeTeamConfig, this.awayTeamConfig);
+  ngOnDestroy(): void {
+    this.gameService.pause();
+    this.hostElement.nativeElement.removeChild(this.gameService.containerElement);
+  }
 
-    this.game = createGame(config, this.mainScene);
-
-    this.isGameActive = true;
-
-    this.game.events.once(GameEvent.DESTROY, () => {
-      console.log('Game destroyed');
-    })
-
-    this.mainScene.match.on(StateChangeEvent.ScoreBoardUpdate, (teams:TeamInfo[]) => {
-      this.teamsInfo = teams;
-    });
-
-    this.mainScene.match.on(StateChangeEvent.GameOver, () =>{
-      this.isGameActive = false;
-    })
-
+  pause() {
+    this.gameService.isPaused$.pipe(first()).subscribe(paused => !paused ?
+      this.gameService.pause() : this.gameService.resume())
   }
 
   readTeamCSV(url: string): void {
     var that = this;
 
     Papa.parse(url, {
-        header: true,
-        download: true,
-        error(error, file){
-          console.log('Error parsing file: ' + file);
-          console.log(error);
-        },
-        complete(results) {
-          console.log('Completed Parse:' + results);
-          results.data.forEach(element => {
-            let team: ITeamConfig = {
-                    name: element['Team Name'],
-                    preferredMonsters: {
-                      [Side.Home]: element['Home Monster Choice'].toLowerCase() as MonsterType,
-                      [Side.Away]: element['Away Monster Choice'].toLowerCase() as MonsterType,
-                    },
-                    aiSrc: element['URL/Code'],
-                    org: element['School']
-                  };
-            that.teamConfigs.push(team);
+      header: true,
+      download: true,
+      error(error, file) {
+        console.log('Error parsing file: ' + file);
+        console.log(error);
+      },
+      complete(results) {
+        console.log('Completed Parse:' + results);
+        results.data.forEach(element => {
+          let team: ITeamConfig = {
+            name: element['Team Name'],
+            preferredMonsters: {
+              [Side.Home]: element['Home Monster Choice'].toLowerCase() as MonsterType,
+              [Side.Away]: element['Away Monster Choice'].toLowerCase() as MonsterType,
+            },
+            aiSrc: element['URL/Code'],
+            org: element['School']
+          };
+          that.teamConfigs.push(team);
         });
-          console.log(that.teamConfigs);
-        }});
+        console.log(that.teamConfigs);
+      }
+    });
 
   }
 
@@ -124,9 +117,4 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
     return o1.name === o2.name;
   }
 
-  ngOnDestroy(): void {
-    if(this.game){
-      this.game.destroy(false);
-    }
-  }
 }

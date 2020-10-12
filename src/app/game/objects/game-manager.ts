@@ -288,7 +288,17 @@ export class GameManager {
   private exitState(state: GameState) {
     switch (state) {
       case GameState.Initializing:
-        this.printGameStateMsg('match started');
+      case GameState.Updating:
+        if (state === GameState.Initializing) {
+          this.printGameStateMsg('match started');
+        }
+        const home = this.teams[Side.Home];
+        const away = this.teams[Side.Away];
+        const teamInfo: Record<Side, TeamInfo> = {
+          [Side.Home]: {teamName: home.name, totalTilesDecremented: home.getTotalTilesDecremented()},
+          [Side.Away]: {teamName: away.name, totalTilesDecremented: away.getTotalTilesDecremented()},
+        };
+        this.eventEmitter.emit(StateChangeEvent.ScoreBoardUpdate, teamInfo);
         break;
     }
   }
@@ -373,13 +383,6 @@ export class GameManager {
       }
 
       this.eventEmitter.emit(StateChangeEvent.Updated, stateUpdatedEventArgs);
-      //TODO: Remove explicit null check 
-      if(this.teams){
-        let teamInfo:TeamInfo[] =[];
-        teamInfo.push({teamName:this.teams.home.name, totalTilesDecremented: this.teams.home.getTotalTilesDecremented()})
-        teamInfo.push({teamName:this.teams.away.name,  totalTilesDecremented: this.teams.away.getTotalTilesDecremented()})
-        this.eventEmitter.emit(StateChangeEvent.ScoreBoardUpdate, teamInfo);
-      }
     }
   }
 }
