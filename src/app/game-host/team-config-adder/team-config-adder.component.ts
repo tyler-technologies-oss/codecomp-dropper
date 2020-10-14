@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import {  MonsterType } from 'src/app/game/objects/interfaces';
+import {  ITeamConfig, MonsterType, Side } from 'src/app/game/objects/interfaces';
 
 @Component({
   selector: 'tyl-team-config-adder',
@@ -19,13 +19,23 @@ export class TeamConfigAdderComponent implements OnInit {
     monsterChoice2: new FormControl ('',Validators.required)
   });
 
+  @Output() addTeam = new EventEmitter<ITeamConfig>();
+
   constructor() { }
 
   ngOnInit(): void {
   }
 
   onSubmit() {
-    // TODO: Use EventEmitter with form value
-    console.warn(this.teamForm.value);
+    let teamConfig:ITeamConfig = {
+      name: this.teamForm.value.teamName,
+      org: this.teamForm.value.schoolName,
+      preferredMonsters: {
+        [Side.Home]: MonsterType[this.teamForm.value.monsterChoice1],
+        [Side.Away]: MonsterType[this.teamForm.value.monsterChoice2],
+      },
+      aiSrc: this.teamForm.value.script
+    }
+    this.addTeam.emit(teamConfig);
   }
 }

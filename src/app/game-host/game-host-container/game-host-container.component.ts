@@ -7,6 +7,7 @@ import Papa from 'papaparse';
 import { first, map } from 'rxjs/operators';
 import { TeamInfo } from '../../game/game';
 import { GameService } from '../game.service';
+import { Subscription } from 'rxjs';
 
 const getTeamName = () => map<TeamInfo, string>(({ teamName }) => teamName);
 const getTeamScore = () => map<TeamInfo, number>(({ totalTilesDecremented }) => totalTilesDecremented);
@@ -27,12 +28,19 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   homeTeamConfig: ITeamConfig;
   awayTeamConfig: ITeamConfig;
   teamConfigs: ITeamConfig[] = [];
+  showScoreBoard: boolean = false;
+  showTeamConfigs: boolean = true;
+  gameOverSubscription: Subscription = this.gameService.gameOver$.subscribe(args => {
+    this.showTeamConfigs = true;
+  });
 
   constructor(private gameService: GameService) {
   }
 
   startGame() {
     this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
+    this.showScoreBoard = true;
+    this.showTeamConfigs = false;
   }
 
   ngOnInit(): void {
@@ -49,6 +57,10 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   pause() {
     this.gameService.isPaused$.pipe(first()).subscribe(paused => !paused ?
       this.gameService.pause() : this.gameService.resume())
+  }
+
+  onAddTeam(teamConfig: ITeamConfig){
+    this.teamConfigs.push(teamConfig);
   }
 
   readTeamCSV(url: string): void {

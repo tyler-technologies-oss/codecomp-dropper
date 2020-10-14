@@ -2,7 +2,7 @@
     <div class="main-col" #gameHost>
     </div>
     <div class="col">
-        <mat-card>
+        <mat-card *ngIf="showTeamConfigs">
             <mat-card-title>Team Configuration</mat-card-title>
             <div>
                 <mat-form-field style="width:100%">
@@ -28,16 +28,16 @@
                 <button mat-raised-button color="primary" (click)='startGame()'>Start</button>
             </div>
         </mat-card>
-        <mat-card>
+        <mat-card *ngIf="showTeamConfigs">
+            <mat-card-title>Add Team</mat-card-title>
+           <tyl-team-config-adder (addTeam)="onAddTeam($event)"></tyl-team-config-adder>
+        </mat-card>
+        <mat-card *ngIf="showScoreBoard">
             <mat-card-title>ScoreBoard</mat-card-title>
             <mat-list>
               <mat-list-item>{{homeTeamName$ | async}}: {{homeTeamScore$ | async}}</mat-list-item>
               <mat-list-item>{{awayTeamName$ | async}}: {{awayTeamScore$ | async}}</mat-list-item>
             </mat-list>
-        </mat-card>
-        <mat-card>
-            <mat-card-title>Add Team</mat-card-title>
-           <tyl-team-config-adder></tyl-team-config-adder>
         </mat-card>
     </div>
 </div>

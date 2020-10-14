@@ -5,7 +5,7 @@ import { first, map, mergeMap, shareReplay, switchMap, tap, mapTo, startWith } f
 import { createGame, Game, GameEvent, SceneEvent, MainKey } from '../game/game';
 import { IMatchConfig, TeamInfo, Teams } from '../game/objects/game-manager';
 import { TileGrid } from '../game/objects/grid';
-import { ITeamConfig, Side, StateChangeEvent } from '../game/objects/interfaces';
+import { GameOverEventArgs, ITeamConfig, Side, StateChangeEvent } from '../game/objects/interfaces';
 import { Team } from '../game/objects/team';
 import { MainScene } from '../game/scenes/main.scene';
 
@@ -28,8 +28,14 @@ export class GameService {
     map(teamsInfo => teamsInfo[Side.Home]),
     shareReplay(1),
   );
+
   awayTeamInfo$ = this.teamsInfo$.pipe(
     map(teamsInfo => teamsInfo[Side.Away]),
+    shareReplay(1),
+  );
+
+  gameOver$ = this.mainScene$.pipe(
+    switchMap(mainScene => fromEvent<GameOverEventArgs>(mainScene.match, StateChangeEvent.GameOver)),
     shareReplay(1),
   );
 
