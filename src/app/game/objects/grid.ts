@@ -1,7 +1,7 @@
 import { GameObjects, Scene } from 'phaser';
 import { ILocation, INeighbor, TileState } from './interfaces';
 import { KillTile } from './kill-tile';
-import { Tile, TileColor } from './tile';
+import { Tile } from './tile';
 
 export class TileGrid extends GameObjects.Container {
 
@@ -31,7 +31,6 @@ export class TileGrid extends GameObjects.Container {
         ((Math.floor(i / size) * this.squareSize) + halfSquareSize),
         this.squareSize,
         this.squareSize,
-        TileColor.Green,
         i,
         [Math.floor(i / size), i % size]
       );

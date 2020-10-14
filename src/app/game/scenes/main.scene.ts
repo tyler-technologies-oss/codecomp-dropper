@@ -1,4 +1,4 @@
-import { Scene, Input, GameObjects } from 'phaser';
+import { Scene, Input } from 'phaser';
 import { loadMonsterAssets, createAllMonsterAnimFrames } from '../objects/monster'
 import { TileGrid } from '../objects/grid';
 import { GameOverEventArgs, ITeamConfig, MonsterType, Side, StateChangeEvent, TileState } from '../objects/interfaces';
@@ -15,6 +15,7 @@ import {
 } from '../ai';
 import { GameManager, IMatchConfig } from '../objects/game-manager';
 import { loadBackgroundAssets, Background } from '../objects/background';
+import { loadTileAssets } from '../objects/tile';
 
 
 export const MainKey = 'main';
@@ -57,6 +58,7 @@ export class MainScene extends Scene {
   preload() {
     loadBackgroundAssets(this);
     loadMonsterAssets(this);
+    loadTileAssets(this);
   }
 
   update(time: number, dt: number) {
