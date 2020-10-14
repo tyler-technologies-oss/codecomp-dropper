@@ -2,7 +2,7 @@ import { Scene, Input, GameObjects } from 'phaser';
 import { loadMonsterAssets, createAllMonsterAnimFrames } from '../objects/monster'
 import { TileGrid } from '../objects/grid';
 import { GameOverEventArgs, ITeamConfig, MonsterType, Side, StateChangeEvent, TileState } from '../objects/interfaces';
-import { Team} from '../objects/team';
+import { Team } from '../objects/team';
 import {
   tileStatusScript,
   idleScript,
@@ -38,9 +38,20 @@ export class MainScene extends Scene {
     const reset = this.input.keyboard.addKey(Input.Keyboard.KeyCodes.R);
     reset.on(Input.Keyboard.Events.UP, function (this: MainScene) {
       console.log('Resetting match...');
-      this.match?.reset();
+      this.match?.clearBoard();
+      this.match?.initialize();
     }, this);
     console.log(`Press 'R' to reset!`);
+
+    const gridSize = 5;
+    const cellSize = this.scale.height / (gridSize + 2);
+    const gridHeight = cellSize * gridSize;
+    const gridWidth = cellSize * gridSize;
+    const gridY = cellSize;
+    const gridX = (this.scale.width - gridWidth) / 2;
+    const grid = new TileGrid(this, gridX, gridY, gridWidth, gridHeight, gridSize);
+
+    this.match.initGrid(grid);
   }
 
   preload() {
@@ -52,7 +63,7 @@ export class MainScene extends Scene {
     this.background.update(dt)
   }
 
-  showGameOverDialog(status: GameOverEventArgs){
+  showGameOverDialog(status: GameOverEventArgs) {
     console.log(status);
   }
 }
