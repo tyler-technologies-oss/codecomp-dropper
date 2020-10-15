@@ -2,7 +2,37 @@
     <div class="main-col" #gameHost>
     </div>
     <div class="col">
-        <mat-card>
+        <mat-card *ngIf="showTeamConfigs">
+            <mat-card-title>Team Configuration</mat-card-title>
+            <div>
+                <mat-form-field style="width:100%">
+                    <mat-label>Home Team Configuration</mat-label>
+                    <mat-select [compareWith]='compareConfigs' [(ngModel)]="homeTeamConfig">
+                        <mat-option *ngFor="let config of teamConfigs" [value]='config'>
+                            {{config.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div>
+                <mat-form-field style="width:100%">
+                    <mat-label>Away Team Configuration</mat-label>
+                    <mat-select [compareWith]='compareConfigs' [(ngModel)]="awayTeamConfig">
+                        <mat-option *ngFor="let config of teamConfigs" [value]='config'>
+                            {{config.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div style="justify-content: flex-end; display: flex;">
+                <button mat-raised-button color="primary" (click)='startGame()'>Start</button>
+            </div>
+        </mat-card>
+        <mat-card *ngIf="showTeamConfigs">
+            <mat-card-title>Add Team</mat-card-title>
+           <tyl-team-config-adder (addTeam)="onAddTeam($event)"></tyl-team-config-adder>
+        </mat-card>
+        <mat-card *ngIf="showScoreBoard">
             <mat-card-title>ScoreBoard</mat-card-title>
             <mat-list>
               <mat-list-item>{{homeTeamName$ | async}}: {{homeTeamScore$ | async}}</mat-list-item>

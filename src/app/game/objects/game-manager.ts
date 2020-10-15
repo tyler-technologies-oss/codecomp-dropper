@@ -46,15 +46,28 @@ export class GameManager {
   constructor(private readonly thinkingTime = 2000, private readonly minThinkingTime = 1000) {
   }
 
-  reset() {
-    this.sides.forEach(side => this.teams[side].reset());
-    this.grid.reset();
-    this.initialize();
+  initGrid(grid: TileGrid){
+    this.matchConfig = {
+      grid: grid,
+      teams: null,
+      startLocations:{
+        [Side.Home]: [grid.getTileAtIndex(0, 0), grid.getTileAtIndex(0, 2), grid.getTileAtIndex(0, 4)],
+        [Side.Away]: [grid.getTileAtIndex(4, 0), grid.getTileAtIndex(4, 2), grid.getTileAtIndex(4, 4)],
+      } 
+    }
   }
 
-  initMatch(matchConfig: IMatchConfig) {
-    this.matchConfig = matchConfig;
-    this.initialize();
+  initTeams(teams: Teams){
+    this.matchConfig.teams = teams;
+  }
+
+  clearBoard(){
+    this.sides.forEach(side => {
+      if(this.teams && this.teams[side]){
+        this.teams[side].reset()
+      }
+    });
+    this.grid?.reset();
   }
 
   update(dt: number) {
@@ -122,14 +135,20 @@ export class GameManager {
     }
   }
 
-  private async initialize() {
+  public async initialize() {
+    const { teams, grid, startLocations } = this.matchConfig;
+
+    //TODO: initialize should probably never be called without teams being set, only happens when pressing R
+    if(teams == null){
+      return;
+    }
+
     if (this.teams) {
       // clear any handlers on existing teams
       Object.values(this.teams).forEach(team => team.removeAllListeners(StateChangeEvent.Updated));
     }
 
     this.setState(GameState.Initializing);
-    const { teams, grid, startLocations } = this.matchConfig;
     this.teams = teams;
     // register for team events
     Object.values(teams).forEach(team => team.on(StateChangeEvent.Updated, this.stateChangeHandler, this));

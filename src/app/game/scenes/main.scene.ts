@@ -2,7 +2,7 @@ import { Scene, Input } from 'phaser';
 import { loadMonsterAssets, createAllMonsterAnimFrames } from '../objects/monster'
 import { TileGrid } from '../objects/grid';
 import { GameOverEventArgs, ITeamConfig, MonsterType, Side, StateChangeEvent, TileState } from '../objects/interfaces';
-import { Team} from '../objects/team';
+import { Team } from '../objects/team';
 import {
   tileStatusScript,
   idleScript,
@@ -39,7 +39,8 @@ export class MainScene extends Scene {
     const reset = this.input.keyboard.addKey(Input.Keyboard.KeyCodes.R);
     reset.on(Input.Keyboard.Events.UP, function (this: MainScene) {
       console.log('Resetting match...');
-      this.match?.reset();
+      this.match?.clearBoard();
+      this.match?.initialize();
     }, this);
     console.log(`Press 'R' to reset!`);
 
@@ -51,44 +52,7 @@ export class MainScene extends Scene {
     const gridX = (this.scale.width - gridWidth) / 2;
     const grid = new TileGrid(this, gridX, gridY, gridWidth, gridHeight, gridSize);
 
-
-    // setup home team
-    const homeTeamConfig: ITeamConfig = {
-      name: 'Home',
-      org: 'Tyler',
-      preferredMonsters: {
-        [Side.Home]: MonsterType.Bobo,
-        [Side.Away]: MonsterType.Triclops,
-      },
-      aiSrc: wanderScript,
-    };
-    const homeTeam = new Team(this, homeTeamConfig);
-
-    // setup away team
-    const awayTeamConfig: ITeamConfig = {
-      name: 'Away',
-      org: 'Tyler',
-      preferredMonsters: {
-        [Side.Home]: MonsterType.Triclops,
-        [Side.Away]: MonsterType.Bobo,
-      },
-      aiSrc: tileStatusScript,
-    };
-    const awayTeam = new Team(this, awayTeamConfig);
-
-    // create the match
-    const matchConfig: IMatchConfig = {
-      grid,
-      teams: {
-        [Side.Home]: homeTeam,
-        [Side.Away]: awayTeam,
-      },
-      startLocations: {
-        [Side.Home]: [grid.getTileAtIndex(0, 0), grid.getTileAtIndex(0, 2), grid.getTileAtIndex(0, 4)],
-        [Side.Away]: [grid.getTileAtIndex(4, 0), grid.getTileAtIndex(4, 2), grid.getTileAtIndex(4, 4)],
-      }
-    };
-    this.match.initMatch(matchConfig);
+    this.match.initGrid(grid);
   }
 
   preload() {
@@ -101,7 +65,7 @@ export class MainScene extends Scene {
     this.background.update(dt)
   }
 
-  showGameOverDialog(status: GameOverEventArgs){
+  showGameOverDialog(status: GameOverEventArgs) {
     console.log(status);
   }
 }
