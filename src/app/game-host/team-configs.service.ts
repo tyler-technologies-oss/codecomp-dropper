@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ITeamConfig, MonsterType, Side, } from 'src/app/game/objects/interfaces';
 import { wanderScript, tileStatusScript } from 'src/app/game/ai';
-import Papa from 'papaparse';
+import { parse } from 'papaparse';
 import { Observable, of } from 'rxjs';
 
 @Injectable({
@@ -41,7 +41,7 @@ export class TeamConfigsService {
     teamConfigs.push(this.config1);
     teamConfigs.push(this.config2);
 
-    Papa.parse(this.url, {
+    parse(this.url, {
       header: true,
       download: true,
       error(error, file) {
