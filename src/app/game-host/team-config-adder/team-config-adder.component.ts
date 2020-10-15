@@ -37,5 +37,6 @@ export class TeamConfigAdderComponent implements OnInit {
       aiSrc: this.teamForm.value.script
     }
     this.addTeam.emit(teamConfig);
+    this.teamForm.reset();
   }
 }

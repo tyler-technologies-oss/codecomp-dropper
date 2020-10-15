@@ -8,6 +8,7 @@ import { first, map } from 'rxjs/operators';
 import { TeamInfo } from '../../game/game';
 import { GameService } from '../game.service';
 import { Subscription } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 const getTeamName = () => map<TeamInfo, string>(({ teamName }) => teamName);
 const getTeamScore = () => map<TeamInfo, number>(({ totalTilesDecremented }) => totalTilesDecremented);
@@ -28,19 +29,21 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   homeTeamConfig: ITeamConfig;
   awayTeamConfig: ITeamConfig;
   teamConfigs: ITeamConfig[] = [];
-  showScoreBoard: boolean = false;
-  showTeamConfigs: boolean = true;
-  gameOverSubscription: Subscription = this.gameService.gameOver$.subscribe(args => {
-    this.showTeamConfigs = true;
-  });
 
-  constructor(private gameService: GameService) {
+  //TODO: Figure out the flow of data w/events to properly hide / show UI elements
+  showScoreBoard: boolean = true;
+  showTeamConfigs: boolean = true;
+  // gameOverSubscription: Subscription = this.gameService.gameOver$.subscribe(args => {
+  //   this.showTeamConfigs = true;
+  // });
+
+  constructor(private gameService: GameService, private snackBar: MatSnackBar) {
   }
 
   startGame() {
     this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
-    this.showScoreBoard = true;
-    this.showTeamConfigs = false;
+    // this.showScoreBoard = true;
+    // this.showTeamConfigs = false;
   }
 
   ngOnInit(): void {
@@ -59,8 +62,9 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
       this.gameService.pause() : this.gameService.resume())
   }
 
-  onAddTeam(teamConfig: ITeamConfig){
+  onAddTeam(teamConfig: ITeamConfig) {
     this.teamConfigs.push(teamConfig);
+    this.snackBar.open("Configuration added: " + teamConfig.name, "Dismiss", { duration: 5000 });
   }
 
   readTeamCSV(url: string): void {

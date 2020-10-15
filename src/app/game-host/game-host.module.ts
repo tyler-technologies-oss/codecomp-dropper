@@ -10,7 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { GameHostContainerComponent } from './game-host-container/game-host-container.component';
 import { GameHostRoutingModule } from './game-host-routing.module';
 import { TeamConfigAdderComponent } from './team-config-adder/team-config-adder.component';
-
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 
@@ -27,7 +27,8 @@ import { TeamConfigAdderComponent } from './team-config-adder/team-config-adder.
     MatListModule,
     MatSelectModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatSnackBarModule
   ]
 })
 export class GameHostModule { }
