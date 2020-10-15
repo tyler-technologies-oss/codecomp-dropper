@@ -7,6 +7,7 @@ import { parse } from 'papaparse';
 import { first, map } from 'rxjs/operators';
 import { TeamInfo } from '../../game/game';
 import { GameService } from '../game.service';
+import { TeamConfigsService } from '../team-configs.service';
 import { Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -37,8 +38,7 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   //   this.showTeamConfigs = true;
   // });
 
-  constructor(private gameService: GameService, private snackBar: MatSnackBar) {
-  }
+  constructor(private gameService: GameService, private snackBar: MatSnackBar,  private configService: TeamConfigsService) {}
 
   startGame() {
     this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
@@ -47,7 +47,7 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.populateTeamConfigs();//TODO: Move to a team config service
+    this.populateTeamConfigs();
     this.hostElement.nativeElement.appendChild(this.gameService.containerElement);
     this.gameService.resume();
   }
@@ -67,65 +67,24 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
     this.snackBar.open("Configuration added: " + teamConfig.name, "Dismiss", { duration: 5000 });
   }
 
-  readTeamCSV(url: string): void {
-    var that = this;
-
-    parse(url, {
-      header: true,
-      download: true,
-      error(error, file) {
-        console.log('Error parsing file: ' + file);
-        console.log(error);
-      },
-      complete(results) {
-        console.log('Completed Parse:' + results);
-        results.data.forEach(element => {
-          let team: ITeamConfig = {
-            name: element['Team Name'],
-            preferredMonsters: {
-              [Side.Home]: element['Home Monster Choice'].toLowerCase() as MonsterType,
-              [Side.Away]: element['Away Monster Choice'].toLowerCase() as MonsterType,
-            },
-            aiSrc: element['URL/Code'],
-            org: element['School']
-          };
-          that.teamConfigs.push(team);
-        });
-        console.log(that.teamConfigs);
-      }
-    });
-
+  populateTeamConfigsFromService(): void{
+    this.configService.getTeamConfigs().subscribe(teamConfigs => this.teamConfigs = teamConfigs);
   }
 
   populateTeamConfigs(): void {
 
     // TODO: reference remote csv instead of local copy
-    const teamsPath = '/assets/matchSetup';
-    this.readTeamCSV(`${teamsPath}/CodeSubmission.csv`);
+    // const teamsPath = '/assets/matchSetup';
+    // this.readTeamCSV(`${teamsPath}/CodeSubmission.csv`);
+    // const path = 'https://www.dropbox.com/s/u88xk27egffpvr8/CodeSubmission.csv?dl=0';
+    // this.readTeamCSV(path);
+    // let tempTeams = this.configService.getTeamConfigs();
+    // this.teamConfigs.concat(tempTeams);
 
-    const config1: ITeamConfig = {
-      name: 'Mock Config 1',
-      org: 'Mock Org 1',
-      preferredMonsters: {
-        [Side.Home]: MonsterType.Bobo,
-        [Side.Away]: MonsterType.Triclops,
-      },
-      aiSrc: wanderScript,
-    };
 
-    const config2: ITeamConfig = {
-      name: 'Mock Config 2',
-      org: 'Mock Org 2',
-      preferredMonsters: {
-        [Side.Home]: MonsterType.Goldy,
-        [Side.Away]: MonsterType.Pinky,
-      },
-      aiSrc: tileStatusScript,
-    };
-    this.teamConfigs.push(config1);
-    this.teamConfigs.push(config2);
-    this.homeTeamConfig = config1;
-    this.awayTeamConfig = config2;
+    this.configService.getTeamConfigs().subscribe(teamConfigs => this.teamConfigs = teamConfigs);
+    this.homeTeamConfig = this.configService.config1;
+    this.awayTeamConfig = this.configService.config2;
   }
 
   // Needed for html binding to actually store object in component on selection of config
