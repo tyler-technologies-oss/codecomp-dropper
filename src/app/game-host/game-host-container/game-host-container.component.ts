@@ -3,7 +3,7 @@ import { wanderScript, tileStatusScript } from 'src/app/game/ai';
 import { ITeamConfig, MonsterType, Side, StateChangeEvent } from 'src/app/game/objects/interfaces';
 import { MainScene } from 'src/app/game/scenes/main.scene';
 import { createGame, GameConfig, Game, GameEvent } from '../../game/game';
-import Papa from 'papaparse';
+import { parse } from 'papaparse';
 import { first, map } from 'rxjs/operators';
 import { TeamInfo } from '../../game/game';
 import { GameService } from '../game.service';
@@ -70,7 +70,7 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   readTeamCSV(url: string): void {
     var that = this;
 
-    Papa.parse(url, {
+    parse(url, {
       header: true,
       download: true,
       error(error, file) {

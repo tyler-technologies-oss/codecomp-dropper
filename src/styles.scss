@@ -32,6 +32,10 @@ $dropper-theme: mat-light-theme((
 // that you are using.
 @include angular-material-theme($dropper-theme);
 
+@import './app/root/app-navigation/app-navigation.theme.scss';
+@include app-navigation-theme($dropper-theme);
+
+
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
