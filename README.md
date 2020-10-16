@@ -38,15 +38,28 @@ At the top level directiory run
 
 ```npm install```
 
+After initial installation you can run the app with
+
+```npm start```
+
+This will start the app on your local machine. 
+You can see the app running by visiting localhost:4200 in your favorite browser.
+
+#### Developing your AI
 
 
 
 
-## Development
 
-from a terminal run
+### Step 3: Submission
 
-```bash
-npm start
-```
+Once you are happy with your AI you can submit your code directly in your local app on the Submission tab. 
+
+Either paste your script directly in the submit box or submit a URL to the raw file publically hosted.
+
+
+### Step 4: Competition
+
+The competition will be live streamed on TWITCH.TV. Follow us at https://www.twitch.tv/tylertechnologies
+
 
