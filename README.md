@@ -57,6 +57,8 @@ Once you are happy with your AI you can submit your code directly in your local 
 
 Either paste your script directly in the submit box or submit a URL to the raw file publically hosted.
 
+Note: Make sure your team name matches the same team name you submitted on the Registration Form. 
+
 
 ### Step 4: Competition
 
