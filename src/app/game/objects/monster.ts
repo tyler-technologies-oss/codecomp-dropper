@@ -266,6 +266,7 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
           if (this.isAnimationPlaying(MonsterAnim.Jump)) {
             this.scale = MONSTER_SCALE;
             this.play(MonsterAnim.Idle, false, Math.Between(0, 11));
+            this.lastLocation.acceptVisitor(this);
           }
         }
 
