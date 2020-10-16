@@ -47,8 +47,7 @@ You can see the app running by visiting localhost:4200 in your favorite browser.
 
 #### Developing your AI
 
-
-
+*CONTENT NEEDED*
 
 
 ### Step 3: Submission
