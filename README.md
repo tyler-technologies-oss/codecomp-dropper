@@ -2,6 +2,17 @@
 
 Haunted Tiles is an application to pit student-developed ai against each other in a fun game.
 
+## Game Details
+
+The game looks like this:
+
+It is a 5 by 5 board of breaking tiles. With two teams (home & away) each with 3 players represented by cute monsters. Every turn the monsters move one tile or remain on their current tile by jumping. Every time that a tile is stepped on (jumping is a step) by a monster that tile breaks more. Every tile can sustain three steps. That is on the 3rd step the tile will break and any number of monsters on that step will fall to their death. Monsters can also fall to their death if they walk off the 5 x 5 board. The game is over when all three monsters on one team have fallen to their death.
+
+The objective to the game is to remain on the board longer than your opponent. 
+
+You will code an AI that will send instructions to your team on how each monster should move. 
+
+
 ## To Compete
 
 This section walks you through the necessary steps to compete in this coding competition. If you have any questions email us at hauntedtiles@tylertech.com
@@ -47,10 +58,38 @@ You can see the app running by visiting localhost:4200 in your favorite browser.
 
 #### Developing your AI
 
-*CONTENT NEEDED*
+Your AI will be written in Javascript a common web technology. 
 
+The game engine is expecting a main function with two parameters, gameState and side. And it is expecting the function to return an array with three dirctions.
+
+For example look at this main function:
+
+```function main(gameState, side) {
+    return ['south', 'south', 'south'];
+  }
+ ```
+
+We have mocked out a blank AI called development.ai.ts
+
+You can find it along with example AIs in the following folder: src > app > game > ai 
+
+This folder is the best place to start!
+
+#### Testing your AI
+
+We have included three different ways to test your AI up to your preference.
+
+1) You can develop all your code in the development.ai.ts script and chose the "Development" Team Config to run against other test AIs.
+
+2) You can directly paste either a publically hosted raw file link (for example on github) or your javascript code into the test box and click run.
+
+3) You can add a new team config using the Add Team box. (You will want to use this if you would like to test different AIs you've developed against each other) 
+
+NOTE: No matter how you test make sure you test your final AI with the Add Team Box. This will ensure successful submission of your code to the competition.
 
 ### Step 3: Submission
+
+STOP! Have you testing your script using the Add Team Box yet?
 
 Once you are happy with your AI you can submit your code directly in your local app on the Submission tab. 
 
