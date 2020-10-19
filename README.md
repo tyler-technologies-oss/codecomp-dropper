@@ -64,7 +64,8 @@ The game engine is expecting a main function with two parameters, gameState and 
 
 For example look at this main function:
 
-```function main(gameState, side) {
+```
+function main(gameState, side) {
     return ['south', 'south', 'south'];
   }
  ```
