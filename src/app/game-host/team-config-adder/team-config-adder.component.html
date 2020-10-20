@@ -1,4 +1,4 @@
-<form [formGroup]="teamForm" (ngSubmit)="onSubmit()">
+<form [formGroup]="teamForm">
     <div>
         <mat-form-field class="full-width">
             <mat-label>Team Name</mat-label>
@@ -40,6 +40,7 @@
         </mat-form-field>
     </div>
     <div style="justify-content: flex-end; display: flex;">
-        <button mat-raised-button color="primary" type="submit" [disabled]="!teamForm.valid">Submit</button>
+        <button mat-raised-button (click)="close()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!teamForm.valid">Submit</button>
     </div>
 </form>

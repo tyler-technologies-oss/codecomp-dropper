@@ -1,17 +1,16 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { wanderScript, tileStatusScript } from 'src/app/game/ai';
-import { ITeamConfig, MonsterType, Side, StateChangeEvent } from 'src/app/game/objects/interfaces';
-import { MainScene } from 'src/app/game/scenes/main.scene';
-import { createGame, GameConfig, Game, GameEvent } from '../../game/game';
-import { parse } from 'papaparse';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { on } from 'process';
 import { first, map } from 'rxjs/operators';
+import { ITeamConfig } from 'src/app/game/objects/interfaces';
 import { TeamInfo } from '../../game/game';
 import { GameService } from '../game.service';
+import { TeamConfigAdderComponent } from '../team-config-adder/team-config-adder.component';
 import { TeamConfigsService } from '../team-configs.service';
-import { Subscription } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
-const getTeamName = () => map<TeamInfo, string>(({ teamName }) => teamName);
+
+const getTeamName = () => map<TeamInfo, string>(({ teamName }) => teamName + ":");
 const getTeamScore = () => map<TeamInfo, number>(({ totalTilesDecremented }) => totalTilesDecremented);
 
 @Component({
@@ -37,7 +36,7 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   //   this.showTeamConfigs = true;
   // });
 
-  constructor(private gameService: GameService, private snackBar: MatSnackBar,  private configService: TeamConfigsService) {}
+  constructor(private gameService: GameService, private snackBar: MatSnackBar, private configService: TeamConfigsService, public dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.populateTeamConfigs();
@@ -56,14 +55,28 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
     // this.showTeamConfigs = false;
   }
 
-  resetGame(){
+  resetGame() {
     this.gameService.resetGame();
+  }
+
+  resume() {
+    this.gameService.resume();
   }
 
   pause() {
     this.gameService.isPaused$.pipe(first()).subscribe(paused => !paused ?
       this.gameService.pause() : this.gameService.resume())
   }
+  addTeam() {
+    const dialogRef = this.dialog.open(TeamConfigAdderComponent);
+    dialogRef.componentInstance.addTeam.subscribe((teamConfig) => {
+      this.onAddTeam(teamConfig);
+    })
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: ${result}`);
+    });
+  }
+
 
   onAddTeam(teamConfig: ITeamConfig) {
     this.configService.teamConfigs.push(teamConfig);
@@ -74,7 +87,7 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
     this.configService.parseTeamConfigs().subscribe(teamConfigs => {
       console.log("teamConfigs: " + teamConfigs.toString());
       this.homeTeamConfig = this.configService.developmentConfig;
-      if(teamConfigs.length > 1){
+      if (teamConfigs.length > 1) {
         this.awayTeamConfig = teamConfigs[1];
       }
     });
@@ -85,8 +98,8 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
     return o1.name === o2.name;
   }
 
-  getTeamConfigs(){
+  getTeamConfigs() {
     return this.configService.teamConfigs;
-   }
+  }
 
 }

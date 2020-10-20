@@ -1,5 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
 import {  ITeamConfig, MonsterType, Side } from 'src/app/game/objects/interfaces';
 
 @Component({
@@ -21,7 +22,7 @@ export class TeamConfigAdderComponent implements OnInit {
 
   @Output() addTeam = new EventEmitter<ITeamConfig>();
 
-  constructor() { }
+  constructor(private dialogRef:MatDialogRef<TeamConfigAdderComponent>) { }
 
   ngOnInit(): void {
   }
@@ -38,5 +39,10 @@ export class TeamConfigAdderComponent implements OnInit {
     }
     this.addTeam.emit(teamConfig);
     this.teamForm.reset();
+    this.close();
+  }
+
+  close() {
+    this.dialogRef.close();
   }
 }

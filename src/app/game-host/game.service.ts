@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Scene } from 'phaser';
-import { fromEvent, fromEventPattern, Observable, ReplaySubject, from, merge } from 'rxjs';
-import { first, map, mergeMap, shareReplay, switchMap, tap, mapTo, startWith } from 'rxjs/operators';
-import { createGame, Game, GameEvent, SceneEvent, MainKey } from '../game/game';
-import { IMatchConfig, TeamInfo, Teams } from '../game/objects/game-manager';
-import { TileGrid } from '../game/objects/grid';
-import { GameOverEventArgs, ITeamConfig, Side, StateChangeEvent } from '../game/objects/interfaces';
+import { from, fromEvent, merge, of, ReplaySubject } from 'rxjs';
+import { first, map, mapTo, mergeMap, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { createGame, Game, MainKey, SceneEvent } from '../game/game';
+import { TeamInfo, Teams } from '../game/objects/game-manager';
+import { GameOverEventArgs, GameState, ITeamConfig, Side, StateChangeEvent, StateUpdatedEventArgs } from '../game/objects/interfaces';
 import { Team } from '../game/objects/team';
 import { MainScene } from '../game/scenes/main.scene';
 
