@@ -29,7 +29,6 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   pause$ = this.gameService.isPaused$;
   homeTeamConfig: ITeamConfig;
   awayTeamConfig: ITeamConfig;
-  teamConfigs: ITeamConfig[] = [];
 
   //TODO: Figure out the flow of data w/events to properly hide / show UI elements
   showScoreBoard: boolean = true;
@@ -39,12 +38,6 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   // });
 
   constructor(private gameService: GameService, private snackBar: MatSnackBar,  private configService: TeamConfigsService) {}
-
-  startGame() {
-    this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
-    // this.showScoreBoard = true;
-    // this.showTeamConfigs = false;
-  }
 
   ngOnInit(): void {
     this.populateTeamConfigs();
@@ -57,39 +50,43 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
     this.hostElement.nativeElement.removeChild(this.gameService.containerElement);
   }
 
+  startGame() {
+    this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
+    // this.showScoreBoard = true;
+    // this.showTeamConfigs = false;
+  }
+
+  resetGame(){
+    this.gameService.resetGame();
+  }
+
   pause() {
     this.gameService.isPaused$.pipe(first()).subscribe(paused => !paused ?
       this.gameService.pause() : this.gameService.resume())
   }
 
   onAddTeam(teamConfig: ITeamConfig) {
-    this.teamConfigs.push(teamConfig);
+    this.configService.teamConfigs.push(teamConfig);
     this.snackBar.open("Configuration added: " + teamConfig.name, "Dismiss", { duration: 5000 });
   }
 
-  populateTeamConfigsFromService(): void{
-    this.configService.getTeamConfigs().subscribe(teamConfigs => this.teamConfigs = teamConfigs);
-  }
-
   populateTeamConfigs(): void {
-
-    // TODO: reference remote csv instead of local copy
-    // const teamsPath = '/assets/matchSetup';
-    // this.readTeamCSV(`${teamsPath}/CodeSubmission.csv`);
-    // const path = 'https://www.dropbox.com/s/u88xk27egffpvr8/CodeSubmission.csv?dl=0';
-    // this.readTeamCSV(path);
-    // let tempTeams = this.configService.getTeamConfigs();
-    // this.teamConfigs.concat(tempTeams);
-
-
-    this.configService.getTeamConfigs().subscribe(teamConfigs => this.teamConfigs = teamConfigs);
-    this.homeTeamConfig = this.configService.config1;
-    this.awayTeamConfig = this.configService.config2;
+    this.configService.parseTeamConfigs().subscribe(teamConfigs => {
+      console.log("teamConfigs: " + teamConfigs.toString());
+      this.homeTeamConfig = this.configService.developmentConfig;
+      if(teamConfigs.length > 1){
+        this.awayTeamConfig = teamConfigs[1];
+      }
+    });
   }
 
   // Needed for html binding to actually store object in component on selection of config
   compareConfigs(o1: any, o2: any): boolean {
     return o1.name === o2.name;
   }
+
+  getTeamConfigs(){
+    return this.configService.teamConfigs;
+   }
 
 }

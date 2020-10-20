@@ -77,4 +77,11 @@ export class GameService {
       scene.match.initialize();
     });
   }
+
+  resetGame(){
+    this.mainScene$.pipe(first()).subscribe(scene => {
+      scene.match.clearBoard();
+      scene.match.initialize();
+    });
+  }
 }

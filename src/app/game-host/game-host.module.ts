@@ -11,11 +11,12 @@ import { GameHostContainerComponent } from './game-host-container/game-host-cont
 import { GameHostRoutingModule } from './game-host-routing.module';
 import { TeamConfigAdderComponent } from './team-config-adder/team-config-adder.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { SimpleRunComponent } from './simple-run/simple-run.component';
 
 
 
 @NgModule({
-  declarations: [GameHostContainerComponent, TeamConfigAdderComponent],
+  declarations: [GameHostContainerComponent, TeamConfigAdderComponent, SimpleRunComponent],
   imports: [
     CommonModule,
     GameHostRoutingModule,

@@ -34,16 +34,6 @@ export class MainScene extends Scene {
     createAllMonsterAnimFrames(this.anims);
     this.background = new Background(this);
 
-
-    // Setup our reset button
-    const reset = this.input.keyboard.addKey(Input.Keyboard.KeyCodes.R);
-    reset.on(Input.Keyboard.Events.UP, function (this: MainScene) {
-      console.log('Resetting match...');
-      this.match?.clearBoard();
-      this.match?.initialize();
-    }, this);
-    console.log(`Press 'R' to reset!`);
-
     const gridSize = 5;
     const cellSize = this.scale.height / (gridSize + 2);
     const gridHeight = cellSize * gridSize;
