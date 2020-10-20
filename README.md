@@ -58,9 +58,9 @@ You can see the app running by visiting localhost:4200 in your favorite browser.
 
 #### Developing your AI
 
-Your AI will be written in Javascript a common web technology. 
+Your AI will be written in Javascript, a common web technology. 
 
-The game engine is expecting a main function with two parameters, gameState and side. And it is expecting the function to return an array with three dirctions.
+The game engine is expecting a main function with two parameters, gameState and side. And it is expecting the function to return an array with three directions.
 
 For example look at this main function:
 
