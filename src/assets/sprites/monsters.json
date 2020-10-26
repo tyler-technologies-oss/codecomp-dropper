@@ -10,6 +10,106 @@
 			"scale": 0.5,
 			"frames": [
 				{
+					"filename": "triclops/broom-sweep-idle/BroomSweepIdle_000.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 350,
+						"h": 350
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 50,
+						"w": 180,
+						"h": 294
+					},
+					"frame": {
+						"x": 370,
+						"y": 1486,
+						"w": 180,
+						"h": 294
+					},
+					"anchor": {
+						"x": 0.5,
+						"y": 1
+					}
+				},
+				{
+					"filename": "triclops/broom-sweep-idle/BroomSweepIdle_001.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 350,
+						"h": 350
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 50,
+						"w": 180,
+						"h": 294
+					},
+					"frame": {
+						"x": 391,
+						"y": 1186,
+						"w": 180,
+						"h": 294
+					},
+					"anchor": {
+						"x": 0.5,
+						"y": 1
+					}
+				},
+				{
+					"filename": "bobo/dead-sweep-idle/DeadSweepIdle_000.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 350,
+						"h": 350
+					},
+					"spriteSourceSize": {
+						"x": 10,
+						"y": 142,
+						"w": 301,
+						"h": 203
+					},
+					"frame": {
+						"x": 3731,
+						"y": 274,
+						"w": 301,
+						"h": 203
+					},
+					"anchor": {
+						"x": 0.5,
+						"y": 1
+					}
+				},
+				{
+					"filename": "bobo/dead-sweep-idle/DeadSweepIdle_001.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 350,
+						"h": 350
+					},
+					"spriteSourceSize": {
+						"x": 10,
+						"y": 142,
+						"w": 301,
+						"h": 203
+					},
+					"frame": {
+						"x": 3731,
+						"y": 274,
+						"w": 301,
+						"h": 203
+					},
+					"anchor": {
+						"x": 0.5,
+						"y": 1
+					}
+				},
+				{
 					"filename": "triclops/run/Run_002.png",
 					"rotated": false,
 					"trimmed": true,

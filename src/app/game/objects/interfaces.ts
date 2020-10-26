@@ -95,7 +95,11 @@ export interface StateUpdatedEventArgs<State, Payload=any> {
 export enum StateChangeEvent {
   ScoreBoardUpdate='scoreboard_update',
   Updated = 'state_updated',
-  GameOver = 'game_over',
+}
+
+export enum MatchEvent {
+  GameEnd = 'game_end',
+  GameStart = 'game_start'
 }
 
 export enum GameState {
@@ -118,11 +122,16 @@ export enum TeamState {
   Dead = 'dead',
 }
 
-export type MatchStatus = Record<Side, {name: string, org: string, state: TeamState, reason?: ErrorReason}>
+export type MatchTeamInfo = Record<Side, {
+  name: string, 
+  org: string, 
+  monsterType: MonsterType,
+  reason?: ErrorReason
+}>
 
-export interface GameOverEventArgs {
+export interface MatchEventArgs {
   state: GameState;
-  team: MatchStatus;
+  team: MatchTeamInfo;
 }
 
 export enum ErrorReason {

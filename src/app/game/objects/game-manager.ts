@@ -1,4 +1,4 @@
-import { Events, Game } from 'phaser';
+import { Events } from 'phaser';
 import { TileGrid } from './grid';
 import {
   ErrorReason,
@@ -12,9 +12,10 @@ import {
   TeamStates,
   GameState,
   TeamState,
-  MatchStatus, GameOverEventArgs
+  MatchEventArgs, 
+  MatchEvent
 } from './interfaces';
-import { Monster, MonsterState } from './monster';
+import { Monster } from './monster';
 import { Team } from './team';
 
 export type Teams = Record<Side, Team>;
@@ -47,9 +48,13 @@ export class GameManager {
   }
 
   reset() {
-    this.sides.forEach(side => this.teams[side].reset());
+    this.sides.forEach(side => {
+      this.teams[side].reset();
+      this.teams[side].setVisible(true);
+    });
     this.grid.reset();
     this.initialize();
+    this.grid.setVisible(true);
   }
 
   initMatch(matchConfig: IMatchConfig) {
@@ -89,6 +94,11 @@ export class GameManager {
   removeAllListeners(event?: string | symbol): this {
     this.eventEmitter.removeAllListeners(event);
     return this;
+  }
+
+  hide() {
+    this.sides.forEach(side => this.teams[side].setVisible(false));
+    this.grid.setVisible(false);
   }
 
   private stateChangeHandler = function (this: GameManager, { payload }: StateUpdatedEventArgs<TeamState, ErrorReason>) {
@@ -134,7 +144,7 @@ export class GameManager {
     // register for team events
     Object.values(teams).forEach(team => team.on(StateChangeEvent.Updated, this.stateChangeHandler, this));
     this.grid = grid;
-
+    
     // figure out if the away team needs to switch monsters.
     const { home: homeMonsterType } = this.teams[Side.Home].getPreferredTypes();
     const { home: awayMonsterType } = this.teams[Side.Away].getPreferredTypes();
@@ -317,6 +327,7 @@ export class GameManager {
         this.teams[Side.Home].win();
         this.printGameStateMsg();
         this.teams[Side.Away].teamKill();
+        
         break;
       case GameState.AwayTeamWins:
         this.teams[Side.Away].win();
@@ -336,15 +347,30 @@ export class GameManager {
 
     if (this.isGameOver(state)) {
       const {home, away} = this.teams;
-      const eventArgs: GameOverEventArgs = {
+      const { home: homeMonsterType } = this.teams[Side.Home].getPreferredTypes();
+      const { home: awayMonsterType, away: awayAlternateMonsterType } = this.teams[Side.Away].getPreferredTypes();
+      const useAlternateMonster = homeMonsterType === awayMonsterType;
+
+      const eventArgs: MatchEventArgs = {
         state,
         team: {
-          [Side.Home]: {name: home.name, org: home.org, state: home.state, reason: home.errorReason},
-          [Side.Away]: {name: away.name, org: away.org, state: away.state, reason: away.errorReason}
+          [Side.Home]: {
+            name: home.name, 
+            org: home.org, 
+            // state: home.state, 
+            monsterType: homeMonsterType,
+            reason: home.errorReason
+          },
+          [Side.Away]: {
+            name: away.name, 
+            org: away.org, 
+            // state: away.state, 
+            monsterType: useAlternateMonster ? awayAlternateMonsterType : awayMonsterType,
+            reason: away.errorReason
+          }
         }
       };
-
-      this.eventEmitter.emit(StateChangeEvent.GameOver, eventArgs);
+      this.eventEmitter.emit(MatchEvent.GameEnd, eventArgs);
     }
   }
 

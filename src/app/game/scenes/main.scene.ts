@@ -1,7 +1,7 @@
-import { Scene, Input } from 'phaser';
+import { Scene, Input, Events } from 'phaser';
 import { loadMonsterAssets, createAllMonsterAnimFrames } from '../objects/monster'
-import { TileGrid } from '../objects/grid';
-import { GameOverEventArgs, ITeamConfig, MonsterType, Side, StateChangeEvent, TileState } from '../objects/interfaces';
+import { TileGrid, squareGrid } from '../objects/grid';
+import { MatchEventArgs, ITeamConfig, MonsterType, Side, StateChangeEvent, TileState, MatchEvent } from '../objects/interfaces';
 import { Team} from '../objects/team';
 import {
   tileStatusScript,
@@ -16,6 +16,7 @@ import {
 import { GameManager, IMatchConfig } from '../objects/game-manager';
 import { loadBackgroundAssets, Background } from '../objects/background';
 import { loadTileAssets } from '../objects/tile';
+import { createAllGameEndAnimFrames, GameOver } from '../objects/game-over';
 
 
 export const MainKey = 'main';
@@ -23,6 +24,7 @@ export const MainKey = 'main';
 export class MainScene extends Scene {
   match: GameManager;
   background: Background;
+  gameOver: GameOver;
 
   constructor() {
     super({ key: MainKey });
@@ -32,25 +34,19 @@ export class MainScene extends Scene {
   create() {
     // initialize all the animations
     createAllMonsterAnimFrames(this.anims);
+    createAllGameEndAnimFrames(this.anims);
     this.background = new Background(this);
-
+    this.gameOver = new GameOver(this);
+    this.match.on(MatchEvent.GameEnd, this.gameOverEvent, this);
 
     // Setup our reset button
     const reset = this.input.keyboard.addKey(Input.Keyboard.KeyCodes.R);
     reset.on(Input.Keyboard.Events.UP, function (this: MainScene) {
       console.log('Resetting match...');
       this.match?.reset();
+      this.gameOver.hide();
     }, this);
     console.log(`Press 'R' to reset!`);
-
-    const gridSize = 5;
-    const cellSize = this.scale.height / (gridSize + 2);
-    const gridHeight = cellSize * gridSize;
-    const gridWidth = cellSize * gridSize;
-    const gridY = cellSize;
-    const gridX = (this.scale.width - gridWidth) / 2;
-    const grid = new TileGrid(this, gridX, gridY, gridWidth, gridHeight, gridSize);
-
 
     // setup home team
     const homeTeamConfig: ITeamConfig = {
@@ -75,6 +71,8 @@ export class MainScene extends Scene {
       aiSrc: tileStatusScript,
     };
     const awayTeam = new Team(this, awayTeamConfig);
+
+    const grid = squareGrid(this, this.scale, 5);
 
     // create the match
     const matchConfig: IMatchConfig = {
@@ -101,7 +99,15 @@ export class MainScene extends Scene {
     this.background.update(dt)
   }
 
-  showGameOverDialog(status: GameOverEventArgs){
-    console.log(status);
+  gameOverEvent(args: MatchEventArgs){
+    const winningSide = args.state === 'homeTeamWins' ? 'home' : 'away';
+    const victoryMonsterType = winningSide === 'home' ? args.team.home.monsterType : args.team.away.monsterType;
+    const defeatMonsterType = winningSide === 'home' ? args.team.away.monsterType : args.team.home.monsterType;
+    
+    setTimeout(() => {
+      this.match.hide();
+      this.gameOver.initialize(victoryMonsterType, defeatMonsterType);
+      this.gameOver.play();
+    }, 1000);
   }
 }
