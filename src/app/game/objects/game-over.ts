@@ -25,7 +25,7 @@ export function createVictoryAnimFrames(
     [VictoryAnim.BroomSweepIdle]: anims.generateFrameNames(
       MonstersAtlas,
       { 
-        prefix: `${monster}/walk/Walk_`,
+        prefix: `${monster}/idle/Idle_`,
         end: 11,
         start,
         zeroPad,
@@ -155,7 +155,7 @@ export class GameOver extends GameObjects.Container {
 
     scene.add.existing(this);
 
-    this.setVisible(false);
+    // this.setVisible(false);
   }
 
   initialize(victoryMonsterType: MonsterType, defeatMonsterType: MonsterType) {
@@ -170,7 +170,6 @@ export class GameOver extends GameObjects.Container {
       600, 
       600, 
       MonstersAtlas, 
-      `${victoryMonsterType}/walk/Walk_000.png`,
     );
 
     this.victoryMonster.flipX = true;
@@ -182,7 +181,6 @@ export class GameOver extends GameObjects.Container {
       1000,
       620,
       MonstersAtlas,
-      `${defeatMonsterType}/dead-sweep-idle/DeadSweepIdle_000.png`,
     );
     this.defeatMonster.state = GameEndState.SweepIdle;
 
@@ -192,9 +190,11 @@ export class GameOver extends GameObjects.Container {
   }
 
   play() {
-    console.log('Play Game End Scene');
-    this.scene.anims.play(`${this.victoryMonsterType}_${VictoryAnim.BroomSweepIdle}`, this.victoryMonster);
-    this.scene.anims.play(`${this.defeatMonsterType}_${DefeatAnim.DeadSweepIdle}`, this.defeatMonster);
+    const victoryAnim = `${this.victoryMonsterType}_idle`;
+    const defeatAnim = `${this.defeatMonsterType}_${DefeatAnim.DeadSweepIdle}`;
+    console.log('Play Game End Scene', victoryAnim, defeatAnim);
+    this.victoryMonster.play(victoryAnim);
+    this.defeatMonster.play(defeatAnim);
   }
 
   // update(time: number, dt: number): void {

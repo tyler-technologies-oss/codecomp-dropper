@@ -101,6 +101,11 @@ export class GameManager {
     this.grid.setVisible(false);
   }
 
+  show() {
+    this.sides.forEach(side => this.teams[side].setVisible(true));
+    this.grid.setVisible(true);
+  }
+
   private stateChangeHandler = function (this: GameManager, { payload }: StateUpdatedEventArgs<TeamState, ErrorReason>) {
     const teamStates = Object.values(this.teams).map(team => team.state);
 
