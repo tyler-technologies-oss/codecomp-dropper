@@ -51,8 +51,8 @@ export class GameManager {
       grid: grid,
       teams: null,
       startLocations:{
-        [Side.Home]: [grid.getTileAtIndex(0, 0), grid.getTileAtIndex(0, 5), grid.getTileAtIndex(0, 9)],
-        [Side.Away]: [grid.getTileAtIndex(9, 0), grid.getTileAtIndex(9, 5), grid.getTileAtIndex(9, 9)],
+        [Side.Home]: [grid.getTileAtIndex(0, 0), grid.getTileAtIndex(0, 2), grid.getTileAtIndex(0, 4)],
+        [Side.Away]: [grid.getTileAtIndex(4, 0), grid.getTileAtIndex(4, 2), grid.getTileAtIndex(4, 4)],
       } 
     }
   }
