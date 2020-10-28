@@ -16,13 +16,8 @@ import {
 import { GameManager, IMatchConfig } from '../objects/game-manager';
 import { loadBackgroundAssets, Background } from '../objects/background';
 import { loadTileAssets } from '../objects/tile';
+import { BroomAtlas, createBroomAnimFrames, loadBroomAssets } from '../objects/broom';
 import { createAllGameEndAnimFrames, GameOver } from '../objects/game-over';
-
-enum GameEndState {
-  SweepMove = 'sweep_move',
-  SweepIdle = 'sweep_idle',
-  SweepResting = 'sweep_resting',
-}
 
 export const MainKey = 'main';
 
@@ -31,6 +26,9 @@ export class MainScene extends Scene {
   background: Background;
   victoryMonster: GameObjects.Sprite;
   defeatMonster: GameObjects.Sprite;
+  broom: GameObjects.Sprite;
+  private victoryType: MonsterType;
+  private defeatType: MonsterType;
   private gameEndTime = 0;
   private gameEndLoop = 1500;
   isGameOver = false;
@@ -44,6 +42,7 @@ export class MainScene extends Scene {
     // initialize all the animations
     createAllMonsterAnimFrames(this.anims);
     createAllGameEndAnimFrames(this.anims);
+    createBroomAnimFrames(this.anims);
     this.background = new Background(this);
     // this.gameOver = new GameOver(this);
     // this.gameEndInit(MonsterType.Triclops, MonsterType.Bobo);
@@ -58,6 +57,7 @@ export class MainScene extends Scene {
       this.match?.reset(); 
       this.victoryMonster.destroy();
       this.defeatMonster.destroy();
+      this.broom.destroy();
       this.gameEndTime = 0;
     }, this);
     console.log(`Press 'R' to reset!`);
@@ -107,6 +107,7 @@ export class MainScene extends Scene {
     loadBackgroundAssets(this);
     loadMonsterAssets(this);
     loadTileAssets(this);
+    loadBroomAssets(this);
   }
 
   update(time: number, dt: number) {
@@ -121,10 +122,9 @@ export class MainScene extends Scene {
     const winningSide = args.state === 'homeTeamWins' ? 'home' : 'away';
     const victoryMonsterType = winningSide === 'home' ? args.team.home.monsterType : args.team.away.monsterType;
     const defeatMonsterType = winningSide === 'home' ? args.team.away.monsterType : args.team.home.monsterType;
-    console.log('Game end');
+    console.log('Game end', victoryMonsterType, defeatMonsterType);
     this.match.hide();
     this.gameEndInit(victoryMonsterType, defeatMonsterType);
-    // this.gameOver.play();
   }
 
   private gameEndInit(victoryMonsterType: MonsterType, defeatMonsterType: MonsterType) {
@@ -141,7 +141,6 @@ export class MainScene extends Scene {
     );
 
     this.victoryMonster.flipX = true;
-    this.victoryMonster.state = GameEndState.SweepIdle;
 
     this.defeatMonster = new GameObjects.Sprite(
       this,
@@ -149,18 +148,21 @@ export class MainScene extends Scene {
       620,
       MonstersAtlas,
     );
-    this.defeatMonster.state = GameEndState.SweepIdle;
+
+    this.broom = new GameObjects.Sprite(
+      this,
+      512,
+      575,
+      BroomAtlas,
+    );
+
+    this.broom.flipX = true;
 
     this.add.existing(this.victoryMonster);
     this.add.existing(this.defeatMonster);
-    // this.victoryMonster.setVisible(true);
-    // this.defeatMonster.setVisible(true);
-    // this.setVisible(true);
-    // const victoryAnim = `${victoryMonsterType}_idle`;
-    // const defeatAnim = `${defeatMonsterType}_dead_sweep_idle`;
-    // console.log('Play Game End Scene', victoryAnim, defeatAnim);
-    // this.victoryMonster.play(victoryAnim);
-    // this.defeatMonster.play(defeatAnim);
+    this.add.existing(this.broom);
+    this.victoryType = victoryMonsterType;
+    this.defeatType = defeatMonsterType;
   }
 
   private gameEndUpdate(dt) {
@@ -168,11 +170,22 @@ export class MainScene extends Scene {
 
     const i = this.gameEndTime > 0 ? Math.floor(this.gameEndTime / this.gameEndLoop) : 0;
     // console.log(i);
-    if ((i % 2) < 1 && i < 6) {
+    if ((i % 2) < 1 && i < 5) {
       const x = i / 2 * 300;
       this.moveVictoryMonster(300 + x, 600 + x);
-    } else if (i === 6) {
+      this.victoryMonster.play(`${this.victoryType}_walk`, true);
+      this.broom.play('broom_sweep', true);
+    } else if ((i % 2) > 0 && i < 5) {
+      this.victoryMonster.play(`${this.victoryType}_idle`, true);
+      this.broom.setFrame('broom-1.png');
+    } else if (i === 5) {
       this.victoryMonster.flipX = false;
+      this.victoryMonster.play(`${this.victoryType}_idle`, true);
+      this.broom.flipX = false;
+      this.broom.setPosition(1095, 515);
+      this.broom.setFrame('broom-3.png');
+      this.broom.setRotation(1);
+      
     } else if (i > 6) {
       this.isGameOver = false;
       this.gameEndTime = 0;
@@ -183,6 +196,7 @@ export class MainScene extends Scene {
     const normalizedTime = PMath.Clamp((this.gameEndTime % this.gameEndLoop) / this.gameEndLoop, 0, 1);
     const x = PMath.Interpolation.Linear([x1, x2], normalizedTime);
     this.victoryMonster.setPosition(x, 600);
+    this.broom.setPosition(x + 112, 575);
     this.defeatMonster.setPosition(x + 400, 620);
   }
 
