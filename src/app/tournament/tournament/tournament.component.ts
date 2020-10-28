@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TournamentComponent implements OnInit {
 
-  links = ['FINALS', 'CSM', 'TTU'];
+  links = ['FINALS', 'CSM', 'CSU', 'CU', 'TTU', 'UMaine', 'UW', 'GATech', 'MISC'];
   activeLink = this.links[0];
 
   constructor() { }

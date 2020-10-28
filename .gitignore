@@ -47,3 +47,6 @@ Thumbs.db
 
 # publish directory
 /docs
+
+# CSV Code
+.csv

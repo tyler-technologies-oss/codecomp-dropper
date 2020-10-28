@@ -34,7 +34,7 @@ export class MainScene extends Scene {
     createAllMonsterAnimFrames(this.anims);
     this.background = new Background(this);
 
-    const gridSize = 5;
+    const gridSize = 10;
     const cellSize = this.scale.height / (gridSize + 2);
     const gridHeight = cellSize * gridSize;
     const gridWidth = cellSize * gridSize;
