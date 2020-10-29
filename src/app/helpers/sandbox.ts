@@ -83,7 +83,7 @@ function createWebWorkerSource(code: string, id: any, timeout = 2000) {
           } catch (error) {
 
             // untrusted code choked, report the error!
-            self.postMessage({error});
+            self.postMessage({error: error.toString()});
           }
           return;
         } else {
