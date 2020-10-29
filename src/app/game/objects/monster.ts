@@ -51,7 +51,7 @@ export function createMonsterAnimFrames(anims: Animations.AnimationManager, mons
     [MonsterAnim.Walk]: anims.generateFrameNames(MonstersAtlas, { prefix: `${monster}/walk/Walk_`, end: 11, start, zeroPad, suffix }),
   };
 
-  anims.create({ key: `${monster}_${MonsterAnim.Attack}`, frames: animFrameMap[MonsterAnim.Attack], frameRate: 15 });
+  anims.create({ key: `${monster}_${MonsterAnim.Attack}`, frames: animFrameMap[MonsterAnim.Attack], frameRate: 5, repeat: -1 });
   anims.create({ key: `${monster}_${MonsterAnim.Die}`, frames: animFrameMap[MonsterAnim.Die], frameRate: 15, hideOnComplete: true });
   anims.create({ key: `${monster}_${MonsterAnim.Idle}`, frames: animFrameMap[MonsterAnim.Idle], frameRate: 12, repeat: -1 });
   anims.create({ key: `${monster}_${MonsterAnim.Jump}`, frames: animFrameMap[MonsterAnim.Jump], frameRate: 15, repeat: -1 });

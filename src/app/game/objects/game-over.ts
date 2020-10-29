@@ -36,7 +36,7 @@ export function createVictoryAnimFrames(
       MonstersAtlas,
       { 
         prefix: `${monster}/broom-sweep-move/BroomSweepMove_`,
-        end: 1,
+        end: 6,
         start,
         zeroPad,
         suffix
@@ -63,7 +63,9 @@ export function createVictoryAnimFrames(
   anims.create({
     key: `${monster}_${VictoryAnim.BroomSweepMove}`,
     frames: animFrameMap[VictoryAnim.BroomSweepMove],
-    frameRate: 15,
+    frameRate: 12,
+    repeat: -1,
+    yoyo: true
   });
   anims.create({
     key: `${monster}_${VictoryAnim.BroomResting}`,

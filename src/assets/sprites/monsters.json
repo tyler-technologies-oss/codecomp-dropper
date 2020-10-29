@@ -10,7 +10,7 @@
 			"scale": 0.5,
 			"frames": [
 				{
-					"filename": "triclops/broom-sweep-idle/BroomSweepIdle_000.png",
+					"filename": "triclops/broom-sweep-move/BroomSweepMove_000.png",
 					"rotated": false,
 					"trimmed": true,
 					"sourceSize": {
@@ -18,16 +18,16 @@
 						"h": 350
 					},
 					"spriteSourceSize": {
-						"x": 66,
-						"y": 50,
-						"w": 180,
-						"h": 294
+						"x": 42,
+						"y": 44,
+						"w": 189,
+						"h": 295
 					},
 					"frame": {
-						"x": 370,
-						"y": 1486,
-						"w": 180,
-						"h": 294
+						"x": 415,
+						"y": 2968,
+						"w": 189,
+						"h": 295
 					},
 					"anchor": {
 						"x": 0.5,
@@ -35,7 +35,7 @@
 					}
 				},
 				{
-					"filename": "triclops/broom-sweep-idle/BroomSweepIdle_001.png",
+					"filename": "triclops/broom-sweep-move/BroomSweepMove_001.png",
 					"rotated": false,
 					"trimmed": true,
 					"sourceSize": {
@@ -43,16 +43,141 @@
 						"h": 350
 					},
 					"spriteSourceSize": {
-						"x": 66,
-						"y": 50,
-						"w": 180,
-						"h": 294
+						"x": 34,
+						"y": 53,
+						"w": 225,
+						"h": 291
 					},
 					"frame": {
-						"x": 391,
-						"y": 1186,
-						"w": 180,
-						"h": 294
+						"x": 972,
+						"y": 292,
+						"w": 225,
+						"h": 291
+					},
+					"anchor": {
+						"x": 0.5,
+						"y": 1
+					}
+				},
+				{
+					"filename": "triclops/broom-sweep-move/BroomSweepMove_002.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 350,
+						"h": 350
+					},
+					"spriteSourceSize": {
+						"x": 34,
+						"y": 53,
+						"w": 225,
+						"h": 291
+					},
+					"frame": {
+						"x": 972,
+						"y": 292,
+						"w": 225,
+						"h": 291
+					},
+					"anchor": {
+						"x": 0.5,
+						"y": 1
+					}
+				},
+				{
+					"filename": "triclops/broom-sweep-move/BroomSweepMove_003.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 350,
+						"h": 350
+					},
+					"spriteSourceSize": {
+						"x": 6,
+						"y": 63,
+						"w": 254,
+						"h": 281
+					},
+					"frame": {
+						"x": 1876,
+						"y": 569,
+						"w": 254,
+						"h": 281
+					},
+					"anchor": {
+						"x": 0.5,
+						"y": 1
+					}
+				},
+				{
+					"filename": "triclops/broom-sweep-move/BroomSweepMove_004.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 350,
+						"h": 350
+					},
+					"spriteSourceSize": {
+						"x": 6,
+						"y": 63,
+						"w": 254,
+						"h": 281
+					},
+					"frame": {
+						"x": 1876,
+						"y": 569,
+						"w": 254,
+						"h": 281
+					},
+					"anchor": {
+						"x": 0.5,
+						"y": 1
+					}
+				},
+				{
+					"filename": "triclops/broom-sweep-move/BroomSweepMove_005.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 350,
+						"h": 350
+					},
+					"spriteSourceSize": {
+						"x": 6,
+						"y": 63,
+						"w": 254,
+						"h": 281
+					},
+					"frame": {
+						"x": 1876,
+						"y": 569,
+						"w": 254,
+						"h": 281
+					},
+					"anchor": {
+						"x": 0.5,
+						"y": 1
+					}
+				},
+				{
+					"filename": "triclops/broom-sweep-move/BroomSweepMove_006.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 350,
+						"h": 350
+					},
+					"spriteSourceSize": {
+						"x": 6,
+						"y": 63,
+						"w": 254,
+						"h": 281
+					},
+					"frame": {
+						"x": 1876,
+						"y": 569,
+						"w": 254,
+						"h": 281
 					},
 					"anchor": {
 						"x": 0.5,
