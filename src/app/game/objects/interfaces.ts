@@ -118,7 +118,7 @@ export enum TeamState {
   Dead = 'dead',
 }
 
-export type MatchStatus = Record<Side, {name: string, org: string, state: TeamState, reason?: ErrorReason}>
+export type MatchStatus = Record<Side, {name: string, org: string, state: TeamState, reason?: ErrorReason, tilesDecremented?: number}>
 
 export interface GameOverEventArgs {
   state: GameState;

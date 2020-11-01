@@ -2,8 +2,9 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { on } from 'process';
+import { Subscription } from 'rxjs';
 import { first, map } from 'rxjs/operators';
-import { ITeamConfig } from 'src/app/game/objects/interfaces';
+import { GameState, ITeamConfig, TeamState } from 'src/app/game/objects/interfaces';
 import { TeamInfo } from '../../game/game';
 import { GameService } from '../game.service';
 import { TeamConfigAdderComponent } from '../team-config-adder/team-config-adder.component';
@@ -32,11 +33,43 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   //TODO: Figure out the flow of data w/events to properly hide / show UI elements
   showScoreBoard: boolean = true;
   showTeamConfigs: boolean = true;
-  // gameOverSubscription: Subscription = this.gameService.gameOver$.subscribe(args => {
-  //   this.showTeamConfigs = true;
-  // });
+
+  numRounds: number = 3;
+  completedRounds: number = 0;
+  
+  homeRoundWins: number = 0;
+  awayRoundWins:number = 0;
+  roundDraws:number = 0;
+
+  gameOverSubscription: Subscription = this.gameService.gameOver$.subscribe(args => {
+    let homeState = args.team.home.state;
+    let awayState = args.team.away.state;
+    if(homeState == TeamState.Win){
+      this.homeRoundWins++;
+    }else if(awayState == TeamState.Win){
+      this.awayRoundWins++;
+    }else if(args.state == GameState.Draw){
+      if(args.team.home.tilesDecremented > args.team.away.tilesDecremented){
+        this.homeRoundWins++;
+      }else if(args.team.home.tilesDecremented < args.team.away.tilesDecremented){
+        this.awayRoundWins++;
+      }else{
+        this.roundDraws++;
+      }
+    }
+    this.delay(3000).then(any => {
+      this.completedRounds++;
+      if (this.completedRounds < this.numRounds) {
+        this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
+      }
+    })
+  });
 
   constructor(private gameService: GameService, private snackBar: MatSnackBar, private configService: TeamConfigsService, public dialog: MatDialog) { }
+
+  async delay(ms: number) {
+    await new Promise(resolve => setTimeout(() => resolve(), ms));
+  }
 
   ngOnInit(): void {
     this.populateTeamConfigs();
@@ -50,6 +83,10 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   }
 
   startGame() {
+    this.completedRounds = 0;
+    this.homeRoundWins = 0;
+    this.awayRoundWins = 0;
+    this.roundDraws = 0;
     this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
     // this.showScoreBoard = true;
     // this.showTeamConfigs = false;

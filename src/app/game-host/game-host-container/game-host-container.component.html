@@ -22,6 +22,8 @@
                 <mat-card *ngIf="showScoreBoard">
                     <mat-card-title>ScoreBoard</mat-card-title>
                     <mat-list>
+                        <mat-list-item>Current Round: {{completedRounds == numRounds ? numRounds : completedRounds + 1}}</mat-list-item>
+                        <mat-list-item>{{homeRoundWins}}-{{awayRoundWins}}-{{roundDraws}}</mat-list-item>
                         <mat-list-item>{{homeTeamName$ | async}} {{homeTeamScore$ | async}}</mat-list-item>
                         <mat-list-item>{{awayTeamName$ | async}} {{awayTeamScore$ | async}}</mat-list-item>
                     </mat-list>
@@ -48,6 +50,12 @@
                                     {{config.name}}
                                 </mat-option>
                             </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div>
+                        <mat-form-field style="width:100%">
+                            <mat-label>Number of Rounds</mat-label>
+                            <input matInput type="number" placeholder="Value" [(ngModel)]="numRounds">
                         </mat-form-field>
                     </div>
                 </mat-card>

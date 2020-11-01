@@ -358,8 +358,8 @@ export class GameManager {
       const eventArgs: GameOverEventArgs = {
         state,
         team: {
-          [Side.Home]: {name: home.name, org: home.org, state: home.state, reason: home.errorReason},
-          [Side.Away]: {name: away.name, org: away.org, state: away.state, reason: away.errorReason}
+          [Side.Home]: {name: home.name, org: home.org, state: home.state, reason: home.errorReason, tilesDecremented: home.getTotalTilesDecremented()},
+          [Side.Away]: {name: away.name, org: away.org, state: away.state, reason: away.errorReason, tilesDecremented: away.getTotalTilesDecremented()}
         }
       };
 
