@@ -16,8 +16,7 @@ import { GameHostContainerComponent } from './game-host-container/game-host-cont
 import { GameHostRoutingModule } from './game-host-routing.module';
 import { SimpleRunComponent } from './simple-run/simple-run.component';
 import { TeamConfigAdderComponent } from './team-config-adder/team-config-adder.component';
-
-
+import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 
 
 @NgModule({
@@ -38,7 +37,8 @@ import { TeamConfigAdderComponent } from './team-config-adder/team-config-adder.
     MatToolbarModule,
     MatIconModule,
     MatTabsModule,
-    MatDialogModule
+    MatDialogModule,
+    CodemirrorModule,
   ]
 })
 export class GameHostModule { }

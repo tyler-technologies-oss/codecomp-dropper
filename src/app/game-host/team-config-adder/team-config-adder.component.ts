@@ -1,7 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
-import {  ITeamConfig, MonsterType, Side } from 'src/app/game/objects/interfaces';
+import { ITeamConfig, MonsterType, Side } from 'src/app/game/objects/interfaces';
 
 @Component({
   selector: 'tyl-team-config-adder',
@@ -10,25 +9,25 @@ import {  ITeamConfig, MonsterType, Side } from 'src/app/game/objects/interfaces
 })
 export class TeamConfigAdderComponent implements OnInit {
 
-  monsters:string[]=Object.keys(MonsterType);
+  monsters: string[] = Object.keys(MonsterType);
 
   teamForm = new FormGroup({
-    teamName: new FormControl('',Validators.required),
-    schoolName: new FormControl('',Validators.required),
-    script: new FormControl ('',Validators.required),
-    monsterChoice1: new FormControl ('',Validators.required),
-    monsterChoice2: new FormControl ('',Validators.required)
+    teamName: new FormControl('', Validators.required),
+    schoolName: new FormControl('', Validators.required),
+    script: new FormControl('', Validators.required),
+    monsterChoice1: new FormControl('', Validators.required),
+    monsterChoice2: new FormControl('', Validators.required)
   });
 
   @Output() addTeam = new EventEmitter<ITeamConfig>();
 
-  constructor(private dialogRef:MatDialogRef<TeamConfigAdderComponent>) { }
+  constructor() { }
 
   ngOnInit(): void {
   }
 
   onSubmit() {
-    let teamConfig:ITeamConfig = {
+    let teamConfig: ITeamConfig = {
       name: this.teamForm.value.teamName,
       org: this.teamForm.value.schoolName,
       preferredMonsters: {
@@ -39,10 +38,5 @@ export class TeamConfigAdderComponent implements OnInit {
     }
     this.addTeam.emit(teamConfig);
     this.teamForm.reset();
-    this.close();
-  }
-
-  close() {
-    this.dialogRef.close();
   }
 }

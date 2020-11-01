@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ITeamConfig, MonsterType, Side } from 'src/app/game/objects/interfaces';
 import { GameService } from '../game.service';
@@ -10,18 +10,26 @@ import { TeamConfigsService } from '../team-configs.service';
   styleUrls: ['./simple-run.component.scss']
 })
 export class SimpleRunComponent implements OnInit {
-
+  editorOptions = { theme: 'vs-light', language: 'javascript' };
   simpleRunForm = new FormGroup({
-    script: new FormControl ('',Validators.required),
-    awayTeamConfig: new FormControl ('',Validators.required)
+    script: new FormControl('', Validators.required),
+    awayTeamConfig: new FormControl('', Validators.required)
   });
 
-  // teamConfigs: ITeamConfig[] = [];
+  codeMirrorOptions: any = {
+    mode: 'javascript',
+    lineNumbers: true,
+    lineWrapping: true,
+    gutters: ['CodeMirror-lint-markers'],
+    lint: true
+  };
 
   constructor(private configService: TeamConfigsService, private gameService: GameService) { }
 
   ngOnInit(): void {
-    //this.configService.getTeamConfigs().subscribe(teamConfigs => this.teamConfigs = teamConfigs);
+    //This is not dynamic and is objectively terrible but works ¯\_(ツ)_/¯ 
+    let editor = document.getElementById("editor");
+    editor.setAttribute("style", "height:" + (document.getElementById("codeEditorForm").clientHeight - 150) + "px");
   }
 
   // Needed for html binding to actually store object in component on selection of config
@@ -29,11 +37,11 @@ export class SimpleRunComponent implements OnInit {
     return o1.name === o2.name;
   }
 
-  getTeamConfigs(){
-   return this.configService.teamConfigs;
+  getTeamConfigs() {
+    return this.configService.teamConfigs;
   }
 
-  onStart(){
+  onStart() {
     let teamConfig: ITeamConfig = {
       name: "Test",
       org: "Test",

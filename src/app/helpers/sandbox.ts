@@ -3,7 +3,6 @@ import { MakeIdGen } from './id-gen';
 // const untrustedFn = new Function(\`${code}; return main(...arguments);\`);
 
 function createWebWorkerSource(code: string, id: any, timeout = 2000) {
-  console.log(id.replace(/[^a-z0-9]/gmi, ""));
   const workerScript = `
   const __script_id = '${id.replace(/[^a-z0-9]/gmi, "")}';
   const __ScriptState = Object.freeze({

@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { on } from 'process';
 import { Subscription } from 'rxjs';
@@ -7,6 +7,7 @@ import { first, map } from 'rxjs/operators';
 import { GameState, ITeamConfig, TeamState } from 'src/app/game/objects/interfaces';
 import { TeamInfo } from '../../game/game';
 import { GameService } from '../game.service';
+import { SimpleRunComponent } from '../simple-run/simple-run.component';
 import { TeamConfigAdderComponent } from '../team-config-adder/team-config-adder.component';
 import { TeamConfigsService } from '../team-configs.service';
 
@@ -109,6 +110,17 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
     dialogRef.componentInstance.addTeam.subscribe((teamConfig) => {
       this.onAddTeam(teamConfig);
     })
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: ${result}`);
+    });
+  }
+
+  openCodeDialog() {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.width = '80%';
+    dialogConfig.height = '80%';
+
+    const dialogRef = this.dialog.open(SimpleRunComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(result => {
       console.log(`Dialog result: ${result}`);
     });

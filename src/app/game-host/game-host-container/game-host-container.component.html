@@ -6,6 +6,9 @@
             <mat-toolbar-row>
                 <span>Game Config</span>
                 <span class="example-spacer"></span>
+                <button title="Open Code Dialog" class="example-icon" mat-icon-button aria-label="Open Code Dialog">
+                    <mat-icon (click)='openCodeDialog()'>code</mat-icon>
+                </button>
                 <button title="Add team" class="example-icon" mat-icon-button aria-label="Add team">
                     <mat-icon (click)='addTeam()'>add_circle_outline</mat-icon>
                 </button>
@@ -17,55 +20,44 @@
                 </button>
             </mat-toolbar-row>
         </mat-toolbar>
-        <mat-tab-group mat-align-tabs="start">
-            <mat-tab label="ScoreBoard">
-                <mat-card *ngIf="showScoreBoard">
-                    <mat-card-title>ScoreBoard</mat-card-title>
-                    <mat-list>
-                        <mat-list-item>Current Round: {{completedRounds == numRounds ? numRounds : completedRounds + 1}}</mat-list-item>
-                        <mat-list-item>{{homeRoundWins}}-{{awayRoundWins}}-{{roundDraws}}</mat-list-item>
-                        <mat-list-item>{{homeTeamName$ | async}} {{homeTeamScore$ | async}}</mat-list-item>
-                        <mat-list-item>{{awayTeamName$ | async}} {{awayTeamScore$ | async}}</mat-list-item>
-                    </mat-list>
-                </mat-card>
-            </mat-tab>
-            <mat-tab label="Configuration">
-                <mat-card *ngIf="showTeamConfigs">
-                    <mat-card-title>Team Configuration</mat-card-title>
-                    <div>
-                        <mat-form-field style="width:100%">
-                            <mat-label>Home Team Configuration</mat-label>
-                            <mat-select [compareWith]='compareConfigs' [(ngModel)]="homeTeamConfig">
-                                <mat-option *ngFor="let config of getTeamConfigs()" [value]='config'>
-                                    {{config.name}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-                    <div>
-                        <mat-form-field style="width:100%">
-                            <mat-label>Away Team Configuration</mat-label>
-                            <mat-select [compareWith]='compareConfigs' [(ngModel)]="awayTeamConfig">
-                                <mat-option *ngFor="let config of getTeamConfigs()" [value]='config'>
-                                    {{config.name}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-                    <div>
-                        <mat-form-field style="width:100%">
-                            <mat-label>Number of Rounds</mat-label>
-                            <input matInput type="number" placeholder="Value" [(ngModel)]="numRounds">
-                        </mat-form-field>
-                    </div>
-                </mat-card>
-            </mat-tab>
-            <mat-tab label="Test">
-                <mat-card>
-                    <mat-card-title>Test</mat-card-title>
-                    <tyl-simple-run></tyl-simple-run>
-                </mat-card>
-            </mat-tab>
-        </mat-tab-group>
+        <mat-card *ngIf="showScoreBoard">
+            <mat-card-title>ScoreBoard</mat-card-title>
+            <mat-list>
+                <mat-list-item>Current Round: {{completedRounds == numRounds ? numRounds : completedRounds + 1}}
+                </mat-list-item>
+                <mat-list-item>{{homeRoundWins}}-{{awayRoundWins}}-{{roundDraws}}</mat-list-item>
+                <mat-list-item>{{homeTeamName$ | async}} {{homeTeamScore$ | async}}</mat-list-item>
+                <mat-list-item>{{awayTeamName$ | async}} {{awayTeamScore$ | async}}</mat-list-item>
+            </mat-list>
+        </mat-card>
+        <mat-card *ngIf="showTeamConfigs">
+            <mat-card-title>Team Configuration</mat-card-title>
+            <div>
+                <mat-form-field style="width:100%">
+                    <mat-label>Home Team Configuration</mat-label>
+                    <mat-select [compareWith]='compareConfigs' [(ngModel)]="homeTeamConfig">
+                        <mat-option *ngFor="let config of getTeamConfigs()" [value]='config'>
+                            {{config.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div>
+                <mat-form-field style="width:100%">
+                    <mat-label>Away Team Configuration</mat-label>
+                    <mat-select [compareWith]='compareConfigs' [(ngModel)]="awayTeamConfig">
+                        <mat-option *ngFor="let config of getTeamConfigs()" [value]='config'>
+                            {{config.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div>
+                <mat-form-field style="width:100%">
+                    <mat-label>Number of Rounds</mat-label>
+                    <input matInput type="number" placeholder="Value" [(ngModel)]="numRounds">
+                </mat-form-field>
+            </div>
+        </mat-card>
     </div>
 </div>

@@ -35,6 +35,11 @@ $dropper-theme: mat-light-theme((
 @import './app/root/app-navigation/app-navigation.theme.scss';
 @include app-navigation-theme($dropper-theme);
 
+@import '~codemirror/lib/codemirror';
+@import '~codemirror/theme/material';
+@import '~codemirror/addon/fold/foldgutter.css';
+@import '~codemirror/addon/lint/lint.css';
+
 
 /* You can add global styles to this file, and also import other style files */
 
