@@ -62,6 +62,8 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
       this.completedRounds++;
       if (this.completedRounds < this.numRounds) {
         this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
+      } else {
+        this.gameService.gameEnd(args);
       }
     })
   });
