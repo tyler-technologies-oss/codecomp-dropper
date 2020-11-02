@@ -1,0 +1,142 @@
+ID,Start time,Completion time,Email,Name,Team Name,School,Home Monster Choice,Away Monster Choice,URL/Code
+2,10/19/2020 8:27,10/19/2020 8:27,anonymous,,The Ultimate Tester,Tyler Tech,bobo,goldy,"const possibleMoves = {'north': [-1, 0], 'south': [1, 0], 'east': [0, 1], 'west': [0, -1], 'none': [0, 0]};
+function main(gameState, side) {
+    const boardX = gameState.boardSize[0];
+    const boardY = gameState.boardSize[1];
+    /**
+     * Grid is like this:
+     * 0, 0 is the top left
+     * 4, 4 is the bottom right
+     */
+
+    // ""home"" side is the northern side, ""away"" is the southern side apparently
+
+    /**
+     * Algorithm - move to the least broken tile nearby or stay if on the least broken tile
+     */
+
+    const otherSideKey = side === 'home' ? 'away' : 'home';
+    const myTeam = gameState.teamStates[side];
+    const otherSide = gameState.teamStates[otherSideKey];
+    const tileStates = gameState.tileStates;
+
+    const moves = myTeam.map(state => {
+        const validMoves = findValidStates(state.coord);
+        return determineBestMove(validMoves, state.coord, tileStates);
+    });
+
+    return moves;
+}
+
+function determineBestMove(validMoves, playerCoords, boardStates) {
+    return validMoves.reduce((move, prevBestMove) => {
+        const moveScore = getMoveScore(playerCoords, boardStates, move);
+        const prevBestMoveScore = getMoveScore(playerCoords, boardStates, prevBestMove);
+        return moveScore > prevBestMoveScore ? move : prevBestMove;
+    }, validMoves[0]);
+}
+
+function getMoveScore(playerCoords, boardStates, move) {
+    const moveCoord = possibleMoves[move];
+    const prospectiveTile = addCoords(moveCoord, playerCoords);
+    return boardStates[prospectiveTile[0]][prospectiveTile[1]];
+}
+
+function findValidStates(playerCoords) {
+    const validMoves = [];
+    for (const direction in possibleMoves) {
+        const prospectiveTile = addCoords(possibleMoves[direction], playerCoords);
+        if(prospectiveTile[0] >= 0 && prospectiveTile[0] <= 4 && prospectiveTile[1] >= 0 && prospectiveTile[1] <= 4) {
+            validMoves.push(direction);
+        }
+    }
+    return validMoves;
+}
+
+function addCoords(coord1, coord2) {
+    return [coord1[0] + coord2[0], coord1[1] + coord2[1]];
+}"
+3,10/23/2020 7:08,10/23/2020 7:09,anonymous,,Alan,Tyler,triclops,goldy,"function main(gameState, side) {
+
+  const otherSide = side === 'home' ? 'away' : 'home';
+
+  avoidEnemy(gameState.tileStates, gameState.teamStates[otherSide][0].coord[0],gameState.teamStates[otherSide][0].coord[1], gameState.teamStates[otherSide][0].isDead),
+  avoidEnemy(gameState.tileStates, gameState.teamStates[otherSide][1].coord[0],gameState.teamStates[otherSide][1].coord[1], gameState.teamStates[otherSide][1].isDead),
+  avoidEnemy(gameState.tileStates, gameState.teamStates[otherSide][2].coord[0],gameState.teamStates[otherSide][2].coord[1], gameState.teamStates[otherSide][2].isDead)
+  
+  return[
+  getNextMove(gameState.tileStates, gameState.teamStates[side][0].coord[0],gameState.teamStates[side][0].coord[1], gameState.teamStates[side][0].isDead),
+  getNextMove(gameState.tileStates, gameState.teamStates[side][1].coord[0],gameState.teamStates[side][1].coord[1], gameState.teamStates[side][1].isDead),
+  getNextMove(gameState.tileStates, gameState.teamStates[side][2].coord[0],gameState.teamStates[side][2].coord[1], gameState.teamStates[side][2].isDead)
+  ]
+}
+
+function avoidEnemy(grid, x, y, isDead){
+  if(isDead){
+    return;
+  }
+
+  if(grid[x-1] && grid[x-1][y] && grid[x-1][y] !== 0) {
+      grid[x-1][y]-=.5;
+  }
+  if(grid[x+1] && grid[x+1][y] &&  grid[x+1][y] !==0 ) {
+      grid[x+1][y]-=.5;
+  }
+  if(grid[x][y-1] && grid[x][y-1] !==0 ) {
+      grid[x][y-1]-=.5;
+  }
+  if(grid[x][y+1] && grid[x][y+1] !==0 ) {
+      grid[x][y+1]-=.5;
+  }
+}
+
+function getNextMove(grid, x, y, isDead){
+  var max = grid[x][y];
+
+  if(isDead){
+    return ""none"";
+  }
+
+  var potentialMoves = [{x:x, y:y, value:grid[x][y], move:""none""}]
+
+    if(grid[x-1] && grid[x-1][y] && grid[x-1][y] !== 0) {
+      if(grid[x-1][y]>max){
+          max = grid[x-1][y];
+      }
+      potentialMoves.push({x:x-1, y:y, value:grid[x-1][y], move: ""north""})
+    }
+    if(grid[x+1] && grid[x+1][y] &&  grid[x+1][y] !==0 ) {
+      if(grid[x+1][y]>max){
+          max = grid[x+1][y];
+      }
+      potentialMoves.push({x:x+1, y:y, value:grid[x+1][y], move: ""south""})
+    }
+    if(grid[x][y-1] && grid[x][y-1] !==0 ) {
+      if(grid[x][y-1]>max){
+          max = grid[x][y-1];
+      }
+      potentialMoves.push({x:x, y:y-1, value:grid[x][y-1], move: ""west""})
+    }
+    if(grid[x][y+1] && grid[x][y+1] !==0 ) {
+      if(grid[x][y+1]>max){
+          max = grid[x][y+1];
+      }
+      potentialMoves.push({x:x, y:y+1, value:grid[x][y+1], move: ""east""})
+    }
+    
+    var finalMoves =[];
+    for (var i = 0; i < potentialMoves.length; i++) {
+      if(potentialMoves[i].value === max){
+        finalMoves.push(potentialMoves[i])
+      }
+  }
+
+  var finalPosition = finalMoves[Math.floor(Math.random() * finalMoves.length)]
+
+    grid[finalPosition.x][finalPosition.y]-=1;
+    return finalPosition.move;
+}"
+5,10/23/2020 13:05,10/23/2020 13:05,anonymous,,Spaghetti Code,Colorado School of Pasta,goldy,bobo,https://raw.githubusercontent.com/Dannister/code-comp/main/spaghettiAI.js
+6,10/23/2020 14:18,10/23/2020 14:19,anonymous,,Stephen's Cool Team,Tyler Technologies,grouchy,spike,https://raw.githubusercontent.com/stracymines/stracy-dropper-ais/master/mock-tourney-ai.js
+8,10/23/2020 17:04,10/23/2020 17:05,anonymous,,Sarah Team,Tyler Technologies,spike,grouchy,https://raw.githubusercontent.com/SarahPerson/DropperAIs/master/SarahAi.ts
+1,9/29/20 14:50:15,9/29/20 14:50:48,anonymous,,Wander Team,Tyler Technologies,grouchy,triclops,https://raw.githubusercontent.com/SarahPerson/DropperAIs/master/wander.ai.ts
