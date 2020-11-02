@@ -98,6 +98,11 @@ export enum StateChangeEvent {
   GameOver = 'game_over',
 }
 
+export enum MatchEvent {
+  GameEnd = 'game_end',
+  GameStart = 'game_start'
+}
+
 export enum GameState {
   Initializing = 'initializing',
   Resolving = 'resolving',
@@ -118,11 +123,18 @@ export enum TeamState {
   Dead = 'dead',
 }
 
-export type MatchStatus = Record<Side, {name: string, org: string, state: TeamState, reason?: ErrorReason, tilesDecremented?: number}>
+export type MatchTeamInfo = Record<Side, {
+  name: string, 
+  org: string, 
+  state: TeamState
+  monsterType: MonsterType,
+  reason?: ErrorReason,
+  tilesDecremented?: number
+}>
 
-export interface GameOverEventArgs {
+export interface MatchEventArgs {
   state: GameState;
-  team: MatchStatus;
+  team: MatchTeamInfo;
 }
 
 export enum ErrorReason {
