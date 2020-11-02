@@ -168,10 +168,10 @@ export class GameEnd {
 
   reset() {
     this.isGameOver = false;
-    this.victoryMonster.destroy();
-    this.defeatMonster.destroy();
-    this.broom.destroy();
-    this.winsText.destroy();
+    this.victoryMonster?.destroy();
+    this.defeatMonster?.destroy();
+    this.broom?.destroy();
+    this.winsText?.destroy();
     this.homeText?.destroy();
     this.awayText?.destroy();
     this.gameEndTime = 0;

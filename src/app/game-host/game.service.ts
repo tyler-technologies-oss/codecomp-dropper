@@ -70,6 +70,7 @@ export class GameService {
           [Side.Home]: homeTeam,
           [Side.Away]: awayTeam
       }
+      scene.gameEnd.reset();
       scene.match.clearBoard();
       scene.match.initTeams(teams);
       scene.match.initialize();
@@ -78,9 +79,9 @@ export class GameService {
 
   resetGame(){
     this.mainScene$.pipe(first()).subscribe(scene => {
+      scene.gameEnd.reset();
       scene.match.clearBoard();
       scene.match.initialize();
-      scene.gameEnd.reset();
     });
   }
 }

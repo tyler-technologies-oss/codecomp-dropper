@@ -7,7 +7,7 @@ import { MatchEventArgs, MatchEvent } from '../objects/interfaces';
 import { GameManager } from '../objects/game-manager';
 import { loadBackgroundAssets, Background } from '../objects/background';
 import { loadTileAssets } from '../objects/tile';
-import { createAllGameEndAnimFrames, GameEnd, loadGameEndAssets } from '../objects/game-over';
+import { createAllGameEndAnimFrames, GameEnd, loadGameEndAssets } from '../objects/game-end';
 
 export const MainKey = 'main';
 

@@ -179,7 +179,6 @@ export class GameManager {
     await Promise.allSettled(promises);
 
     this.sides.forEach(side => {
-      this.teams[side].reset();
       this.teams[side].setVisible(true);
     });
     this.grid.setVisible(true);
@@ -293,12 +292,15 @@ export class GameManager {
         move === MoveDirection.West;
     }
 
+    // console.log('validate-moves', moves, side, team);
+
     if (Array.isArray(moves)) {
       const resolvedMoves: MoveSet = [];
       if (moves.length != team.count) {
         console.warn(`Not enough moves returned, attempting to match moves with alive members`);
         // try and match up the moves to non-dead team members
         team.getChildren().forEach((member: Monster) => {
+          console.log('validate-moves.member', member);
           if (member.isAlive()) {
             const nextMove = moves.shift();
             resolvedMoves.push(isValidMove(nextMove) ? nextMove : MoveDirection.None);
