@@ -3,7 +3,7 @@ import { from, fromEvent, merge, ReplaySubject } from 'rxjs';
 import { first, map, mapTo, mergeMap, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { createGame, Game, MainKey, SceneEvent } from '../game/game';
 import { TeamInfo, Teams } from '../game/objects/game-manager';
-import { MatchEventArgs, ITeamConfig, Side, StateChangeEvent } from '../game/objects/interfaces';
+import { MatchEventArgs, ITeamConfig, Side, StateChangeEvent, MatchEvent } from '../game/objects/interfaces';
 import { Team } from '../game/objects/team';
 import { MainScene } from '../game/scenes/main.scene';
 
@@ -33,7 +33,7 @@ export class GameService {
   );
 
   gameOver$ = this.mainScene$.pipe(
-    switchMap(mainScene => fromEvent<MatchEventArgs>(mainScene.match, StateChangeEvent.GameOver)),
+    switchMap(mainScene => fromEvent<MatchEventArgs>(mainScene.match, MatchEvent.GameEnd)),
     shareReplay(1),
   );
 
@@ -82,6 +82,16 @@ export class GameService {
       scene.gameEnd.reset();
       scene.match.clearBoard();
       scene.match.initialize();
+    });
+  }
+
+  gameEnd(args: MatchEventArgs) {
+    this.mainScene$.pipe(first()).subscribe(scene => {
+      const winningSide = args.state === 'homeTeamWins' ? 'home' : 'away';
+      const victoryMonsterType = winningSide === 'home' ? args.team.home.monsterType : args.team.away.monsterType;
+      const defeatMonsterType = winningSide === 'home' ? args.team.away.monsterType : args.team.home.monsterType;
+      scene.match.hide();
+      scene.gameEnd.init(scene, winningSide, victoryMonsterType, defeatMonsterType);
     });
   }
 }

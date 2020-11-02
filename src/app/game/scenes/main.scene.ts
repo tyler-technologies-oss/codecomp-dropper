@@ -27,7 +27,6 @@ export class MainScene extends Scene {
     createAllGameEndAnimFrames(this.anims);
     this.background = new Background(this);
     this.gameEnd = new GameEnd();
-    this.match.on(MatchEvent.GameEnd, this.gameOverEvent, this);
     const grid = squareGrid(this, this.scale, 5);
     this.match.initGrid(grid);
   }
@@ -42,13 +41,5 @@ export class MainScene extends Scene {
   update(time: number, dt: number) {
     this.background.update(dt); 
     this.gameEnd.update(dt);
-  }
-
-  gameOverEvent(args: MatchEventArgs) {
-    const winningSide = args.state === 'homeTeamWins' ? 'home' : 'away';
-    const victoryMonsterType = winningSide === 'home' ? args.team.home.monsterType : args.team.away.monsterType;
-    const defeatMonsterType = winningSide === 'home' ? args.team.away.monsterType : args.team.home.monsterType;
-    this.match.hide();
-    this.gameEnd.init(this, winningSide, victoryMonsterType, defeatMonsterType);
   }
 }
