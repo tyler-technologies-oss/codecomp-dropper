@@ -1,17 +1,23 @@
-import { GameObjects, Scene, Math, Scale, Animations, Types } from 'phaser';
+import { GameObjects, Scene, Math as PMath, Animations, Types, Textures } from 'phaser';
+import { BroomAtlas, BroomEastFacingOrigin, BroomWestFacingOrigin, IdleEastFacingHandPositions, RestWestFacingHandPositions, SweepEastFacingHandPositions } from './broom';
 import { MonsterType } from './interfaces';
-import { Monster, MonstersAtlas } from './monster';
+import { MonstersAtlas, MonsterColor } from './monster';
+
+export const HomeAtlas = 'home';
+export const AwayAtlas = 'away';
+export const WinsAtlas = 'wins';
+const assetsPath = 'assets/sprites';
+
+export function loadGameEndAssets(scene: Scene) {
+  scene.load.multiatlas(HomeAtlas, `${assetsPath}/home.json`, assetsPath);
+  scene.load.multiatlas(AwayAtlas, `${assetsPath}/away.json`, assetsPath);
+  scene.load.multiatlas(WinsAtlas, `${assetsPath}/wins.json`, assetsPath);
+}
 
 enum VictoryAnim {
   BroomSweepMove = 'broom_sweep_move',
   BroomSweepIdle = 'broom_sweep_idle',
   BroomResting = 'broom_resting',
-}
-
-enum GameEndState {
-  SweepMove = 'sweep_move',
-  SweepIdle = 'sweep_idle',
-  SweepResting = 'sweep_resting',
 }
 
 export function createVictoryAnimFrames(
@@ -42,16 +48,6 @@ export function createVictoryAnimFrames(
         suffix
       }
     ),
-    [VictoryAnim.BroomResting]: anims.generateFrameNames(
-      MonstersAtlas,
-      { 
-        prefix: `${monster}/broom-resting/BroomResting_`,
-        end: 1,
-        start,
-        zeroPad,
-        suffix
-      }
-    ),
   };
 
   anims.create({
@@ -74,172 +70,250 @@ export function createVictoryAnimFrames(
   });
 }
 
-enum DefeatAnim {
-  DeadSweepIdle = 'dead_sweep_idle',
-  DeadSweepMove = 'dead_sweep_move',
-  DeadResting = 'dead_resting',
-}
-
-export function createDefeatAnimFrames(
-  anims: Animations.AnimationManager, 
-  monster: MonsterType
-) {
-  const start = 0;
-  const zeroPad = 3;
-  const suffix = '.png';
-  const animFrameMap: Record<string, Types.Animations.AnimationFrame[]> = {
-    [DefeatAnim.DeadSweepIdle]: anims.generateFrameNames(
-      MonstersAtlas,
-      { 
-        prefix: `${monster}/dead-sweep-idle/DeadSweepIdle_`,
-        end: 1,
-        start,
-        zeroPad,
-        suffix
-      }
-    ),
-    [DefeatAnim.DeadSweepMove]: anims.generateFrameNames(
-      MonstersAtlas,
-      { 
-        prefix: `${monster}/dead-sweep-move/DeadSweepMove_`,
-        end: 1,
-        start,
-        zeroPad,
-        suffix
-      }
-    ),
-    [DefeatAnim.DeadResting]: anims.generateFrameNames(
-      MonstersAtlas,
-      { 
-        prefix: `${monster}/dead-resting/DeadResting_`,
-        end: 1,
-        start,
-        zeroPad,
-        suffix
-      }
-    ),
-  };
-
-  anims.create({
-    key: `${monster}_${DefeatAnim.DeadSweepIdle}`,
-    frames: animFrameMap[DefeatAnim.DeadSweepIdle],
-    frameRate: 15,
-  });
-  anims.create({
-    key: `${monster}_${DefeatAnim.DeadSweepMove}`,
-    frames: animFrameMap[DefeatAnim.DeadSweepMove],
-    frameRate: 15,
-  });
-  anims.create({
-    key: `${monster}_${DefeatAnim.DeadResting}`,
-    frames: animFrameMap[DefeatAnim.DeadResting],
-    frameRate: 15,
-  });
-}
-
 export function createAllGameEndAnimFrames(anims: Animations.AnimationManager) {
   Object.values(MonsterType).forEach(monster => {
     createVictoryAnimFrames(anims, monster);
-    createDefeatAnimFrames(anims, monster);
   });
 }
 
-export class GameOver extends GameObjects.Container {
+export class GameEnd {
   victoryMonster: GameObjects.Sprite;
   defeatMonster: GameObjects.Sprite;
-  private victoryMonsterType: MonsterType;
-  private defeatMonsterType: MonsterType;
+  broom: GameObjects.Sprite;
+  homeText: GameObjects.Sprite;
+  awayText: GameObjects.Sprite;
+  winsText: GameObjects.Sprite;
+  isGameOver = false;
+  private victoryType: MonsterType;
+  private gameEndTime = 0;
+  private gameEndLoop = 1500;  
+  private floorAxisY = 1000;
 
-  victoryTime = 0;
+  init(scene: Scene, side: string, victoryMonsterType: MonsterType, defeatMonsterType: MonsterType) {
+    this.isGameOver = true;
+    this.winsText = new GameObjects.Sprite(
+      scene,
+      1000,
+      200,
+      'wins',
+      '1.png'
+    );
+    this.setColor(this.winsText, victoryMonsterType);
+    this.winsText.scaleX = 2;
+    this.winsText.scaleY = 2;
+    scene.add.existing(this.winsText);
 
-  constructor(scene: Scene) {
-    super(scene);
+    if (side === 'home') {
+      this.homeText = new GameObjects.Sprite(
+        scene,
+        300,
+        200,
+        'home',
+        '1.png'
+      );    
+      this.setColor(this.homeText, victoryMonsterType);
+      this.homeText.scaleX = 2;
+      this.homeText.scaleY = 2;
+      scene.add.existing(this.homeText);
+    } else {
+      this.awayText = new GameObjects.Sprite(
+        scene,
+        300,
+        200,
+        'away',
+        '1.png'
+      );
+      this.setColor(this.awayText, victoryMonsterType);
+      this.awayText.scaleX = 2;
+      this.awayText.scaleY = 2;
+      scene.add.existing(this.awayText);
+    }
 
-    scene.add.existing(this);
-
-    // this.setVisible(false);
-  }
-
-  initialize(victoryMonsterType: MonsterType, defeatMonsterType: MonsterType) {
-
-    // Title
-    // move victory monster walking and pushing broom
-    // move defeat monster knocked out and sliding on ground
-    // make background
-    this.victoryMonsterType = victoryMonsterType;
     this.victoryMonster = new GameObjects.Sprite(
-      this.scene, 
-      600, 
-      600, 
+      scene, 
+      300, 
+      this.floorAxisY, 
       MonstersAtlas, 
+      `${victoryMonsterType}/attack/Attack_000.png`
     );
 
     this.victoryMonster.flipX = true;
-    this.victoryMonster.state = GameEndState.SweepIdle;
 
-    this.defeatMonsterType = defeatMonsterType;
     this.defeatMonster = new GameObjects.Sprite(
-      this.scene,
-      1000,
-      620,
+      scene,
+      600,
+      this.floorAxisY + 20,
       MonstersAtlas,
+      `${defeatMonsterType}/die/Die_008.png`
     );
-    this.defeatMonster.state = GameEndState.SweepIdle;
 
-    this.add(this.victoryMonster);
-    this.add(this.defeatMonster);
-    this.setVisible(true);
+    this.broom = new GameObjects.Sprite(
+      scene,
+      200 + SweepEastFacingHandPositions[0].x,
+      this.floorAxisY + SweepEastFacingHandPositions[0].y,
+      BroomAtlas,
+    );
+    this.broom.setDisplayOrigin(BroomEastFacingOrigin.x, BroomEastFacingOrigin.y);
+
+    // this.broom.setRotation((this.testTime/1000) % (Math.PI * 2));
+    this.broom.flipX = true;
+
+    scene.add.existing(this.victoryMonster);
+    scene.add.existing(this.defeatMonster);
+    scene.add.existing(this.broom);
+    this.victoryType = victoryMonsterType;
   }
 
-  play() {
-    const victoryAnim = `${this.victoryMonsterType}_idle`;
-    const defeatAnim = `${this.defeatMonsterType}_${DefeatAnim.DeadSweepIdle}`;
-    console.log('Play Game End Scene', victoryAnim, defeatAnim);
-    this.victoryMonster.play(victoryAnim);
-    this.defeatMonster.play(defeatAnim);
+  reset() {
+    this.isGameOver = false;
+    this.victoryMonster.destroy();
+    this.defeatMonster.destroy();
+    this.broom.destroy();
+    this.winsText.destroy();
+    this.homeText?.destroy();
+    this.awayText?.destroy();
+    this.gameEndTime = 0;
   }
 
-  // update(time: number, dt: number): void {
-  //   console.log('update', dt);
-  //   this.updateState(dt);
-  // }
+  update(dt) {
+    if (this.isGameOver) {
 
-  // private updateState() {
-  //   switch (this.victoryMonster.state) {
-  //     case GameEndState.SweepMove: {
-  //       this.victoryTime += dt;
-  //       const normalizedTime = Math.Clamp(this.victoryTime / 2000, 0, 1);
-  //       const x = Math.Interpolation.Linear([600, 1000], normalizedTime);
-  //       this.victoryMonster.setPosition(x, 600);
-  //       this.defeatMonster.setPosition(x + 400, 620);
-  //       return;
-  //     }
-  //     case GameEndState.SweepIdle: {
-  //       this.victoryTime += dt;
-  //       const normalizedTime = Math.Clamp(this.victoryTime / 2000, 0, 1);
-  //       const x = Math.Interpolation.Linear([600, 1000], normalizedTime);
-  //       this.victoryMonster.setPosition(x, 600);
-  //       this.defeatMonster.setPosition(x + 400, 620);
-  //       return;
-  //     }
-  //   }
-  // }
-
-  update(dt: number) {
-
-  }
-
-  hide() {
-    this.setVisible(false);
-    if (this.victoryMonster !== undefined) {
-      this.remove(this.victoryMonster);
-      this.victoryMonster.destroy();
+      this.gameEndTime += dt;
+  
+      const i = this.gameEndTime > 0 ? Math.floor(this.gameEndTime / this.gameEndLoop) : 0;
+      
+      if ((i % 2) < 1 && i < 5) {
+        const x = i / 2 * 300;
+        this.moveVictoryMonster(300 + x, 600 + x);
+        this.victoryMonster.play(`${this.victoryType}_broom_sweep_move`, true);
+        this.broom.play('broom_sweep', true);
+      } else if ((i % 2) > 0 && i < 5) {
+        this.victoryMonster.play(`${this.victoryType}_idle`, true);
+        this.broom.setFrame('broom-1.png');
+        const t = Math.floor((this.gameEndTime % 1000) / 83.33333333333);
+        let x = 0;
+        if (i < 2) {
+          x = 300;
+        } else if (i < 4) {
+          x = 600;
+        }
+  
+        if (t === 0 || t === 11) {
+          this.broom.setPosition(300 + x + IdleEastFacingHandPositions[0].x,  this.floorAxisY + IdleEastFacingHandPositions[0].y);
+        } else if (t === 1 || t === 10) {
+          this.broom.setPosition(300 + x + IdleEastFacingHandPositions[0].x,  this.floorAxisY + IdleEastFacingHandPositions[0].y);
+        } else if (t === 2 || t === 9) {
+          this.broom.setPosition(300 + x + IdleEastFacingHandPositions[1].x,  this.floorAxisY + IdleEastFacingHandPositions[1].y);
+        } else if (t === 3 || t === 8) {
+          this.broom.setPosition(300 + x + IdleEastFacingHandPositions[1].x,  this.floorAxisY + IdleEastFacingHandPositions[1].y);
+        } else if (t === 4 || t === 7) {
+          this.broom.setPosition(300 + x + IdleEastFacingHandPositions[2].x,  this.floorAxisY + IdleEastFacingHandPositions[2].y);
+        } else if (t === 5 || t === 6) {
+          this.broom.setPosition(300 + x + IdleEastFacingHandPositions[2].x,  this.floorAxisY + IdleEastFacingHandPositions[2].y);
+        }
+      } else if (i === 5) {
+        this.victoryMonster.flipX = false;
+        this.victoryMonster.play(`${this.victoryType}_idle`, true);
+        this.broom.flipX = false;   
+        this.broom.setDisplayOrigin(BroomWestFacingOrigin.x, BroomWestFacingOrigin.y);
+        this.broom.setFrame('broom-3.png');
+      } 
+  
+      if(i >= 5 && i < 6 ) {
+        const t = Math.floor((this.gameEndTime % 1000) / 83.33333333333);
+  
+        if (t === 0 || t === 11) {
+          this.broom.setPosition(1200 + RestWestFacingHandPositions[0].x,  this.floorAxisY + RestWestFacingHandPositions[0].y);
+          this.broom.setRotation(0.8);
+          this.broom.setFrame('broom-3.png');
+        } else if (t === 1 || t === 10) {
+          this.broom.setPosition(1200 + RestWestFacingHandPositions[0].x,  this.floorAxisY + RestWestFacingHandPositions[0].y);
+          this.broom.setRotation(0.78);
+          this.broom.setFrame('broom-3.png');
+        } else if (t === 2 || t === 9) {
+          this.broom.setPosition(1200 + RestWestFacingHandPositions[1].x,  this.floorAxisY + RestWestFacingHandPositions[1].y);
+          this.broom.setRotation(0.76);
+          this.broom.setFrame('broom-2.png');
+        } else if (t === 3 || t === 8) {
+          this.broom.setPosition(1200 + RestWestFacingHandPositions[1].x,  this.floorAxisY + RestWestFacingHandPositions[1].y);
+          this.broom.setRotation(0.74);
+          this.broom.setFrame('broom-2.png');
+        } else if (t === 4 || t === 7) {
+          this.broom.setPosition(1200 + RestWestFacingHandPositions[2].x,  this.floorAxisY + RestWestFacingHandPositions[2].y);
+          this.broom.setRotation(0.72);
+          this.broom.setFrame('broom-1.png');
+        } else if (t === 5 || t === 6) {
+          this.broom.setPosition(1200 + RestWestFacingHandPositions[2].x,  this.floorAxisY + RestWestFacingHandPositions[2].y);
+          this.broom.setRotation(0.70);
+          this.broom.setFrame('broom-1.png');
+        }
+      }
+  
+      if (i === 6) {
+        this.broom.setFrame('broom-3.png');
+        this.broom.setOrigin(0.5, 0.5);
+      }
+  
+      if (i === 6) {
+        this.broom.setRotation((this.gameEndTime/100) % (Math.PI * 2));
+        const x = 1350 + 100 * Math.cos(-Math.PI + Math.PI * (this.gameEndTime % this.gameEndLoop) / (this.gameEndLoop + 200));
+        const y = this.floorAxisY + 600 * Math.sin(0 - Math.PI * (this.gameEndTime % this.gameEndLoop) / (this.gameEndLoop + 200));
+        this.broom.setPosition(x, y);
+      }
+  
+      if (i === 7) {
+        this.broom.setDisplayOrigin(BroomEastFacingOrigin.x, BroomEastFacingOrigin.y);
+        this.broom.setPosition(1433, 840);
+        let t = (this.gameEndTime % 1500) / 1250;
+        t *= t;
+        this.broom.setRotation(-1.9 - t);
+      }
     }
+  }
 
-    if (this.defeatMonster !== undefined) {
-      this.remove(this.defeatMonster);
-      this.defeatMonster.destroy();
+  private moveVictoryMonster(x1: number, x2: number) {
+    const normalizedTime = PMath.Clamp((this.gameEndTime % this.gameEndLoop) / this.gameEndLoop, 0, 1);
+    const x = PMath.Interpolation.Linear([x1, x2], normalizedTime);
+    this.victoryMonster.setPosition(x,  this.floorAxisY);
+    this.defeatMonster.setPosition(x + 300,  this.floorAxisY + 20);
+
+    const t = Math.ceil((this.gameEndTime % 1000) / 142.857142857);
+
+    if (t < 2) {
+      this.broom.setPosition(x + SweepEastFacingHandPositions[0].x,  this.floorAxisY + SweepEastFacingHandPositions[0].y);        
+    } else if (t < 4) {
+      this.broom.setPosition(x + SweepEastFacingHandPositions[1].x,  this.floorAxisY + SweepEastFacingHandPositions[1].y);   
+    } else {
+      this.broom.setPosition(x + SweepEastFacingHandPositions[2].x,  this.floorAxisY + SweepEastFacingHandPositions[2].y);
+    }
+  }
+
+  private setColor(sprite: GameObjects.Sprite, type: MonsterType) {
+    switch(type) {
+      case MonsterType.Bobo: {
+        sprite.setTint(MonsterColor.Bobo);
+        return;
+      }
+      case MonsterType.Triclops: {
+        sprite.setTint(MonsterColor.Triclops);
+        return;
+      }
+      case MonsterType.Spike: {
+        sprite.setTint(MonsterColor.Spike);
+        return;
+      }
+      case MonsterType.Goldy: {
+        sprite.setTint(MonsterColor.Goldy);
+        return;
+      }
+      case MonsterType.Grouchy: {
+        sprite.setTint(MonsterColor.Grouchy);
+        return;
+      }
+      case MonsterType.Pinky: {
+        sprite.setTint(MonsterColor.Pinky);
+        return;
+      }
     }
   }
 }
-8

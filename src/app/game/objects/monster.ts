@@ -10,6 +10,15 @@ import {
   StateUpdatedEventArgs,
 } from './interfaces';
 
+export enum MonsterColor {
+  Bobo = 0xf46969,
+  Triclops = 0xb383ff,
+  Spike = 0x85de00,
+  Goldy = 0xffcc06,
+  Grouchy = 0x54d2ff,
+  Pinky = 0xff95bd,
+}
+
 export const MonstersAtlas = 'monsters';
 const assetsPath = 'assets/sprites';
 
