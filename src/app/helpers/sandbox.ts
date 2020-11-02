@@ -4,7 +4,7 @@ import { MakeIdGen } from './id-gen';
 
 function createWebWorkerSource(code: string, id: any, timeout = 2000) {
   const workerScript = `
-  const __script_id = '${id}';
+  const __script_id = '${id.replace(/[^a-z0-9]/gmi, "")}';
   const __ScriptState = Object.freeze({
     Uninitialized: 'uninitialized',
     Initializing: 'initializing',
@@ -83,7 +83,7 @@ function createWebWorkerSource(code: string, id: any, timeout = 2000) {
           } catch (error) {
 
             // untrusted code choked, report the error!
-            self.postMessage({error});
+            self.postMessage({error: error.toString()});
           }
           return;
         } else {

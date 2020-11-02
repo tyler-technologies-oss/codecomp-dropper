@@ -1,5 +1,5 @@
 import { GameObjects, Scene, Math as PMath, Animations, Types, Textures } from 'phaser';
-import { BroomAtlas, BroomEastFacingOrigin, BroomWestFacingOrigin, IdleEastFacingHandPositions, RestWestFacingHandPositions, SweepEastFacingHandPositions } from './broom';
+import { BroomAtlas, BroomEastFacingOrigin, BroomWestFacingOrigin, createBroomAnimFrames, IdleEastFacingHandPositions, loadBroomAssets, RestWestFacingHandPositions, SweepEastFacingHandPositions } from './broom';
 import { MonsterType } from './interfaces';
 import { MonstersAtlas, MonsterColor } from './monster';
 
@@ -12,6 +12,7 @@ export function loadGameEndAssets(scene: Scene) {
   scene.load.multiatlas(HomeAtlas, `${assetsPath}/home.json`, assetsPath);
   scene.load.multiatlas(AwayAtlas, `${assetsPath}/away.json`, assetsPath);
   scene.load.multiatlas(WinsAtlas, `${assetsPath}/wins.json`, assetsPath);
+  loadBroomAssets(scene);
 }
 
 enum VictoryAnim {
@@ -74,6 +75,7 @@ export function createAllGameEndAnimFrames(anims: Animations.AnimationManager) {
   Object.values(MonsterType).forEach(monster => {
     createVictoryAnimFrames(anims, monster);
   });
+  createBroomAnimFrames(anims);
 }
 
 export class GameEnd {
