@@ -2,6 +2,7 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ITeamConfig, MonsterType, Side } from 'src/app/game/objects/interfaces';
 import { GameService } from '../game.service';
+import { RoundManagerService } from '../round-manager-service';
 import { TeamConfigsService } from '../team-configs.service';
 
 @Component({
@@ -25,7 +26,7 @@ export class SimpleRunComponent implements OnInit {
     lint: true
   };
 
-  constructor(private configService: TeamConfigsService, private gameService: GameService) { }
+  constructor(private configService: TeamConfigsService, private gameService: GameService, private roundManagerService: RoundManagerService) { }
 
   ngOnInit(): void {
     //This is not dynamic and is objectively terrible but works ¯\_(ツ)_/¯ 
@@ -52,6 +53,8 @@ export class SimpleRunComponent implements OnInit {
       },
       aiSrc: this.simpleRunForm.value.script
     }
+    this.roundManagerService.numRounds = 1;
+    this.roundManagerService.reset();
     this.gameService.setTeamConfigs(teamConfig, this.simpleRunForm.value.awayTeamConfig);
   }
 

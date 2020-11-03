@@ -7,6 +7,7 @@ import { first, map } from 'rxjs/operators';
 import { GameState, ITeamConfig, TeamState } from 'src/app/game/objects/interfaces';
 import { TeamInfo } from '../../game/game';
 import { GameService } from '../game.service';
+import { RoundManagerService } from '../round-manager-service';
 import { SimpleRunComponent } from '../simple-run/simple-run.component';
 import { TeamConfigAdderComponent } from '../team-config-adder/team-config-adder.component';
 import { TeamConfigsService } from '../team-configs.service';
@@ -35,32 +36,25 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   showScoreBoard: boolean = true;
   showTeamConfigs: boolean = true;
 
-  numRounds: number = 3;
-  completedRounds: number = 0;
-  
-  homeRoundWins: number = 0;
-  awayRoundWins:number = 0;
-  roundDraws:number = 0;
-
   gameOverSubscription: Subscription = this.gameService.gameOver$.subscribe(args => {
     let homeState = args.team.home.state;
     let awayState = args.team.away.state;
     if(homeState == TeamState.Win){
-      this.homeRoundWins++;
+      this.roundManagerService.homeRoundWins++;
     }else if(awayState == TeamState.Win){
-      this.awayRoundWins++;
+      this.roundManagerService.awayRoundWins++;
     }else if(args.state == GameState.Draw){
       if(args.team.home.tilesDecremented > args.team.away.tilesDecremented){
-        this.homeRoundWins++;
+        this.roundManagerService.homeRoundWins++;
       }else if(args.team.home.tilesDecremented < args.team.away.tilesDecremented){
-        this.awayRoundWins++;
+        this.roundManagerService.awayRoundWins++;
       }else{
-        this.roundDraws++;
+        this.roundManagerService.roundDraws++;
       }
     }
     this.delay(3000).then(any => {
-      this.completedRounds++;
-      if (this.completedRounds < this.numRounds) {
+      this.roundManagerService.completedRounds++;
+      if (this.roundManagerService.completedRounds < this.roundManagerService.numRounds) {
         this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
       } else {
         this.gameService.gameEnd(args);
@@ -68,7 +62,11 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
     })
   });
 
-  constructor(private gameService: GameService, private snackBar: MatSnackBar, private configService: TeamConfigsService, public dialog: MatDialog) { }
+  constructor(private roundManagerService: RoundManagerService, 
+    private gameService: GameService, 
+    private snackBar: MatSnackBar, 
+    private configService: TeamConfigsService, 
+    public dialog: MatDialog) { }
 
   async delay(ms: number) {
     await new Promise(resolve => setTimeout(() => resolve(), ms));
@@ -86,10 +84,10 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   }
 
   startGame() {
-    this.completedRounds = 0;
-    this.homeRoundWins = 0;
-    this.awayRoundWins = 0;
-    this.roundDraws = 0;
+    this.roundManagerService.completedRounds = 0;
+    this.roundManagerService.homeRoundWins = 0;
+    this.roundManagerService.awayRoundWins = 0;
+    this.roundManagerService.roundDraws = 0;
     this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
     // this.showScoreBoard = true;
     // this.showTeamConfigs = false;
@@ -134,18 +132,22 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
     this.snackBar.open("Configuration added: " + teamConfig.name, "Dismiss", { duration: 5000 });
   }
 
+  setStartingTeamConfigs(): void{
+    this.homeTeamConfig = this.configService.developmentConfig;
+      if (this.configService.teamConfigs.length > 1) {
+        this.awayTeamConfig = this.configService.teamConfigs[1];
+      }
+  }
+
   populateTeamConfigs(): void {
     if(this.configService.teamConfigs.length > 0){
-      return;
+      this.setStartingTeamConfigs();
+    }else{
+      this.configService.parseTeamConfigs().subscribe(teamConfigs => {
+        console.log("teamConfigs: " + teamConfigs.toString());
+        this.setStartingTeamConfigs();
+      });
     }
-
-    this.configService.parseTeamConfigs().subscribe(teamConfigs => {
-      console.log("teamConfigs: " + teamConfigs.toString());
-      this.homeTeamConfig = this.configService.developmentConfig;
-      if (teamConfigs.length > 1) {
-        this.awayTeamConfig = teamConfigs[1];
-      }
-    });
   }
 
   // Needed for html binding to actually store object in component on selection of config
