@@ -81,6 +81,7 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.gameService.pause();
     this.hostElement.nativeElement.removeChild(this.gameService.containerElement);
+    this.gameOverSubscription.unsubscribe();
   }
 
   startGame() {
