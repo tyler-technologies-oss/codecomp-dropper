@@ -330,7 +330,6 @@ export class GameManager {
         if (state === GameState.Initializing) {
           this.printGameStateMsg('match started');
         }
-        this.grid.killVisitors();
 
         const home = this.teams[Side.Home];
         const away = this.teams[Side.Away];

@@ -145,6 +145,11 @@ export class Tile extends GameObjects.Container implements ILocation {
         break;
       case TileState.Broken:
         this.transition('0hp-tile.png');
+
+        // because the act of dying removes a visitor from a tile
+        // we need to create a different array to iterate against
+        // to kill existing visitors
+        [...this.visitors].forEach(v => v.die());
         break;
     }
 
