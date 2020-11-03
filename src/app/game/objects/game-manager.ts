@@ -124,10 +124,10 @@ export class GameManager {
         return;
       }
 
-      if (teamStates.every(state => state === TeamState.Dead || state === TeamState.Error)) {
-        this.setState(GameState.Draw);
-        return;
-      }
+      // if (teamStates.every(state => state === TeamState.Dead || state === TeamState.Error)) {
+      //   this.setState(GameState.Draw);
+      //   return;
+      // }
 
       if (teamStates.every(state => state === TeamState.Thinking)) {
         this.setState(GameState.Resolving);
@@ -135,15 +135,33 @@ export class GameManager {
       }
 
       // check for a winning team
-      const isLost = (state: TeamState) => state === TeamState.Dead || state === TeamState.Error;
-      const isLostHome = isLost(this.teams[Side.Home].state);
-      const isLostAway = isLost(this.teams[Side.Away].state);
-      if (isLostHome && !isLostAway) {
-        this.setState(GameState.AwayTeamWins);
-      } else if (!isLostHome && isLostAway) {
-        this.setState(GameState.HomeTeamWins);
-      }
+      // const isLost = (state: TeamState) => state === TeamState.Dead || state === TeamState.Error;
+      // const isLostHome = isLost(this.teams[Side.Home].state);
+      // const isLostAway = isLost(this.teams[Side.Away].state);
+      // if (isLostHome && !isLostAway) {
+      //   this.setState(GameState.AwayTeamWins);
+      // } else if (!isLostHome && isLostAway) {
+      //   this.setState(GameState.HomeTeamWins);
+      // }
+      this.checkWinLossTie();
     }
+  }
+
+  private checkWinLossTie() {
+    // check for a winning team
+    const isLost = (state: TeamState) => state === TeamState.Dead || state === TeamState.Error;
+    const isLostHome = isLost(this.teams[Side.Home].state);
+    const isLostAway = isLost(this.teams[Side.Away].state);
+    if (isLostHome && isLostAway) {
+      this.setState(GameState.Draw);
+    } else if (isLostHome && !isLostAway) {
+      this.setState(GameState.AwayTeamWins);
+    } else if (!isLostHome && isLostAway) {
+      this.setState(GameState.HomeTeamWins);
+    } else {
+      return false;
+    }
+    return true;
   }
 
   public async initialize() {
@@ -346,7 +364,12 @@ export class GameManager {
     switch (state) {
       case GameState.Resolving:
         // this.printGameStateMsg();
-        this.updateMoves();
+        this.grid.killVisitors();
+        const isOver = this.checkWinLossTie();
+
+        if(!isOver) {
+          this.updateMoves();
+        }
         break;
       case GameState.Thinking:
       case GameState.Updating:
