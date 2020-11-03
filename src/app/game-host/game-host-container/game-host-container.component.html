@@ -23,11 +23,11 @@
         <mat-card *ngIf="showScoreBoard">
             <mat-card-title>ScoreBoard</mat-card-title>
             <mat-list>
-                <mat-list-item>Current Round: {{completedRounds == numRounds ? numRounds : completedRounds + 1}}
+                <mat-list-item>Current Round: {{roundManagerService.completedRounds == roundManagerService.numRounds ? roundManagerService.numRounds : roundManagerService.completedRounds + 1}}
                 </mat-list-item>
                 <mat-list-item>{{homeRoundWins}}-{{awayRoundWins}}-{{roundDraws}}</mat-list-item>
                 <mat-list-item *ngIf="showTeamScores">
-                    <img matListAvatar [src]="homeTeamIcon$ | async" > <!-- *ngIf="showTeamScores"> -->
+                    <img matListAvatar [src]="homeTeamIcon$ | async" > 
                     {{homeTeamName$ | async}} {{homeTeamScore$ | async}}
                 </mat-list-item>
                 <mat-list-item *ngIf="showTeamScores">
@@ -61,7 +61,7 @@
             <div>
                 <mat-form-field style="width:100%">
                     <mat-label>Number of Rounds</mat-label>
-                    <input matInput type="number" placeholder="Value" [(ngModel)]="numRounds">
+                    <input matInput type="number" placeholder="Value" [(ngModel)]="roundManagerService.numRounds">
                 </mat-form-field>
             </div>
         </mat-card>

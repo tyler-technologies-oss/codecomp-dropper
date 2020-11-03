@@ -1,7 +1,17 @@
-import { GameObjects, Scene } from 'phaser';
+import { GameObjects, Scene, Scale } from 'phaser';
 import { ILocation, INeighbor, TileState } from './interfaces';
 import { KillTile } from './kill-tile';
 import { Tile } from './tile';
+
+export function squareGrid(scene: Scene, scale: Scale.ScaleManager, size: number): TileGrid {
+  const cellSize = scale.height / (size + 2);
+  const gridHeight = cellSize * size;
+  const gridWidth = cellSize * size;
+  const gridY = cellSize;
+  const gridX = (scale.width - gridWidth) / 2;
+  const grid = new TileGrid(scene, gridX, gridY, gridWidth, gridHeight, size);
+  return grid;
+}
 
 export class TileGrid extends GameObjects.Container {
 
@@ -114,5 +124,9 @@ export class TileGrid extends GameObjects.Container {
       );
 
     return tileStates;
+  }
+
+  killVisitors() {
+    this.tiles.forEach(tile => tile.killVisitors());
   }
 }

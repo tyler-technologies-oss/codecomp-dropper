@@ -18,9 +18,9 @@ export class Tile extends GameObjects.Container implements ILocation {
 
   constructor(
     scene: Scene,
-    x: number, 
+    x: number,
     y: number,
-    width: number, 
+    width: number,
     height: number,
     public readonly index: number,
     public readonly coord: Coord
@@ -28,23 +28,23 @@ export class Tile extends GameObjects.Container implements ILocation {
     super(scene, x, y);
 
     this.displayTile = new GameObjects.TileSprite(
-      scene, 
-      0, 
-      0, 
-      width, 
-      height, 
-      'tiles', 
+      scene,
+      0,
+      0,
+      width,
+      height,
+      'tiles',
       '3hp-tile.png'
     );
     this.displayTile.tileScaleX = width / 256;
     this.displayTile.tileScaleY = height / 256;
     this.transitionTile = new GameObjects.TileSprite(
-      scene, 
-      0, 
-      0, 
-      width, 
-      height, 
-      'tiles', 
+      scene,
+      0,
+      0,
+      width,
+      height,
+      'tiles',
       '2hp-tile.png'
     );
     this.transitionTile.tileScaleX = width / 256;
@@ -66,7 +66,7 @@ export class Tile extends GameObjects.Container implements ILocation {
       ease: PMath.Easing.Sine.InOut,
       onUpdate: tween => {
         const value = tween.getValue();
-      
+
         if (value === 100) {
           this.displayTile.setFrame(frameKey);
           this.displayTile.setAlpha(this.state !== TileState.Broken ? 1 : 0.5);
@@ -86,7 +86,7 @@ export class Tile extends GameObjects.Container implements ILocation {
   getPosition(): WorldPosition {
     return [
       this.x + this.parentContainer.x,
-      this.y + this.parentContainer.y 
+      this.y + this.parentContainer.y
     ];
   }
 
@@ -145,14 +145,19 @@ export class Tile extends GameObjects.Container implements ILocation {
         break;
       case TileState.Broken:
         this.transition('0hp-tile.png');
-        // because the act of dying removes a visitor from a tile
-        // we need to create a different array to iterate against
-        // to kill existing visitors
-        [...this.visitors].forEach(v => v.die());
         break;
     }
 
     return this;
+  }
+
+  killVisitors() {
+    if (this.state === TileState.Broken) {
+      // because the act of dying removes a visitor from a tile
+      // we need to create a different array to iterate against
+      // to kill existing visitors
+      [...this.visitors].forEach(v => v.die());
+    }
   }
 
   reset(state = TileState.Good) {

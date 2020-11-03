@@ -50,7 +50,6 @@ function main(gameState, side) {
         if (member.isDead) {
           moveSet.push('none');
         } else {
-          possibleMoves.push('none');
           const [row, col] = curMoves[i];
           // console.log('premove', row, col);
           
@@ -62,6 +61,7 @@ function main(gameState, side) {
           const southExist = board[row + 1 <= 4 ? row + 1 : 4][col] > 1;
           const westExist  = board[row][col - 1 >= 0 ? col - 1 : 0] > 1;
           const eastExist  = board[row][col + 1 <= 4 ? col + 1 : 4] > 1;
+          const idleExist  = board[row][col] > 1;
           // console.log('N', canNorth, 'S', canSouth, 'W', canWest, 'E', canEast);
           // console.log(
           //   'N', board[row - 1 >= 0 ? row - 1 : 0][col], 
@@ -74,6 +74,9 @@ function main(gameState, side) {
           if (canSouth && southExist)  possibleMoves.push('south');
           if (canWest && westExist) possibleMoves.push('west');
           if (canEast && eastExist)  possibleMoves.push('east');
+          if (idleExist) possibleMoves.push('none');
+
+          if(possibleMoves.length == 0) possibleMoves.push('none');
 
           const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
           
