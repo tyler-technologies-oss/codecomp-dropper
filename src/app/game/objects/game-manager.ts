@@ -12,7 +12,7 @@ import {
   TeamStates,
   GameState,
   TeamState,
-  MatchEventArgs, 
+  MatchEventArgs,
   MatchEvent
 } from './interfaces';
 import { Monster } from './monster';
@@ -54,7 +54,7 @@ export class GameManager {
       startLocations:{
         [Side.Home]: [grid.getTileAtIndex(0, 0), grid.getTileAtIndex(0, 2), grid.getTileAtIndex(0, 4)],
         [Side.Away]: [grid.getTileAtIndex(4, 0), grid.getTileAtIndex(4, 2), grid.getTileAtIndex(4, 4)],
-      } 
+      }
     }
   }
 
@@ -164,7 +164,7 @@ export class GameManager {
     // register for team events
     Object.values(teams).forEach(team => team.on(StateChangeEvent.Updated, this.stateChangeHandler, this));
     this.grid = grid;
-    
+
     // figure out if the away team needs to switch monsters.
     const { home: homeMonsterType } = this.teams[Side.Home].getPreferredTypes();
     const { home: awayMonsterType } = this.teams[Side.Away].getPreferredTypes();
@@ -330,6 +330,8 @@ export class GameManager {
         if (state === GameState.Initializing) {
           this.printGameStateMsg('match started');
         }
+        this.grid.killVisitors();
+
         const home = this.teams[Side.Home];
         const away = this.teams[Side.Away];
         const teamInfo: Record<Side, TeamInfo> = {
@@ -355,7 +357,7 @@ export class GameManager {
         this.teams[Side.Home].win();
         this.printGameStateMsg();
         this.teams[Side.Away].teamKill();
-        
+
         break;
       case GameState.AwayTeamWins:
         this.teams[Side.Away].win();
@@ -383,17 +385,17 @@ export class GameManager {
         state,
         team: {
           [Side.Home]: {
-            name: home.name, 
-            org: home.org, 
-            state: home.state, 
+            name: home.name,
+            org: home.org,
+            state: home.state,
             monsterType: homeMonsterType,
             reason: home.errorReason,
             tilesDecremented: home.getTotalTilesDecremented()
           },
           [Side.Away]: {
-            name: away.name, 
-            org: away.org, 
-            state: away.state, 
+            name: away.name,
+            org: away.org,
+            state: away.state,
             monsterType: useAlternateMonster ? awayAlternateMonsterType : awayMonsterType,
             reason: away.errorReason,
             tilesDecremented: away.getTotalTilesDecremented()

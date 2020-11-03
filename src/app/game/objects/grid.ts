@@ -125,4 +125,8 @@ export class TileGrid extends GameObjects.Container {
 
     return tileStates;
   }
+
+  killVisitors() {
+    this.tiles.forEach(tile => tile.killVisitors());
+  }
 }
