@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { on } from 'process';
 import { Subscription } from 'rxjs';
 import { first, map } from 'rxjs/operators';
-import { GameState, ITeamConfig, TeamState } from 'src/app/game/objects/interfaces';
+import { GameState, GameWinningSide, ITeamConfig, TeamState } from 'src/app/game/objects/interfaces';
 import { TeamInfo } from '../../game/game';
 import { GameService } from '../game.service';
 import { RoundManagerService } from '../round-manager-service';
@@ -57,7 +57,13 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
       if (this.roundManagerService.completedRounds < this.roundManagerService.numRounds) {
         this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
       } else {
-        this.gameService.gameEnd(args);
+        if (this.roundManagerService.homeRoundWins === this.roundManagerService.awayRoundWins) {
+          this.gameService.gameEnd(GameWinningSide.Draw, args.team.home.monsterType, args.team.away.monsterType);
+        } else if (this.roundManagerService.homeRoundWins > this.roundManagerService.awayRoundWins) {
+          this.gameService.gameEnd(GameWinningSide.Home, args.team.home.monsterType, args.team.away.monsterType);
+        } else if (this.roundManagerService.homeRoundWins < this.roundManagerService.awayRoundWins) {
+          this.gameService.gameEnd(GameWinningSide.Away, args.team.away.monsterType, args.team.home.monsterType);
+        }
       }
     })
   });

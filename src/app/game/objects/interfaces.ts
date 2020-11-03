@@ -114,6 +114,12 @@ export enum GameState {
   Draw = 'draw',
 }
 
+export enum GameWinningSide {
+  Home = 'home',
+  Away = 'away',
+  Draw = 'draw',
+}
+
 export enum TeamState {
   Error = 'error',
   Initializing = 'initializing',
