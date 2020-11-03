@@ -14,6 +14,7 @@ import { TeamConfigsService } from '../team-configs.service';
 
 const getTeamName = () => map<TeamInfo, string>(({ teamName }) => teamName + ":");
 const getTeamScore = () => map<TeamInfo, number>(({ totalTilesDecremented }) => totalTilesDecremented);
+const getTeamIcon = () => map<TeamInfo, string>(({ teamIcon }) => "assets/scoreBoardIcons/" + teamIcon + ".png");
 
 @Component({
   selector: 'tyl-game-host-container',
@@ -27,6 +28,8 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   awayTeamName$ = this.gameService.awayTeamInfo$.pipe(getTeamName());
   homeTeamScore$ = this.gameService.homeTeamInfo$.pipe(getTeamScore());
   awayTeamScore$ = this.gameService.awayTeamInfo$.pipe(getTeamScore());
+  homeTeamIcon$ = this.gameService.homeTeamInfo$.pipe(getTeamIcon());
+  awayTeamIcon$ = this.gameService.awayTeamInfo$.pipe(getTeamIcon());
   pause$ = this.gameService.isPaused$;
   homeTeamConfig: ITeamConfig;
   awayTeamConfig: ITeamConfig;
@@ -34,6 +37,7 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   //TODO: Figure out the flow of data w/events to properly hide / show UI elements
   showScoreBoard: boolean = true;
   showTeamConfigs: boolean = true;
+  showTeamScores: boolean = false;
 
   numRounds: number = 3;
   completedRounds: number = 0;
@@ -90,7 +94,7 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
     this.roundDraws = 0;
     this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
     // this.showScoreBoard = true;
-    // this.showTeamConfigs = false;
+    this.showTeamScores = true;
   }
 
   resetGame() {

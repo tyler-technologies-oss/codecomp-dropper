@@ -26,8 +26,14 @@
                 <mat-list-item>Current Round: {{completedRounds == numRounds ? numRounds : completedRounds + 1}}
                 </mat-list-item>
                 <mat-list-item>{{homeRoundWins}}-{{awayRoundWins}}-{{roundDraws}}</mat-list-item>
-                <mat-list-item>{{homeTeamName$ | async}} {{homeTeamScore$ | async}}</mat-list-item>
-                <mat-list-item>{{awayTeamName$ | async}} {{awayTeamScore$ | async}}</mat-list-item>
+                <mat-list-item *ngIf="showTeamScores">
+                    <img matListAvatar [src]="homeTeamIcon$ | async" > <!-- *ngIf="showTeamScores"> -->
+                    {{homeTeamName$ | async}} {{homeTeamScore$ | async}}
+                </mat-list-item>
+                <mat-list-item *ngIf="showTeamScores">
+                    <img matListAvatar [src]="awayTeamIcon$ | async">
+                    {{awayTeamName$ | async}} {{awayTeamScore$ | async}}
+                </mat-list-item>
             </mat-list>
         </mat-card>
         <mat-card *ngIf="showTeamConfigs">
