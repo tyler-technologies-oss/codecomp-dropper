@@ -135,6 +135,10 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   }
 
   populateTeamConfigs(): void {
+    if(this.configService.teamConfigs.length > 0){
+      return;
+    }
+
     this.configService.parseTeamConfigs().subscribe(teamConfigs => {
       console.log("teamConfigs: " + teamConfigs.toString());
       this.homeTeamConfig = this.configService.developmentConfig;
