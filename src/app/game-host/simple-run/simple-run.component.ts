@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ITeamConfig, MonsterType, Side } from 'src/app/game/objects/interfaces';
+import { CodeManagerService } from '../code-manager-service';
 import { GameService } from '../game.service';
 import { RoundManagerService } from '../round-manager-service';
 import { TeamConfigsService } from '../team-configs.service';
@@ -13,8 +14,8 @@ import { TeamConfigsService } from '../team-configs.service';
 export class SimpleRunComponent implements OnInit {
   editorOptions = { theme: 'vs-light', language: 'javascript' };
   simpleRunForm = new FormGroup({
-    script: new FormControl("//NOTE: This is for development purposes only, final submission should be done through the submission tab Fill in the contents of main with your strategy The contents of gameState and side can be found by viewing interfaces.ts IGameState and Side interfaces gameState represents the current state of the game (all tiles, all teams) side will tell you which team is yours main should return an array of MoveDirection's (also found in interfaces.ts) with size = # of monsters on one team to start/*\r\rfunction main(gameState, side){\r\tconst myTeam = gameState.teamStates[side];\r\treturn ['none', 'none', 'none'];\r}", Validators.required),
-    awayTeamConfig: new FormControl('', Validators.required)
+    script: new FormControl(this.codeManagerService.script, Validators.required),
+    awayTeamConfig: new FormControl(this.getTeamConfigs().length >= 3 ? this.getTeamConfigs()[2] : '', Validators.required)
   });
 
   codeMirrorOptions: any = {
@@ -22,11 +23,14 @@ export class SimpleRunComponent implements OnInit {
     lineNumbers: true,
     lineWrapping: true,
     gutters: ['CodeMirror-lint-markers'],
-    theme:'darcula',
+    theme: 'darcula',
     lint: true
   };
 
-  constructor(private configService: TeamConfigsService, private gameService: GameService, private roundManagerService: RoundManagerService) { }
+  constructor(private codeManagerService: CodeManagerService,
+    private configService: TeamConfigsService,
+    private gameService: GameService,
+    private roundManagerService: RoundManagerService) { }
 
   ngOnInit(): void {
     //This is not dynamic and is objectively terrible but works ¯\_(ツ)_/¯ 
@@ -56,6 +60,21 @@ export class SimpleRunComponent implements OnInit {
     this.roundManagerService.numRounds = 1;
     this.roundManagerService.reset();
     this.gameService.setTeamConfigs(teamConfig, this.simpleRunForm.value.awayTeamConfig);
+  }
+
+  onScriptChange() {
+    this.codeManagerService.script = this.simpleRunForm.value.script;
+  }
+
+  downloadScript() {
+    let filename = "my_ai.js";
+    let filetype = "text/plain";
+    let a = document.createElement("a");
+    let dataURI = "data:" + filetype +
+      ";base64," + btoa(this.codeManagerService.script);
+    a.href = dataURI;
+    a['download'] = filename;
+    a.click();
   }
 
 }
