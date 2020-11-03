@@ -11,7 +11,7 @@
             </mat-form-field>
         </div>
         <div id="editor">
-            <ngx-codemirror formControlName="script" [options]=codeMirrorOptions></ngx-codemirror>
+            <ngx-codemirror formControlName="script" (change)="onScriptChange()" [options]=codeMirrorOptions></ngx-codemirror>
         </div>
         <div style="justify-content: flex-end; display: flex;">
             <button mat-raised-button mat-dialog-close color="primary" type="submit"
