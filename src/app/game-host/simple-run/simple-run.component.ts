@@ -23,13 +23,13 @@ export class SimpleRunComponent implements OnInit {
     lineNumbers: true,
     lineWrapping: true,
     gutters: ['CodeMirror-lint-markers'],
-    theme:'darcula',
+    theme: 'darcula',
     lint: true
   };
 
   constructor(private codeManagerService: CodeManagerService,
-    private configService: TeamConfigsService, 
-    private gameService: GameService, 
+    private configService: TeamConfigsService,
+    private gameService: GameService,
     private roundManagerService: RoundManagerService) { }
 
   ngOnInit(): void {
@@ -62,8 +62,19 @@ export class SimpleRunComponent implements OnInit {
     this.gameService.setTeamConfigs(teamConfig, this.simpleRunForm.value.awayTeamConfig);
   }
 
-  onScriptChange(){
+  onScriptChange() {
     this.codeManagerService.script = this.simpleRunForm.value.script;
+  }
+
+  downloadScript() {
+    let filename = "my_ai.js";
+    let filetype = "text/plain";
+    let a = document.createElement("a");
+    let dataURI = "data:" + filetype +
+      ";base64," + btoa(this.codeManagerService.script);
+    a.href = dataURI;
+    a['download'] = filename;
+    a.click();
   }
 
 }
