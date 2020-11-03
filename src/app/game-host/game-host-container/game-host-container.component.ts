@@ -14,7 +14,7 @@ import { TeamConfigsService } from '../team-configs.service';
 
 const getTeamName = () => map<TeamInfo, string>(({ teamName }) => teamName + ":");
 const getTeamScore = () => map<TeamInfo, number>(({ totalTilesDecremented }) => totalTilesDecremented);
-const getTeamIcon = () => map<TeamInfo, string>(({ teamIcon }) => "assets/scoreBoardIcons/" + teamIcon + ".png");
+const getTeamIcon = () => map<TeamInfo, string>(({ teamIcon }) => `assets/scoreBoardIcons/${teamIcon}.png`);
 
 @Component({
   selector: 'tyl-game-host-container',
