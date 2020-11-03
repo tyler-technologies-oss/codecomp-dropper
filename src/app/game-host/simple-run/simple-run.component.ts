@@ -12,7 +12,7 @@ import { TeamConfigsService } from '../team-configs.service';
 export class SimpleRunComponent implements OnInit {
   editorOptions = { theme: 'vs-light', language: 'javascript' };
   simpleRunForm = new FormGroup({
-    script: new FormControl('', Validators.required),
+    script: new FormControl("//NOTE: This is for development purposes only, final submission should be done through the submission tab Fill in the contents of main with your strategy The contents of gameState and side can be found by viewing interfaces.ts IGameState and Side interfaces gameState represents the current state of the game (all tiles, all teams) side will tell you which team is yours main should return an array of MoveDirection's (also found in interfaces.ts) with size = # of monsters on one team to start/*\r\rfunction main(gameState, side){\r\tconst myTeam = gameState.teamStates[side];\r\treturn ['none', 'none', 'none'];\r}", Validators.required),
     awayTeamConfig: new FormControl('', Validators.required)
   });
 
@@ -21,6 +21,7 @@ export class SimpleRunComponent implements OnInit {
     lineNumbers: true,
     lineWrapping: true,
     gutters: ['CodeMirror-lint-markers'],
+    theme:'darcula',
     lint: true
   };
 
@@ -29,7 +30,7 @@ export class SimpleRunComponent implements OnInit {
   ngOnInit(): void {
     //This is not dynamic and is objectively terrible but works ¯\_(ツ)_/¯ 
     let editor = document.getElementById("editor");
-    editor.setAttribute("style", "height:" + (document.getElementById("codeEditorForm").clientHeight - 150) + "px");
+    editor.setAttribute("style", "height:" + (document.getElementById("codeEditorForm").clientHeight - 100) + "px");
   }
 
   // Needed for html binding to actually store object in component on selection of config
