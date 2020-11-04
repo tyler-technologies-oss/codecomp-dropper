@@ -1,4 +1,6 @@
+import { format } from 'path';
 import { GameObjects, Scene, Events } from 'phaser';
+import { ToastService } from 'src/app/game-host/toast.service';
 import { createSandboxAsync, ISandbox } from 'src/app/helpers';
 import { ErrorReason, IGameState, ILocation, ITeamConfig, ITeamMemberState, MonsterType, MoveSet, Side, StateChangeEvent, StateUpdatedEventArgs, TeamState } from './interfaces';
 import { Monster, MonsterState } from './monster';
@@ -33,7 +35,7 @@ export class Team extends GameObjects.Group {
 
   get org() { return this.config.org };
 
-  constructor(scene: Scene, private config: ITeamConfig) {
+  constructor(scene: Scene, private config: ITeamConfig, private toastService: ToastService) {
     super(scene);
     scene.add.existing(this);
     this.runChildUpdate = true;
@@ -67,6 +69,8 @@ export class Team extends GameObjects.Group {
       try {
         this.sandbox = await createSandboxAsync<MoveSet>(this.name, this.config.aiSrc);
       } catch (err) {
+        const formattedSide = side.charAt(0).toUpperCase() + side.substring(1);
+        this.toastService.showError(`${formattedSide} team loses round`, `${formattedSide} Team: script failed to load`);
         this.setState(TeamState.Error, ErrorReason.Compile);
       }
     }

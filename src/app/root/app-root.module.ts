@@ -11,6 +11,7 @@ import { AppRootRoutingModule } from './app-root-routing.module';
 import { AppRootComponent } from './app-root/app-root.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppNavigationComponent } from './app-navigation/app-navigation.component';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,9 @@ import { AppNavigationComponent } from './app-navigation/app-navigation.componen
     MatListModule,
     MatIconModule,
     MatButtonModule,
-    MatDialogModule
+    MatDialogModule,
+    ToastrModule.forRoot(),
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppRootComponent]

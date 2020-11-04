@@ -6,6 +6,7 @@ import { TeamInfo, Teams } from '../game/objects/game-manager';
 import { MatchEventArgs, ITeamConfig, Side, StateChangeEvent, MatchEvent, GameWinningSide, MonsterType } from '../game/objects/interfaces';
 import { Team } from '../game/objects/team';
 import { MainScene } from '../game/scenes/main.scene';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root'
@@ -46,7 +47,7 @@ export class GameService {
 
   readonly containerElement: HTMLDivElement;
 
-  constructor() {
+  constructor(private toastService: ToastService) {
     const parent = document.createElement('div');
     parent.style.flex = "1 1 auto";
     this.containerElement = parent;
@@ -64,8 +65,8 @@ export class GameService {
 
   setTeamConfigs(homeTeamConfig: ITeamConfig, awayTeamConfig: ITeamConfig) {
     this.mainScene$.pipe(first()).subscribe(scene => {
-      const homeTeam = new Team(scene, homeTeamConfig);
-      const awayTeam = new Team(scene, awayTeamConfig);
+      const homeTeam = new Team(scene, homeTeamConfig, this.toastService);
+      const awayTeam = new Team(scene, awayTeamConfig, this.toastService);
       const teams: Teams = {
           [Side.Home]: homeTeam,
           [Side.Away]: awayTeam
