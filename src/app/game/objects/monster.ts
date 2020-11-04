@@ -82,7 +82,7 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
   private lastLocation: ILocation;
   private nextLocation: ILocation | null = null;
   private actionTime = 0;
-  private maxActionTime = 500;
+  private maxActionTime = 2000;
 
   readonly id = idGen.next().value as number;
 
