@@ -174,7 +174,7 @@ export class GameEnd {
       this.defeatMonster = new GameObjects.Sprite(
         scene,
         600,
-        this.floorAxisY + 20,
+        this.floorAxisY,
         MonstersAtlas,
         `${defeatMonsterType}/die/Die_008.png`
       );
@@ -316,7 +316,7 @@ export class GameEnd {
     const normalizedTime = PMath.Clamp((this.gameEndTime % this.gameEndLoop) / this.gameEndLoop, 0, 1);
     const x = PMath.Interpolation.Linear([x1, x2], normalizedTime);
     this.victoryMonster.setPosition(x,  this.floorAxisY);
-    this.defeatMonster.setPosition(x + 300,  this.floorAxisY + 20);
+    this.defeatMonster.setPosition(x + 300,  this.floorAxisY);
 
     const t = Math.ceil((this.gameEndTime % 1000) / 142.857142857);
 
