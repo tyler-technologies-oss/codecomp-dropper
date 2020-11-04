@@ -118,7 +118,7 @@ export class GameManager {
   private stateChangeHandler = function (this: GameManager, { payload }: StateUpdatedEventArgs<TeamState, ErrorReason>) {
     const teamStates = Object.values(this.teams).map(team => team.state);
 
-    if (this.state !== GameState.Resolving && !teamStates.some(state => state === TeamState.Updating)) {
+    if (this.state !== GameState.Resolving && !teamStates.some(state => state === TeamState.Updating) && !teamStates.some(state => state === TeamState.Initializing)) {
       if (teamStates.every(state => state === TeamState.Error)) {
         this.setState(GameState.Error);
         return;
