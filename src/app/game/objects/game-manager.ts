@@ -30,6 +30,7 @@ export interface IMatchConfig {
 export interface TeamInfo {
   teamName:string;
   totalTilesDecremented:number;
+  teamIcon:string;
 }
 
 export class GameManager {
@@ -118,7 +119,7 @@ export class GameManager {
   private stateChangeHandler = function (this: GameManager, { payload }: StateUpdatedEventArgs<TeamState, ErrorReason>) {
     const teamStates = Object.values(this.teams).map(team => team.state);
 
-    if (this.state !== GameState.Resolving && !teamStates.some(state => state === TeamState.Updating)) {
+    if (this.state !== GameState.Resolving && !teamStates.some(state => state === TeamState.Updating) && !teamStates.some(state => state === TeamState.Initializing)) {
       if (teamStates.every(state => state === TeamState.Error)) {
         this.setState(GameState.Error);
         return;
@@ -352,8 +353,8 @@ export class GameManager {
         const home = this.teams[Side.Home];
         const away = this.teams[Side.Away];
         const teamInfo: Record<Side, TeamInfo> = {
-          [Side.Home]: {teamName: home.name, totalTilesDecremented: home.getTotalTilesDecremented()},
-          [Side.Away]: {teamName: away.name, totalTilesDecremented: away.getTotalTilesDecremented()},
+          [Side.Home]: {teamName: home.name, totalTilesDecremented: home.getTotalTilesDecremented(), teamIcon: home.teamIcon},
+          [Side.Away]: {teamName: away.name, totalTilesDecremented: away.getTotalTilesDecremented(), teamIcon: away.teamIcon},
         };
         this.eventEmitter.emit(StateChangeEvent.ScoreBoardUpdate, teamInfo);
         break;
