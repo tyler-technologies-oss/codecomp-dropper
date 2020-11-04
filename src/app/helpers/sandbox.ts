@@ -83,6 +83,7 @@ function createWebWorkerSource(code: string, id: any, timeout = 2000) {
           } catch (error) {
 
             // untrusted code choked, report the error!
+            console.warn('untrusted code error', error);
             self.postMessage({error: error.toString()});
           }
           return;
@@ -100,7 +101,7 @@ function createWebWorkerSource(code: string, id: any, timeout = 2000) {
       // if we are here, then the untrusted code failed to import
       __script_state = __ScriptState.Error;
       log('Failed to initialize user script.', error);
-      self.postMessage({error});
+      self.postMessage({error: \`${'${error}'}\`});
     });
   })();
   `;

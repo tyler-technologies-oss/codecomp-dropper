@@ -10,6 +10,15 @@ import {
   StateUpdatedEventArgs,
 } from './interfaces';
 
+export enum MonsterColor {
+  Bobo = 0xf46969,
+  Triclops = 0xb383ff,
+  Spike = 0x85de00,
+  Goldy = 0xffcc06,
+  Grouchy = 0x54d2ff,
+  Pinky = 0xff95bd,
+}
+
 export const MonstersAtlas = 'monsters';
 const assetsPath = 'assets/sprites';
 
@@ -51,7 +60,7 @@ export function createMonsterAnimFrames(anims: Animations.AnimationManager, mons
     [MonsterAnim.Walk]: anims.generateFrameNames(MonstersAtlas, { prefix: `${monster}/walk/Walk_`, end: 11, start, zeroPad, suffix }),
   };
 
-  anims.create({ key: `${monster}_${MonsterAnim.Attack}`, frames: animFrameMap[MonsterAnim.Attack], frameRate: 15 });
+  anims.create({ key: `${monster}_${MonsterAnim.Attack}`, frames: animFrameMap[MonsterAnim.Attack], frameRate: 5, repeat: -1 });
   anims.create({ key: `${monster}_${MonsterAnim.Die}`, frames: animFrameMap[MonsterAnim.Die], frameRate: 15, hideOnComplete: true });
   anims.create({ key: `${monster}_${MonsterAnim.Idle}`, frames: animFrameMap[MonsterAnim.Idle], frameRate: 12, repeat: -1 });
   anims.create({ key: `${monster}_${MonsterAnim.Jump}`, frames: animFrameMap[MonsterAnim.Jump], frameRate: 15, repeat: -1 });

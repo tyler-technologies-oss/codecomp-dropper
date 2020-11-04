@@ -1,28 +1,20 @@
-import { Scene, Input } from 'phaser';
+import { Scene } from 'phaser';
+import { squareGrid } from '../objects/grid';
+
 import { loadMonsterAssets, createAllMonsterAnimFrames } from '../objects/monster'
-import { TileGrid } from '../objects/grid';
-import { GameOverEventArgs, ITeamConfig, MonsterType, Side, StateChangeEvent, TileState } from '../objects/interfaces';
-import { Team } from '../objects/team';
-import {
-  tileStatusScript,
-  idleScript,
-  idleErrorScript,
-  wanderScript,
-  northScript,
-  southScript,
-  eastScript,
-  westScript,
-} from '../ai';
-import { GameManager, IMatchConfig } from '../objects/game-manager';
+import { MatchEventArgs, MatchEvent } from '../objects/interfaces';
+
+import { GameManager } from '../objects/game-manager';
 import { loadBackgroundAssets, Background } from '../objects/background';
 import { loadTileAssets } from '../objects/tile';
-
+import { createAllGameEndAnimFrames, GameEnd, loadGameEndAssets } from '../objects/game-end';
 
 export const MainKey = 'main';
 
 export class MainScene extends Scene {
   match: GameManager;
   background: Background;
+  gameEnd: GameEnd;
 
   constructor() {
     super({ key: MainKey });
@@ -32,16 +24,10 @@ export class MainScene extends Scene {
   create() {
     // initialize all the animations
     createAllMonsterAnimFrames(this.anims);
+    createAllGameEndAnimFrames(this.anims);
     this.background = new Background(this);
-
-    const gridSize = 5;
-    const cellSize = this.scale.height / (gridSize + 2);
-    const gridHeight = cellSize * gridSize;
-    const gridWidth = cellSize * gridSize;
-    const gridY = cellSize;
-    const gridX = (this.scale.width - gridWidth) / 2;
-    const grid = new TileGrid(this, gridX, gridY, gridWidth, gridHeight, gridSize);
-
+    this.gameEnd = new GameEnd();
+    const grid = squareGrid(this, this.scale, 5);
     this.match.initGrid(grid);
   }
 
@@ -49,13 +35,11 @@ export class MainScene extends Scene {
     loadBackgroundAssets(this);
     loadMonsterAssets(this);
     loadTileAssets(this);
+    loadGameEndAssets(this);
   }
 
   update(time: number, dt: number) {
-    this.background.update(dt)
-  }
-
-  showGameOverDialog(status: GameOverEventArgs) {
-    console.log(status);
+    this.background.update(dt); 
+    this.gameEnd.update(dt);
   }
 }

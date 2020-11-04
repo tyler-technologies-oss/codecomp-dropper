@@ -1,6 +1,6 @@
 import { GameObjects, Scene, Events } from 'phaser';
 import { createSandboxAsync, ISandbox } from 'src/app/helpers';
-import { ErrorReason, IGameState, ILocation, ITeamConfig, ITeamMemberState, MoveSet, Side, StateChangeEvent, StateUpdatedEventArgs, TeamState } from './interfaces';
+import { ErrorReason, IGameState, ILocation, ITeamConfig, ITeamMemberState, MonsterType, MoveSet, Side, StateChangeEvent, StateUpdatedEventArgs, TeamState } from './interfaces';
 import { Monster, MonsterState } from './monster';
 
 export class Team extends GameObjects.Group {
@@ -12,6 +12,9 @@ export class Team extends GameObjects.Group {
 
   private _errorReason: ErrorReason | null = null;
   get errorReason() { return this._errorReason; }
+
+  private _teamIcon: MonsterType ;
+  get teamIcon() { return this._teamIcon; }
 
   private eventEmitter = new Events.EventEmitter();
 
@@ -74,6 +77,7 @@ export class Team extends GameObjects.Group {
     const monsterTypeSide = useAlternateMonster ? Side.Away : Side.Home;
 
     const monsterType = this.config.preferredMonsters[monsterTypeSide];
+    this._teamIcon = monsterType;
     for(let i = 0; i < this.maxSize; i++) {
       const monster = new Monster(this.scene, 0, 0, monsterType, side);
       monster.setLocation(locations[i]);

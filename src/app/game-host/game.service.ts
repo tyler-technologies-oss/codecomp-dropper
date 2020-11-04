@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { from, fromEvent, merge, of, ReplaySubject } from 'rxjs';
+import { from, fromEvent, merge, ReplaySubject } from 'rxjs';
 import { first, map, mapTo, mergeMap, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { createGame, Game, MainKey, SceneEvent } from '../game/game';
 import { TeamInfo, Teams } from '../game/objects/game-manager';
-import { GameOverEventArgs, GameState, ITeamConfig, Side, StateChangeEvent, StateUpdatedEventArgs } from '../game/objects/interfaces';
+import { MatchEventArgs, ITeamConfig, Side, StateChangeEvent, MatchEvent, GameWinningSide, MonsterType } from '../game/objects/interfaces';
 import { Team } from '../game/objects/team';
 import { MainScene } from '../game/scenes/main.scene';
 
@@ -33,7 +33,7 @@ export class GameService {
   );
 
   gameOver$ = this.mainScene$.pipe(
-    switchMap(mainScene => fromEvent<GameOverEventArgs>(mainScene.match, StateChangeEvent.GameOver)),
+    switchMap(mainScene => fromEvent<MatchEventArgs>(mainScene.match, MatchEvent.GameEnd)),
     shareReplay(1),
   );
 
@@ -70,6 +70,7 @@ export class GameService {
           [Side.Home]: homeTeam,
           [Side.Away]: awayTeam
       }
+      scene.gameEnd.reset();
       scene.match.clearBoard();
       scene.match.initTeams(teams);
       scene.match.initialize();
@@ -78,8 +79,16 @@ export class GameService {
 
   resetGame(){
     this.mainScene$.pipe(first()).subscribe(scene => {
+      scene.gameEnd.reset();
       scene.match.clearBoard();
       scene.match.initialize();
+    });
+  }
+
+  gameEnd(winningSide: GameWinningSide, victoryMonsterType: MonsterType, defeatMonsterType: MonsterType) {
+    this.mainScene$.pipe(first()).subscribe(scene => {
+      scene.match.hide();
+      scene.gameEnd.init(scene, winningSide, victoryMonsterType, defeatMonsterType);
     });
   }
 }
