@@ -1,12 +1,12 @@
 import { Team } from './team';
 
 export enum MonsterType {
-  Bobo      = 'bobo',
-  Triclops  = 'triclops',
-  Goldy     = 'goldy',
-  Pinky     = 'pinky',
-  Spike     = 'spike',
-  Grouchy   = 'grouchy',
+  Bobo = 'bobo',
+  Triclops = 'triclops',
+  Goldy = 'goldy',
+  Pinky = 'pinky',
+  Spike = 'spike',
+  Grouchy = 'grouchy',
 }
 
 export type WorldPosition = [number, number];
@@ -35,6 +35,7 @@ export interface ILocation {
   acceptVisitor(visitor: IVisitor): boolean;
   exitVisitor(visitor: IVisitor);
   getPosition(): WorldPosition;
+  setState(tile: TileState)
 }
 
 export enum Side {
@@ -85,7 +86,7 @@ export interface ITeamConfig {
   aiSrc: string;
 }
 
-export interface StateUpdatedEventArgs<State, Payload=any> {
+export interface StateUpdatedEventArgs<State, Payload = any> {
   current: State;
   last: State;
   target: any;
@@ -93,7 +94,7 @@ export interface StateUpdatedEventArgs<State, Payload=any> {
 }
 
 export enum StateChangeEvent {
-  ScoreBoardUpdate='scoreboard_update',
+  ScoreBoardUpdate = 'scoreboard_update',
   Updated = 'state_updated',
   GameOver = 'game_over',
 }
@@ -130,8 +131,8 @@ export enum TeamState {
 }
 
 export type MatchTeamInfo = Record<Side, {
-  name: string, 
-  org: string, 
+  name: string,
+  org: string,
   state: TeamState
   monsterType: MonsterType,
   reason?: ErrorReason,
@@ -148,4 +149,13 @@ export enum ErrorReason {
   RunTime = 'run-time',
   Bug = 'bug',
   Unknown = 'unknown',
+}
+
+export interface GridMap{
+  name: string,
+  tiles: {
+    x:number,
+    y:number,
+    status:number
+  }[]
 }

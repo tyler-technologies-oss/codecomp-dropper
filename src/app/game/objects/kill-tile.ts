@@ -17,4 +17,8 @@ export class KillTile implements ILocation {
     return this.position;
   }
 
+  setState(tile:TileState){
+    return;
+  }
+
 }

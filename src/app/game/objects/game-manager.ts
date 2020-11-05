@@ -13,10 +13,11 @@ import {
   GameState,
   TeamState,
   MatchEventArgs,
-  MatchEvent
+  MatchEvent, GridMap 
 } from './interfaces';
 import { Monster } from './monster';
 import { Team } from './team';
+
 
 export type Teams = Record<Side, Team>;
 export type StartLocations = Record<Side, ILocation[]>;
@@ -43,18 +44,21 @@ export class GameManager {
 
   private teams: Teams;
   private grid: TileGrid;
+
   private readonly sides = Object.values(Side);
 
   constructor(private readonly thinkingTime = 2000, private readonly minThinkingTime = 1000) {
   }
 
   initGrid(grid: TileGrid) {
+    let gridLength = grid.getGridLength()-1;
+    let halfGridLength = Math.floor(gridLength/2);
     this.matchConfig = {
       grid: grid,
       teams: null,
       startLocations:{
-        [Side.Home]: [grid.getTileAtIndex(0, 0), grid.getTileAtIndex(0, 2), grid.getTileAtIndex(0, 4)],
-        [Side.Away]: [grid.getTileAtIndex(4, 0), grid.getTileAtIndex(4, 2), grid.getTileAtIndex(4, 4)],
+        [Side.Home]: [grid.getTileAtIndex(0, 0), grid.getTileAtIndex(0, halfGridLength), grid.getTileAtIndex(0, gridLength)],
+        [Side.Away]: [grid.getTileAtIndex(gridLength, 0), grid.getTileAtIndex(gridLength, halfGridLength), grid.getTileAtIndex(gridLength, gridLength)],
       }
     }
   }
@@ -466,4 +470,13 @@ export class GameManager {
       this.eventEmitter.emit(StateChangeEvent.Updated, stateUpdatedEventArgs);
     }
   }
+
+  applyMap(map: GridMap){
+    map.tiles.forEach(tile=>{
+        console.log(tile);
+        this.matchConfig.grid.setTileAtIndex(tile.x,tile.y,tile.status);
+      })
+  }
+
+ 
 }

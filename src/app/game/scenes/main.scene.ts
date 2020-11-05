@@ -27,7 +27,7 @@ export class MainScene extends Scene {
     createAllGameEndAnimFrames(this.anims);
     this.background = new Background(this);
     this.gameEnd = new GameEnd();
-    const grid = squareGrid(this, this.scale, 5);
+    const grid = squareGrid(this, this.scale, 7);
     this.match.initGrid(grid);
   }
 

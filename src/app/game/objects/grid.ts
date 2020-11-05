@@ -17,6 +17,7 @@ export class TileGrid extends GameObjects.Container {
 
   tiles: Tile[] = [];
   private readonly squareSize: number;
+  private readonly gridLength:number;
 
   private states: TileState[];
 
@@ -75,6 +76,8 @@ export class TileGrid extends GameObjects.Container {
     }
 
     this.add(this.tiles);
+
+    this.gridLength = size;
   }
 
   setTileStates(tileStates: TileState[]) {
@@ -85,6 +88,10 @@ export class TileGrid extends GameObjects.Container {
     })
   }
 
+  getGridLength() {
+    return this.gridLength;
+  }
+
   getTileAtIndex(row: number, column: number): ILocation | null {
     const size1 = this.size - 1;
     if (row < 0 || row > size1 || column < 0 || column > size1) {
@@ -92,6 +99,12 @@ export class TileGrid extends GameObjects.Container {
     }
 
     return this.tiles[row * this.size + column] as Tile;
+  }
+
+  setTileAtIndex(row:number, column:number, tileState: TileState){
+    let tile = this.getTileAtIndex(row,column);
+    tile.setState(tileState);
+    
   }
 
   getTileAtPos(x: number, y: number): ILocation | null {
@@ -129,4 +142,5 @@ export class TileGrid extends GameObjects.Container {
   killVisitors() {
     this.tiles.forEach(tile => tile.killVisitors());
   }
+
 }

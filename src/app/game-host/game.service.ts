@@ -6,6 +6,7 @@ import { TeamInfo, Teams } from '../game/objects/game-manager';
 import { MatchEventArgs, ITeamConfig, Side, StateChangeEvent, MatchEvent, GameWinningSide, MonsterType } from '../game/objects/interfaces';
 import { Team } from '../game/objects/team';
 import { MainScene } from '../game/scenes/main.scene';
+import { MapConfigsService } from './map-config.service';
 import { ToastService } from './toast.service';
 
 @Injectable({
@@ -47,7 +48,10 @@ export class GameService {
 
   readonly containerElement: HTMLDivElement;
 
-  constructor(private toastService: ToastService) {
+  constructor(
+    private toastService: ToastService,
+    private mapConfigService: MapConfigsService
+    ) {
     const parent = document.createElement('div');
     parent.style.flex = "1 1 auto";
     this.containerElement = parent;
@@ -73,6 +77,7 @@ export class GameService {
       }
       scene.gameEnd.reset();
       scene.match.clearBoard();
+      scene.match.applyMap(this.mapConfigService.currentMap);
       scene.match.initTeams(teams);
       scene.match.initialize();
     });

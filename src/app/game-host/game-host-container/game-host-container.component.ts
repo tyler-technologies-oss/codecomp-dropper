@@ -4,9 +4,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { on } from 'process';
 import { Subscription } from 'rxjs';
 import { first, map } from 'rxjs/operators';
-import { GameState, GameWinningSide, ITeamConfig, TeamState } from 'src/app/game/objects/interfaces';
+import { GameState, GameWinningSide, ITeamConfig, GridMap, TeamState } from 'src/app/game/objects/interfaces';
 import { TeamInfo } from '../../game/game';
 import { GameService } from '../game.service';
+import { MapConfigsService } from '../map-config.service';
 import { RoundManagerService } from '../round-manager-service';
 import { SimpleRunComponent } from '../simple-run/simple-run.component';
 import { TeamConfigAdderComponent } from '../team-config-adder/team-config-adder.component';
@@ -76,6 +77,7 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
     private gameService: GameService, 
     private snackBar: MatSnackBar, 
     private configService: TeamConfigsService, 
+    private mapConfigService: MapConfigsService,
     public dialog: MatDialog) { }
 
   async delay(ms: number) {
@@ -84,6 +86,7 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.populateTeamConfigs();
+    this.mapConfigService.parseMaps();
     this.hostElement.nativeElement.appendChild(this.gameService.containerElement);
     this.gameService.resume();
   }
