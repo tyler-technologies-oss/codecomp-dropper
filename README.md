@@ -6,7 +6,9 @@ Haunted Tiles is an application to pit student-developed ai against each other i
 
 The game looks like this:
 
-It is a 5 by 5 board of breaking tiles. With two teams (home & away) each with 3 players represented by cute monsters. Every turn the monsters move one tile or remain on their current tile by jumping. Every time that a tile is stepped on (jumping is a step) by a monster that tile breaks more. Every tile can sustain three steps. That is on the 3rd step the tile will break and any number of monsters on that step will fall to their death. Monsters can also fall to their death if they walk off the 5 x 5 board. The game is over when all three monsters on one team have fallen to their death.
+![Game image](/docs/Game.png)
+
+It is a 7 by 7 board of breaking tiles. With two teams (home & away) each with 3 players represented by cute monsters. Every turn the monsters move one tile or remain on their current tile by jumping. Every time that a tile is stepped on (jumping is a step) by a monster that tile breaks more. Every tile can sustain three steps. That is on the 3rd step the tile will break and any number of monsters on that step will fall to their death. Monsters can also fall to their death if they walk off the 5 x 5 board. The game is over when all three monsters on one team have fallen to their death.
 
 The objective to the game is to remain on the board longer than your opponent. 
 
