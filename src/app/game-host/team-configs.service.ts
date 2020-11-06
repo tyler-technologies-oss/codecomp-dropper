@@ -5,6 +5,8 @@ import { parse } from 'papaparse';
 import { Observable, of } from 'rxjs';
 import { developmentScript } from '../game/ai/development.ai';
 import { Observer } from 'rxjs/internal/types';
+import { homeScript } from '../game/ai/home.ai';
+import { awayScript } from '../game/ai/away.ai';
 
 @Injectable({
   providedIn: 'root'
@@ -27,10 +29,32 @@ export class TeamConfigsService {
     aiSrc: developmentScript,
   };
 
+  homeConfig: ITeamConfig = {
+    name: 'Home Team',
+    org: 'Home',
+    preferredMonsters: {
+      [Side.Home]: MonsterType.Bobo,
+      [Side.Away]: MonsterType.Triclops,
+    },
+    aiSrc: homeScript,
+  };
+
+  awayConfig: ITeamConfig = {
+    name: 'Away Team',
+    org: 'away',
+    preferredMonsters: {
+      [Side.Home]: MonsterType.Bobo,
+      [Side.Away]: MonsterType.Triclops,
+    },
+    aiSrc: awayScript,
+  };
+
   constructor() { }
 
   parseTeamConfigs(): Observable<ITeamConfig[]> {
     this.teamConfigs.push(this.developmentConfig);
+    this.teamConfigs.push(this.homeConfig);
+    this.teamConfigs.push(this.awayConfig);
     const self = this;
     return new Observable((observer: Observer<ITeamConfig[]>) => {
       parse(this.url, {
