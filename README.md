@@ -10,7 +10,7 @@ The game looks like this:
 
 Here is the UI Annotated:
 
-
+![Game image annotated](/src/docs/GameAnnotated.PNG)
 
 ### Description
 The game starts with a 7 by 7 board of breaking tiles. On the board are two teams (home & away) each with 3 players represented by cute monsters. Every turn the monsters move one tile or remain on their current tile by jumping. Every time that a tile is stepped on (jumping is a step) by a monster that tile breaks more. Every tile can sustain three steps. That is on the 3rd step the tile will break and any number of monsters on that step will fall to their death. Monsters can also fall to their death if they walk off the board. 
@@ -99,6 +99,45 @@ function main(gameState, side) {
     return ['south', 'south', 'south'];
   }
  ```
+Here are the interfaces of the data you receive. You can look at example scripts to build ideas on how you can leverage the data
+
+```
+export interface IGameState {
+  boardSize: [number, number];
+  tileStates: TileState[][];
+  teamStates: TeamStates;
+}
+
+export enum TileState {
+  Good = 3,
+  Warning = 2,
+  Danger = 1,
+  Broken = 0,
+}
+
+export enum Side {
+  Home = 'home',
+  Away = 'away',
+}
+
+export enum MoveDirection {
+  North = 'north',
+  South = 'south',
+  East = 'east',
+  West = 'west',
+  None = 'none',
+}
+
+export type TeamStates = Record<Side, ITeamMemberState[]>;
+
+export interface ITeamMemberState {
+  coord: Coord;
+  isDead: boolean;
+}
+
+export type Coord = [number, number];
+```
+
 There are three ways you can develop your AI.
 
 1. Using the included blank AI file
@@ -118,6 +157,7 @@ See the picture below, by clicking the button you will launch a window where you
 
 As long as you keep the app running this window will keep you code saved. You can run that code against other team configs and also download it to submit! 
 
+![Code Window](/src/docs/CodeWindow.PNG)
 
 ***Adding a team config***
 
