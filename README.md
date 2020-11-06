@@ -196,6 +196,27 @@ Note: Make sure your team name matches the same team name you submitted on the R
 
 The competition will be live streamed on TWITCH.TV. Follow us at https://www.twitch.tv/tylertechnologies
 
-#GOOD LUCK
+## Tournament Format
+
+This virtual coding competition will be a best of 5 single elimination tournament split across two stages
+
+### Stage 1: Inner School Competition
+
+During this stage teams will be compete against other teams from their same school
+
+Seeding will be based upon registration order. For example the first team to register will play the last team to register
+
+### Stage 2: The Grand Finale
+
+The winner from each inner school competition will then compete against each other in the grand finale. Only the first place AI from each school makes it to this stage
+
+Seeding will be determined by number of competitors from the teams school. The more students that competed from your school means a higher seeding in the grand finale
+
+For example the winner from the school with the most competitors will face the winner from the school with the least amount of competitors in the first round
+
+## Questions?
+Email hauntedtiles@tylertech.com
+
+# GOOD LUCK
 
 
