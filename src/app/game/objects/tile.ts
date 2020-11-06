@@ -12,7 +12,7 @@ export class Tile extends GameObjects.Container implements ILocation {
   state: TileState = TileState.Good;
   displayTile: GameObjects.TileSprite;
   transitionTile: GameObjects.TileSprite;
-  visitors: IVisitor[] = [];
+  visitors = new Set<IVisitor>();
 
   neighbor: INeighbor;
 
@@ -91,10 +91,7 @@ export class Tile extends GameObjects.Container implements ILocation {
   }
 
   exitVisitor(visitor: IVisitor){
-    const i = this.visitors.indexOf(visitor);
-    if (i > -1) {
-      this.visitors.splice(i,1)
-    }
+    this.visitors.delete(visitor);
   }
 
   acceptVisitor(visitor: IVisitor): boolean {
@@ -120,7 +117,7 @@ export class Tile extends GameObjects.Container implements ILocation {
     if (this.state === TileState.Broken) {
       visitor.die();
     } else {
-      this.visitors.push(visitor);
+      this.visitors.add(visitor);
     }
 
     return nextState != TileState.Broken;
@@ -152,7 +149,7 @@ export class Tile extends GameObjects.Container implements ILocation {
   }
 
   killVisitors() {
-    if (this.state === TileState.Broken) {
+    if (this.state === TileState.Broken && this.visitors.size > 0) {
       // because the act of dying removes a visitor from a tile
       // we need to create a different array to iterate against
       // to kill existing visitors
@@ -161,7 +158,7 @@ export class Tile extends GameObjects.Container implements ILocation {
   }
 
   reset(state = TileState.Good) {
-    this.visitors.length = 0; // clear any visitors
+    this.visitors.clear();
     this.setState(state);
   }
 }
