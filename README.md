@@ -8,6 +8,10 @@ The game looks like this:
 
 ![Game image](/src/docs/Game.PNG)
 
+Here is the UI Annotated:
+
+
+
 ### Description
 The game starts with a 7 by 7 board of breaking tiles. On the board are two teams (home & away) each with 3 players represented by cute monsters. Every turn the monsters move one tile or remain on their current tile by jumping. Every time that a tile is stepped on (jumping is a step) by a monster that tile breaks more. Every tile can sustain three steps. That is on the 3rd step the tile will break and any number of monsters on that step will fall to their death. Monsters can also fall to their death if they walk off the board. 
 
@@ -95,12 +99,35 @@ function main(gameState, side) {
     return ['south', 'south', 'south'];
   }
  ```
+There are three ways you can develop your AI.
 
+1. Using the included blank AI file
+2. Using the realtime in app Code Editor Window
+3. Adding a team config with you script 
+
+***Using the included blank AI file***
 We have mocked out a blank AI called development.ai.ts
 
 You can find it along with example AIs in the following folder: src > app > game > ai 
 
-This folder is the best place to start!
+This AI appears in the dropdown config as "Development Team"
+
+***Using the realtime in app Code Editor Window***
+
+See the picture below, by clicking the button you will launch a window where you can code with syntax highlighting.
+
+As long as you keep the app running this window will keep you code saved. You can run that code against other team configs and also download it to submit! 
+
+
+***Adding a team config***
+
+By clicking the add button you can add a team config with a github script link or the script pasted in like a string. 
+
+This can be advantagous as you can write multiple scripts and test them against each other.
+
+This also aligns with how submitted code will work.
+
+I recommend that everyone add your final script as a team to make sure it will submit correctly through the submission form.
 
 #### Testing your AI
 
@@ -108,7 +135,7 @@ We have included three different ways to test your AI up to your preference.
 
 1) You can develop all your code in the development.ai.ts script and chose the "Development" Team Config to run against other test AIs.
 
-2) You can directly paste either a publically hosted raw file link (for example on github) or your javascript code into the test box and click run.
+2) You can directly code in the developer window and click run.
 
 3) You can add a new team config using the Add Team box. (You will want to use this if you would like to test different AIs you've developed against each other) 
 
@@ -116,11 +143,11 @@ NOTE: No matter how you test make sure you test your final AI with the Add Team 
 
 ### Step 3: Submission
 
-STOP! Have you testing your script using the Add Team Box yet?
+STOP! Have you tested your script using the Add Team Box yet?
 
 Once you are happy with your AI you can submit your code directly in your local app on the Submission tab. 
 
-Either paste your script directly in the submit box or submit a URL to the raw file publically hosted.
+Either paste your script directly in the submit box or submit a URL to the raw file that is publically hosted.
 
 Note: Make sure your team name matches the same team name you submitted on the Registration Form. 
 
@@ -128,5 +155,7 @@ Note: Make sure your team name matches the same team name you submitted on the R
 ### Step 4: Competition
 
 The competition will be live streamed on TWITCH.TV. Follow us at https://www.twitch.tv/tylertechnologies
+
+#GOOD LUCK
 
 
