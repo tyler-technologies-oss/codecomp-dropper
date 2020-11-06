@@ -93,13 +93,6 @@ export class Tile extends GameObjects.Container implements ILocation {
   }
 
   exitVisitor(visitor: IVisitor){
-    // const i = this.visitors.indexOf(visitor);
-    // if (i > -1) {
-    //   this.log(`exiting visitor ${visitor.id}`);
-    //   this.visitors.splice(i,1)
-    // } else {
-    //   this.log(`could not find visitor ${visitor.id}`);
-    // }
     this.visitors.delete(visitor);
   }
 
@@ -127,8 +120,6 @@ export class Tile extends GameObjects.Container implements ILocation {
       this.log(`visitor ${visitor.id} breaks tile`);
       visitor.die();
     } else {
-      this.log(`adding visitor ${visitor.id} to visitors`);
-      // this.visitors.push(visitor);
       this.visitors.add(visitor);
     }
     // this.visitors.push(visitor);
@@ -173,7 +164,6 @@ export class Tile extends GameObjects.Container implements ILocation {
   }
 
   reset(state = TileState.Good) {
-    // this.visitors.length = 0; // clear any visitors
     this.visitors.clear();
     this.setState(state);
   }
