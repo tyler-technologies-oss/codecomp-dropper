@@ -18,7 +18,7 @@ The game starts with a 7 by 7 board of breaking tiles. On the board are two team
 The objective to the game is to remain on the board longer than your opponent.
 
 ### Board Configs (maps)
-The default 7 x 7 board has every tile at full strength. There are different maps that you can test your AI on. For the competition we will be cycling through different maps each round within a match.  
+The default 7 x 7 board has every tile at full strength. There are different maps that you can test your AI on. For the competition we will be cycling through different maps throughout the competition.
 
 ### How to win a round
 A round is over when all three monsters on one team have fallen to their death. The team that has any number of monsters still alive wins the round.
