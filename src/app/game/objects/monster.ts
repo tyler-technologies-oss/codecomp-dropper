@@ -88,8 +88,8 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
 
   get location(): ILocation { return this.lastLocation; }
 
-  showLog = false;
-  showId = false;
+  showLog = true;
+  showId = true;
 
   private displayText: GameObjects.Text;
 
@@ -197,6 +197,7 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
   private startState(state: MonsterState) {
     if (state === MonsterState.Dead || this.state === MonsterState.Error) {
       this.play(MonsterAnim.Die);
+      this.log(`is dead, now exiting from`, this.lastLocation.coord);
       this.lastLocation.exitVisitor(this);
       return;
     }
@@ -242,6 +243,7 @@ export class Monster extends GameObjects.Sprite implements IVisitor {
         return;
     }
 
+    this.log(`exiting: `, this.lastLocation.coord);
     this.lastLocation.exitVisitor(this);
     this.nextLocation = this.lastLocation.neighbor[moveDirection];
     this.play(MonsterAnim.Run);

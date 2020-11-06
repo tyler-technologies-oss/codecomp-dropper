@@ -12,9 +12,11 @@ export class Tile extends GameObjects.Container implements ILocation {
   state: TileState = TileState.Good;
   displayTile: GameObjects.TileSprite;
   transitionTile: GameObjects.TileSprite;
-  visitors: IVisitor[] = [];
+  visitors = new Set<IVisitor>();
 
   neighbor: INeighbor;
+
+  private showLog = true;
 
   constructor(
     scene: Scene,
@@ -91,10 +93,14 @@ export class Tile extends GameObjects.Container implements ILocation {
   }
 
   exitVisitor(visitor: IVisitor){
-    const i = this.visitors.indexOf(visitor);
-    if (i > -1) {
-      this.visitors.splice(i,1)
-    }
+    // const i = this.visitors.indexOf(visitor);
+    // if (i > -1) {
+    //   this.log(`exiting visitor ${visitor.id}`);
+    //   this.visitors.splice(i,1)
+    // } else {
+    //   this.log(`could not find visitor ${visitor.id}`);
+    // }
+    this.visitors.delete(visitor);
   }
 
   acceptVisitor(visitor: IVisitor): boolean {
@@ -118,10 +124,15 @@ export class Tile extends GameObjects.Container implements ILocation {
     this.setState(nextState);
 
     if (this.state === TileState.Broken) {
+      this.log(`visitor ${visitor.id} breaks tile`);
       visitor.die();
     } else {
-      this.visitors.push(visitor);
+      this.log(`adding visitor ${visitor.id} to visitors`);
+      // this.visitors.push(visitor);
+      this.visitors.add(visitor);
     }
+    // this.visitors.push(visitor);
+    // this.visitors.add(visitor);
 
     return nextState != TileState.Broken;
   }
@@ -152,16 +163,25 @@ export class Tile extends GameObjects.Container implements ILocation {
   }
 
   killVisitors() {
-    if (this.state === TileState.Broken) {
+    if (this.state === TileState.Broken && this.visitors.size > 0) {
       // because the act of dying removes a visitor from a tile
       // we need to create a different array to iterate against
       // to kill existing visitors
+      this.log(`is broken, killing`, Array.from(this.visitors).map(v => v.id));
       [...this.visitors].forEach(v => v.die());
     }
   }
 
   reset(state = TileState.Good) {
-    this.visitors.length = 0; // clear any visitors
+    // this.visitors.length = 0; // clear any visitors
+    this.visitors.clear();
     this.setState(state);
+  }
+
+  private log(...args) {
+    if (this.showLog) {
+      const [x, y] = this.coord;
+      console.log(`Tile [${x},${y}]:`, ...args);
+    }
   }
 }

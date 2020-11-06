@@ -93,8 +93,8 @@ export class GameService {
 
   gameEnd(winningSide: GameWinningSide, victoryMonsterType: MonsterType, defeatMonsterType: MonsterType) {
     this.mainScene$.pipe(first()).subscribe(scene => {
-      scene.match.hide();
-      scene.gameEnd.init(scene, winningSide, victoryMonsterType, defeatMonsterType);
+      // scene.match.hide();
+      // scene.gameEnd.init(scene, winningSide, victoryMonsterType, defeatMonsterType);
     });
   }
 }
