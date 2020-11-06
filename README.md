@@ -2,6 +2,35 @@
 
 Haunted Tiles is an application to pit student-developed ai against each other in a fun game.
 
+## Rulezzz
+
+### General
+
+  1. Teams can have at max 4 team members
+  2. Teams must be made up of actively enrolled students from the same school
+  3. Teams must submit their code by November 13th 5:00pm MST
+
+### AI Scripts
+
+  1. Libraries are allowed, but you'll have to fully embed them in your script
+  2. Scripts that error result in a round loss
+  3. Scripts that take longer than 2 seconds to return result in a round loss
+  4. We reserve the right to disqualify any script if we suspect plagiarism or foul play
+
+### Tournament Rules
+
+  1. Inner School is seeded by registration order
+  2. Grand Finale is seeded by size of school of the winners
+  3. Every match is the best of 5 rounds
+  4. Different board configurations (maps) will be used throughout the competition
+
+### Winnings
+
+  1. Grand Prize - 1 Winner - $1000 Scholarship
+  2. 1st - Every School - $500 cash
+  3. 2nd - Every School - $250 cash
+  4. 3rd - Every School - $100 cash
+
 ## Game Details
 
 The game looks like this:
@@ -16,6 +45,13 @@ Here is the UI Annotated:
 The game starts with a 7 by 7 board of breaking tiles. On the board are two teams (home & away) each with 3 players represented by cute monsters. Every turn the monsters move one tile or remain on their current tile by jumping. Every time that a tile is stepped on (jumping is a step) by a monster that tile breaks more. Every tile can sustain three steps. That is on the 3rd step the tile will break and any number of monsters on that step will fall to their death. Monsters can also fall to their death if they walk off the board. 
 
 The objective to the game is to remain on the board longer than your opponent.
+
+### Game Rules
+
+  1. All monsters make 1 move per turn
+  2. A monster can move North, South, East, West or Jump in place
+  3. Tiles have a strength of 3. Every step or jump on a tile breaks it by 1
+  4. Monsters die by stepping on a tile with a strength of 1 or walking into an empty space
 
 ### Board Configs (maps)
 The default 7 x 7 board has every tile at full strength. There are different maps that you can test your AI on. For the competition we will be cycling through different maps throughout the competition.
