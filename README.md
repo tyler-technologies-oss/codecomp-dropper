@@ -2,6 +2,35 @@
 
 Haunted Tiles is an application to pit student-developed ai against each other in a fun game.
 
+## Rulezzz
+
+### General
+
+  1. Teams can have at max 4 team members
+  2. Teams must be made up of actively enrolled students from the same school
+  3. Teams must submit their code by November 13th 5:00pm MST
+
+### AI Scripts
+
+  1. Libraries are allowed, but you'll have to fully embed them in your script
+  2. Scripts that error result in a round loss
+  3. Scripts that take longer than 2 seconds to return result in a round loss
+  4. We reserve the right to disqualify any script if we suspect plagiarism or foul play
+
+### Tournament Rules
+
+  1. Inner School is seeded by registration order
+  2. Grand Finale is seeded by size of school of the winners
+  3. Every match is the best of 5 rounds
+  4. Different board configurations (maps) will be used throughout the competition
+
+### Winnings
+
+  1. Grand Prize - 1 Winner - $1000 Scholarship
+  2. 1st - Every School - $500 cash
+  3. 2nd - Every School - $250 cash
+  4. 3rd - Every School - $100 cash
+
 ## Game Details
 
 The game looks like this:
@@ -10,15 +39,22 @@ The game looks like this:
 
 Here is the UI Annotated:
 
-
+![Game image annotated](/src/docs/GameAnnotated.PNG)
 
 ### Description
 The game starts with a 7 by 7 board of breaking tiles. On the board are two teams (home & away) each with 3 players represented by cute monsters. Every turn the monsters move one tile or remain on their current tile by jumping. Every time that a tile is stepped on (jumping is a step) by a monster that tile breaks more. Every tile can sustain three steps. That is on the 3rd step the tile will break and any number of monsters on that step will fall to their death. Monsters can also fall to their death if they walk off the board. 
 
 The objective to the game is to remain on the board longer than your opponent.
 
+### Game Rules
+
+  1. All monsters make 1 move per turn
+  2. A monster can move North, South, East, West or Jump in place
+  3. Tiles have a strength of 3. Every step or jump on a tile breaks it by 1
+  4. Monsters die by stepping on a tile with a strength of 1 or walking into an empty space
+
 ### Board Configs (maps)
-The default 7 x 7 board has every tile at full strength. There are different maps that you can test your AI on. For the competition we will be cycling through different maps each round within a match.  
+The default 7 x 7 board has every tile at full strength. There are different maps that you can test your AI on. For the competition we will be cycling through different maps throughout the competition.
 
 ### How to win a round
 A round is over when all three monsters on one team have fallen to their death. The team that has any number of monsters still alive wins the round.
@@ -99,6 +135,45 @@ function main(gameState, side) {
     return ['south', 'south', 'south'];
   }
  ```
+Here are the interfaces of the data you receive. You can look at example scripts to build ideas on how you can leverage the data
+
+```
+export interface IGameState {
+  boardSize: [number, number];
+  tileStates: TileState[][];
+  teamStates: TeamStates;
+}
+
+export enum TileState {
+  Good = 3,
+  Warning = 2,
+  Danger = 1,
+  Broken = 0,
+}
+
+export enum Side {
+  Home = 'home',
+  Away = 'away',
+}
+
+export enum MoveDirection {
+  North = 'north',
+  South = 'south',
+  East = 'east',
+  West = 'west',
+  None = 'none',
+}
+
+export type TeamStates = Record<Side, ITeamMemberState[]>;
+
+export interface ITeamMemberState {
+  coord: Coord;
+  isDead: boolean;
+}
+
+export type Coord = [number, number];
+```
+
 There are three ways you can develop your AI.
 
 1. Using the included blank AI file
@@ -118,6 +193,7 @@ See the picture below, by clicking the button you will launch a window where you
 
 As long as you keep the app running this window will keep you code saved. You can run that code against other team configs and also download it to submit! 
 
+![Code Window](/src/docs/CodeWindow.PNG)
 
 ***Adding a team config***
 
@@ -156,6 +232,27 @@ Note: Make sure your team name matches the same team name you submitted on the R
 
 The competition will be live streamed on TWITCH.TV. Follow us at https://www.twitch.tv/tylertechnologies
 
-#GOOD LUCK
+## Tournament Format
+
+This virtual coding competition will be a best of 5 single elimination tournament split across two stages
+
+### Stage 1: Inner School Competition
+
+During this stage teams will be compete against other teams from their same school
+
+Seeding will be based upon registration order. For example the first team to register will play the last team to register
+
+### Stage 2: The Grand Finale
+
+The winner from each inner school competition will then compete against each other in the grand finale. Only the first place AI from each school makes it to this stage
+
+Seeding will be determined by number of competitors from the teams school. The more students that competed from your school means a higher seeding in the grand finale
+
+For example the winner from the school with the most competitors will face the winner from the school with the least amount of competitors in the first round
+
+## Questions?
+Email hauntedtiles@tylertech.com
+
+# GOOD LUCK
 
 
