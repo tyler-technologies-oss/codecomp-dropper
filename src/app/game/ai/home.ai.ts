@@ -12,8 +12,18 @@ function main(gameState, side) {
     return ['none', 'south', 'none'];
   } else if (turn === 4) {
     return ['south', 'west', 'south'];
-  } else if (turn > 4) {
-    return ['south', 'south', 'south'];
+  } else if (turn === 5) {
+    return ['south', 'none', 'west'];
+  } else if (turn === 6) {
+    return ['south', 'none', 'north'];
+  } else if (turn === 7) {
+    return ['east', 'none', 'west'];
+  } else if (turn === 8) {
+    return ['east', 'none', 'none'];
+  } else if (turn === 9) {
+    return ['none', 'none', 'none'];
+  } else if (turn > 9) {
+    return ['north', 'none', 'none'];
   }
 }
 `;
