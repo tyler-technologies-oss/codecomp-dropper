@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { GameHostContainerComponent } from './game-host-container/game-host-container.component';
 import { GameHostRoutingModule } from './game-host-routing.module';
 import { SimpleRunComponent } from './simple-run/simple-run.component';
@@ -39,6 +40,7 @@ import { CodemirrorModule } from '@ctrl/ngx-codemirror';
     MatTabsModule,
     MatDialogModule,
     CodemirrorModule,
+    MatSlideToggleModule
   ]
 })
 export class GameHostModule { }

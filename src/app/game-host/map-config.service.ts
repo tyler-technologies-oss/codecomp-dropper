@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Grid } from 'matter';
 import * as mapsJSON from '../../assets/maps/maps.json'
 import { GridMap } from '../game/objects/interfaces';
 
@@ -26,4 +27,13 @@ export class MapConfigsService {
         return this.maps;
     }
 
+    public setCurrentMapByName(name: string){
+        let map = this.maps.find(map => map.name === name);
+        if(map){
+            this.currentMap = map;
+        }else{
+            console.error("No map found with name " + name + " falling back to default map.");
+            this.currentMap = this.maps[0];
+        }
+    }
 }

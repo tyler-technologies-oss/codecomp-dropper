@@ -58,6 +58,9 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
       }
     }
     this.delay(3000).then(any => {
+      if(this.roundManagerService.useDefaultMapRotation){
+        this.mapConfigService.setCurrentMapByName(this.roundManagerService.getRoundMapName());
+      }
       this.roundManagerService.completedRounds++;
       if (this.roundManagerService.completedRounds < this.roundManagerService.numRounds) {
         this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
@@ -98,10 +101,10 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   }
 
   startGame() {
-    this.roundManagerService.completedRounds = 0;
-    this.roundManagerService.homeRoundWins = 0;
-    this.roundManagerService.awayRoundWins = 0;
-    this.roundManagerService.roundDraws = 0;
+    this.roundManagerService.reset();
+    if(this.roundManagerService.useDefaultMapRotation){
+      this.mapConfigService.setCurrentMapByName("Default");
+    }
     this.gameService.setTeamConfigs(this.homeTeamConfig, this.awayTeamConfig);
     // this.showScoreBoard = true;
     this.showTeamScores = true;
@@ -172,5 +175,4 @@ export class GameHostContainerComponent implements OnInit, OnDestroy {
   getTeamConfigs() {
     return this.configService.teamConfigs;
   }
-
 }
