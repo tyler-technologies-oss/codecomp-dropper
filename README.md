@@ -244,11 +244,13 @@ Seeding will be based upon registration order. For example the first team to reg
 
 ### Stage 2: The Grand Finale
 
+(this format changed to round robin because of only 3 school participating)
+
 The winner from each inner school competition will then compete against each other in the grand finale. Only the first place AI from each school makes it to this stage
 
-Seeding will be determined by number of competitors from the teams school. The more students that competed from your school means a higher seeding in the grand finale
+This will be a round robin style match. Every school will compete against every other school in 5 rounds. Whoever has the most round wins at the end is our grand finale winner.
 
-For example the winner from the school with the most competitors will face the winner from the school with the least amount of competitors in the first round
+If there is tie in round wins the tied schools will go through 5 rounds again
 
 ## Questions?
 Email hauntedtiles@tylertech.com
