@@ -219,7 +219,9 @@ NOTE: No matter how you test make sure you test your final AI with the Add Team 
 
 ### Step 3: Submission
 
-STOP! Have you tested your script using the Add Team Box yet?
+STOP! Have you tested your script using the Add Team Box yet? This will make sure submission will work!
+
+![add team](/src/docs/addteam.png)
 
 Once you are happy with your AI you can submit your code directly in your local app on the Submission tab. 
 
