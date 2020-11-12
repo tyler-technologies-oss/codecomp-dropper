@@ -219,11 +219,23 @@ NOTE: No matter how you test make sure you test your final AI with the Add Team 
 
 ### Step 3: Submission
 
-STOP! Have you tested your script using the Add Team Box yet?
+STOP! Have you tested your script using the Add Team Box yet? This will make sure submission will work!
+
+![add team](/src/docs/addteam.png)
 
 Once you are happy with your AI you can submit your code directly in your local app on the Submission tab. 
 
-Either paste your script directly in the submit box or submit a URL to the raw file that is publically hosted.
+Either paste your script directly in the submit box 
+
+![Script](/src/docs/script.png)
+
+Or submit a URL to the raw file that is publically hosted.
+
+![github](/src/docs/github.png)
+
+This is how you get the raw file, find the file and click:
+
+![raw](/src/docs/raw.png)
 
 Note: Make sure your team name matches the same team name you submitted on the Registration Form. 
 
