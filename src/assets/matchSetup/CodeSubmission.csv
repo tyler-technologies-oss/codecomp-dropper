@@ -1,4 +1,158 @@
 ﻿ID,Start time,Completion time,Email,Name,Team Name,School,Home Monster Choice,Away Monster Choice,URL/Code
-1,9/29/20 14:50:15,9/29/20 14:50:48,anonymous,,Wander Team,Tyler Technologies,grouchy,triclops,https://raw.githubusercontent.com/SarahPerson/DropperAIs/master/wander.ai.ts
-1,9/29/20 14:50:15,9/29/20 14:50:48,anonymous,,Tile Status Team,Tyler Technologies,bobo,goldy,https://raw.githubusercontent.com/SarahPerson/DropperAIs/master/tile-status.ai.ts
-1,9/29/20 14:50:15,9/29/20 14:50:48,anonymous,,Invalid Code,Some Bad School,goldy,bobo,this is code that is intentionally wrong and will error out
+13,11/13/20 0:35:50,11/13/20 0:36:02,anonymous,,Wasabi,,triclops,pinky,https://raw.githubusercontent.com/celineomon/TylerTech_HauntedTiles/Celine2/src/app/game/ai/test.ai.ts
+15,11/13/20 12:50:49,11/13/20 12:51:25,anonymous,,Contra,Colorado School of Mines,bobo,triclops,https://raw.githubusercontent.com/jun521ju/TileAI/main/tile.ai.js
+19,11/13/20 15:43:01,11/13/20 15:43:49,anonymous,,Miner Mayhem,Colorado School of Mines,grouchy,triclops,https://raw.githubusercontent.com/Baugrems/haunted-tiles/master/testing.ai.ts
+21,11/13/20 16:20:25,11/13/20 16:25:07,anonymous,,¯\_(ツ)_/¯,Colorado School of Mines,spike,pinky,https://raw.githubusercontent.com/z3ht/haunted-tiles/main/web/submission-haunted-tiles.js
+24,11/13/20 16:48:08,11/13/20 16:59:51,anonymous,,Blinky,Colorado School of Mines,triclops,spike,https://raw.githubusercontent.com/zacharygamble/hauntedt-ai/master/ai/ai.pathing.js
+23,11/13/20 16:59:14,11/13/20 16:59:27,anonymous,,Shane Cranor,Colorado School of Mines,pinky,triclops,"let board=[],otherTeamLocations=[],currentPlayerLocations=[],boardSize=new Point(0,0),MAXRECURSION=7,mySide="""",map="""",turn=0;function populateTeamLocations(e,t){(otherTeamLocations=e.map(e=>e.coord)).forEach((e,t)=>{const[o,r]=e}),currentPlayerLocations=[];for(let e=0;e<t.length;e++)currentPlayerLocations.push(t[e].coord)}function main(e,t){mySide=t;const[o,r]=e.boardSize;boardSize=new Point(o,r);const n=e.teamStates[t],a=""home""===t?""away"":""home"",s=e.teamStates[a];return board=e.tileStates,new Promise((e,t)=>{populateTeamLocations(s,n);let o=getMovesAllPlayers(n,s);return(()=>e(n.reduce((e,t,r)=>(e.push(o[r]),e),[])))()})}function Point(e,t){this.row=e,this.col=t}function moveTowardsOtherSide(){return""away""==mySide?""north"":""south""}function moveTowardsCenter(e){return e.col<3?""east"":""west""}function onOtherSide(e){return""home""==mySide?e.row>3:e.row<=3}function movesNextToTeam(e,t,o){let r=getNewLoc(t,e);for(let e=0;e<currentPlayerLocations.length;e++)if(e!=o){const[t,o]=currentPlayerLocations[e];if(Math.abs(r.col-o)<2&&Math.abs(r.row-t)<2)return!0}return!1}function chooseBestMoveFromOptions(e,t,o){let r=[],n=0,a="""";for(let t=0;t<e.length;t++){let o=e[t],s=o.value;s>n&&((r=[]).push(o.dir),n=s,a=e[t].dir),s==n&&r.push(o.dir)}if(r.length-1==e.length){if(1==o)return e[Math.floor(Math.random()*e.length)].dir;let n=moveTowardsOtherSide(),s=moveTowardsCenter(t);if(r.forEach(n=>{if(movesNextToTeam(n,t,o)){const t=r.indexOf(n);t>-1&&r.splice(t,1);e.indexOf(n);t>-1&&e.splice(t,1)}}),onOtherSide(t))return e[Math.floor(Math.random()*e.length)].dir;r.forEach(e=>{if(n==e)return a=n,n}),a!=n&&r.forEach(e=>{if(s==e)return a=s,s})}return a}function getMovesAllPlayers(e,t){let o=[];e.forEach((e,t,r)=>{o.push(t)});let r=[],n=[];for(let t=0;t<e.length;t++){const[e,a]=currentPlayerLocations[t],s=new Point(e,a);if(o[t].isDead)r.push(""none"");else{const e=getBestMoves(s);let o=chooseBestMoveFromOptions(e,s,t),a=0,i=getNewLoc(s,o);for(let t=0;t<n.length;t++){let r=n[t];if(r.row==i.row&&r.col==i.col){let r=o;a=0;for(let n=0;n<e.length;t++){let n=e[t].value;n>a&&r!=o&&(a=n,o=e[t].dir)}}}r.push(o),n.push(getNewLoc(s,o))}}return r}function getNewLoc(e,t){let o=e.row,r=e.col,n=o,a=r;switch(t){case""north"":n=o-1;break;case""south"":n=o+1;break;case""east"":a=r+1;break;case""west"":a=r-1}return new Point(n,a)}function getMoves(e){let t=[],o=e.row,r=e.col,n=boardSize.row,a=boardSize.col;return o>0&&board[o-1][r]>1&&t.push(""north""),o<n-1&&board[o+1][r]>1&&t.push(""south""),r>0&&board[o][r-1]>1&&t.push(""west""),r<a-1&&board[o][r+1]>1&&t.push(""east""),0==t.length&&t.push(""none""),t}function Move(e,t){this.dir=e,this.value=t}function getBestMoves(e){let t=[],o="""";return getMoves(e).forEach(r=>{if(wontResultInDeath(e,r)){let n=movesUntilDeath(e,r);o+=r+"" ""+n+"" "",t.push(new Move(r,n))}}),0==(t=t.filter(e=>""none""!==e)).length&&t.push(""none""),t}function wontResultInDeath(e,t){let o=getNewLoc(e,t);return board[o.row][o.col]>1}function movesUntilDeath(e,t,o=0){if(o>MAXRECURSION)return o;let r=JSON.parse(JSON.stringify(board)),n=getNewLoc(e,t);if(board[n.row][n.col]<=1)return o;let a=o,s=0;return getMoves(n).forEach(e=>{if(board[n.row][n.col]--,a=movesUntilDeath(n,e,o+1),board=JSON.parse(JSON.stringify(r)),a>s&&(s=a),s>MAXRECURSION)return s}),s}"
+17,11/13/20 14:37:39,11/13/20 14:38:43,anonymous,,Chungus,University of Maine,goldy,triclops,https://raw.githubusercontent.com/SolidSecondPick/TestSub1/main/SubmissionTest1.ai.ts
+26,11/13/20 17:23:38,11/13/20 17:23:59,anonymous,,Spurious Correlation,University of Maine,spike,bobo,https://raw.githubusercontent.com/AlexandreFeren/hydroHomies/main/dev.js
+14,11/13/20 9:21:43,11/13/20 9:22:14,anonymous,,Tyler Aubin,,pinky,triclops,https://raw.githubusercontent.com/taubin17/TylerTechCodingContest/main/development.ai.ts
+3,10/23/2020 7:08,10/23/2020 7:09,anonymous,,Alan,Tyler,triclops,goldy,"function main(gameState, side) {
+
+  const otherSide = side === 'home' ? 'away' : 'home';
+
+  avoidEnemy(gameState.tileStates, gameState.teamStates[otherSide][0].coord[0],gameState.teamStates[otherSide][0].coord[1], gameState.teamStates[otherSide][0].isDead),
+  avoidEnemy(gameState.tileStates, gameState.teamStates[otherSide][1].coord[0],gameState.teamStates[otherSide][1].coord[1], gameState.teamStates[otherSide][1].isDead),
+  avoidEnemy(gameState.tileStates, gameState.teamStates[otherSide][2].coord[0],gameState.teamStates[otherSide][2].coord[1], gameState.teamStates[otherSide][2].isDead)
+  
+  return[
+  getNextMove(gameState.tileStates, gameState.teamStates[side][0].coord[0],gameState.teamStates[side][0].coord[1], gameState.teamStates[side][0].isDead),
+  getNextMove(gameState.tileStates, gameState.teamStates[side][1].coord[0],gameState.teamStates[side][1].coord[1], gameState.teamStates[side][1].isDead),
+  getNextMove(gameState.tileStates, gameState.teamStates[side][2].coord[0],gameState.teamStates[side][2].coord[1], gameState.teamStates[side][2].isDead)
+  ]
+}
+
+function avoidEnemy(grid, x, y, isDead){
+  if(isDead){
+    return;
+  }
+
+  if(grid[x-1] && grid[x-1][y] && grid[x-1][y] !== 0) {
+      grid[x-1][y]-=.5;
+  }
+  if(grid[x+1] && grid[x+1][y] &&  grid[x+1][y] !==0 ) {
+      grid[x+1][y]-=.5;
+  }
+  if(grid[x][y-1] && grid[x][y-1] !==0 ) {
+      grid[x][y-1]-=.5;
+  }
+  if(grid[x][y+1] && grid[x][y+1] !==0 ) {
+      grid[x][y+1]-=.5;
+  }
+}
+
+function getNextMove(grid, x, y, isDead){
+  var max = grid[x][y];
+
+  if(isDead){
+    return ""none"";
+  }
+
+  var potentialMoves = [{x:x, y:y, value:grid[x][y], move:""none""}]
+
+    if(grid[x-1] && grid[x-1][y] && grid[x-1][y] !== 0) {
+      if(grid[x-1][y]>max){
+          max = grid[x-1][y];
+      }
+      potentialMoves.push({x:x-1, y:y, value:grid[x-1][y], move: ""north""})
+    }
+    if(grid[x+1] && grid[x+1][y] &&  grid[x+1][y] !==0 ) {
+      if(grid[x+1][y]>max){
+          max = grid[x+1][y];
+      }
+      potentialMoves.push({x:x+1, y:y, value:grid[x+1][y], move: ""south""})
+    }
+    if(grid[x][y-1] && grid[x][y-1] !==0 ) {
+      if(grid[x][y-1]>max){
+          max = grid[x][y-1];
+      }
+      potentialMoves.push({x:x, y:y-1, value:grid[x][y-1], move: ""west""})
+    }
+    if(grid[x][y+1] && grid[x][y+1] !==0 ) {
+      if(grid[x][y+1]>max){
+          max = grid[x][y+1];
+      }
+      potentialMoves.push({x:x, y:y+1, value:grid[x][y+1], move: ""east""})
+    }
+    
+    var finalMoves =[];
+    for (var i = 0; i < potentialMoves.length; i++) {
+      if(potentialMoves[i].value === max){
+        finalMoves.push(potentialMoves[i])
+      }
+  }
+
+  var finalPosition = finalMoves[Math.floor(Math.random() * finalMoves.length)]
+
+    grid[finalPosition.x][finalPosition.y]-=1;
+    return finalPosition.move;
+}"
+25,11/13/20 17:21:00,11/13/20 17:21:35,anonymous,,Didyousayjavascript?,Colorado School of Mines,triclops,spike,"function main(gameState, side)
+{
+  const myTeam = gameState.teamStates[side];
+  const possibleMoves = [];
+  const [rowSize, colSize] = gameState.boardSize;
+  let boardLayout = gameState.tileStates;//the strength of every tile on the board
+  
+  return new Promise((resolve, reject) => {
+    const callback = () => resolve(
+      myTeam.reduce((moveSet, member) => {
+        if (member.isDead)
+        {
+          moveSet.push('none');
+        }
+        else 
+        {
+          const [row, col] = member.coord;
+          if (row > 0 && boardLayout[row - 1][col] > 1)
+          {
+            possibleMoves.push('north');
+          }
+          if (row < rowSize - 1 && boardLayout[row + 1][col] > 1)
+          {
+            possibleMoves.push('south');
+          }
+          if (col > 0 && boardLayout[row][col - 1] > 1)
+          {
+            possibleMoves.push('west');
+          }
+          if (col < colSize - 1 && boardLayout[row][col + 1] > 1)
+          {
+            possibleMoves.push('east');
+          }
+          if (boardLayout[row][col] > 1)
+          {
+            possibleMoves.push('none');
+          }
+
+          let move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+          //remove strength from chosen tile - so collisions dont occur
+          switch(move)
+          {
+            case 'north':
+              boardLayout[row - 1][col]--;
+              break;
+            case 'south':
+              boardLayout[row + 1][col]--;
+              break;
+            case 'west':
+              boardLayout[row][col - 1]--;
+              break;
+            case 'east':
+              boardLayout[row][col + 1]--;
+              break;
+            case 'none':
+              boardLayout[row][col]--;
+              break;
+          }
+          moveSet.push(move);
+          possibleMoves.length = 0;
+        }
+        return moveSet;
+      }, [])
+    );
+
+    callback();
+  })
+}"

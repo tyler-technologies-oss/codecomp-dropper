@@ -30,7 +30,7 @@ export class TeamConfigsService {
   constructor() { }
 
   parseTeamConfigs(): Observable<ITeamConfig[]> {
-    this.teamConfigs.push(this.developmentConfig);
+    //this.teamConfigs.push(this.developmentConfig);
     const self = this;
     return new Observable((observer: Observer<ITeamConfig[]>) => {
       parse(this.url, {
